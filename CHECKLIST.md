@@ -40,16 +40,17 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] ✅ **Done when:** the menu bar countdown ticks smoothly with rolling digits and every menu action works. (All 8 manual checks passed.)
 
 ## Phase 3: Break screen (the signature look)
-- [ ] Borderless full-screen window **on every display**, above all apps and full-screen spaces (window level + `canJoinAllSpaces`, `fullScreenAuxiliary`).
-- [ ] **Blur-into-wallpaper background**:
-  - [ ] Get each screen's wallpaper (`NSWorkspace.desktopImageURL(for:)`) and apply a heavy blur (Core Image `CIGaussianBlur`), plus a slight dark tint so text is readable.
-  - [ ] Entry animation: fade + blur ramp so the screen looks like it *melts* into the blurred wallpaper (~0.6 s). Exit animation reverses it.
-  - [ ] Handle dynamic/animated wallpapers (fall back to a gradient if the image can't be read).
-- [ ] Layout (from `lookaway-website-screenshots/`): small clock at top · big title · subtitle · thin divider · large countdown `00:20` · glass pill buttons **Skip Break** / **Lock Screen** · footer "N snoozes left" + "Press Esc twice to skip".
-- [ ] Rounded screen corners, SF Pro font, Liquid Glass buttons.
-- [ ] Rotating break messages (e.g. "Eyes to the horizon").
-- [ ] Mouse and keyboard input go to the overlay, not apps behind it.
-- [ ] ✅ **Done when:** a test break covers all monitors with a smooth blur-in, counts down, and blurs out. Compare side by side with the LookAway screenshot.
+- [x] Borderless full-screen window **on every display**, above all apps and full-screen spaces (window level + `canJoinAllSpaces`, `fullScreenAuxiliary`).
+- [x] **Blur-into-wallpaper background**:
+  - [x] Get each screen's wallpaper (`NSWorkspace.desktopImageURL(for:)`), shrink it, apply a heavy blur (Core Image), plus a slight dark tint so text is readable.
+  - [x] Entry animation in two stages, no permissions needed: live blur of the screen behind (`NSVisualEffectView`) fades in (0.4 s), then the blurred wallpaper + text fade in (0.6 s). Exit reverses it.
+  - [x] Fall back to a gradient if the wallpaper can't be read.
+- [x] Layout (from `lookaway-website-screenshots/`): small clock at top · big title · subtitle · thin divider · large rolling countdown · Liquid Glass buttons **Skip Break** / **Lock Screen** · "Press esc twice to skip" hint. ("N snoozes left" comes with Phase 4.)
+- [x] SF Pro font, Liquid Glass buttons. (No rounded corners: the screenshot's corners are the MacBook screen itself.)
+- [x] Rotating break messages: 5 short-break, 3 long-break.
+- [x] Mouse and keyboard input go to the overlay. Windows are non-activating panels that take the keyboard back whenever another app comes to the front (e.g. after unlocking, or ⌘-Tab).
+- [x] **Lock Screen** uses macOS's undocumented `SACLockScreenImmediate` (same as ⌃⌘Q). Falls back to `pmset displaysleepnow` if it's ever removed.
+- [x] ✅ **Done when:** a test break covers all monitors with a smooth blur-in, counts down, and blurs out. Compare side by side with the LookAway screenshot. (All checks passed.)
 
 ## Phase 4: Break rules
 - [ ] Enforcement modes, selected with 3 visual cards:

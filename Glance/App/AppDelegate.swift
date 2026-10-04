@@ -4,10 +4,12 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let scheduler = BreakScheduler()
     private var statusItem: StatusItemController?
+    private var breakOverlay: BreakOverlayController?
     private var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = StatusItemController(scheduler: scheduler)
+        breakOverlay = BreakOverlayController(scheduler: scheduler)
         scheduler.start()
         tick()
 
