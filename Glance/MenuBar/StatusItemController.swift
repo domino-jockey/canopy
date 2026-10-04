@@ -1,0 +1,112 @@
+import AppKit
+import SwiftUI
+
+/// The menu bar item. Uses AppKit's NSStatusItem with a SwiftUI label inside,
+/// because SwiftUI's MenuBarExtra can't animate its label.
+@MainActor
+final class StatusItemController: NSObject, NSMenuDelegate {
+    private let scheduler: BreakScheduler
+    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    private let label: NSHostingView<MenuBarLabel>
+
+    init(scheduler: BreakScheduler) {
+        self.scheduler = scheduler
+        label = PassthroughHostingView(rootView: MenuBarLabel(scheduler: scheduler))
+        super.init()
+
+        let button = statusItem.button!
+        button.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: button.leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: button.trailingAnchor),
+            label.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+        ])
+
+        let menu = NSMenu()
+        menu.delegate = self
+        statusItem.menu = menu
+        refreshWidth()
+    }
+
+    /// The status item doesn't size itself to the SwiftUI label, so match it by hand.
+    func refreshWidth() {
+        statusItem.length = label.fittingSize.width
+    }
+
+    // MARK: - Menu
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
+
+        switch scheduler.state {
+        case .working, .paused:
+            let next = scheduler.nextBreakKind == .long ? "Long break" : "Next break"
+            let prefix = scheduler.state == .paused ? "Paused · " : ""
+            menu.addItem(info("\(prefix)\(next) in \(TimeFormat.clock(scheduler.workRemaining))"))
+            menu.addItem(.separator())
+            if scheduler.state == .paused {
+                add("Resume", #selector(resume), to: menu)
+            } else {
+                add("Pause", #selector(pause), to: menu)
+            }
+            add("Start break now", #selector(startBreak), to: menu)
+            menu.addItem(snoozeItem())
+            add("Skip next break", #selector(skip), to: menu)
+        case .onBreak:
+            menu.addItem(info("On break · \(TimeFormat.clock(scheduler.breakRemaining)) left"))
+            menu.addItem(.separator())
+            add("End break", #selector(endBreak), to: menu)
+            menu.addItem(snoozeItem())
+        case .stopped:
+            menu.addItem(info("Stopped"))
+        }
+
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Quit Glance", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+    }
+
+    private func info(_ title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.isEnabled = false
+        return item
+    }
+
+    private func add(_ title: String, _ action: Selector, to menu: NSMenu) {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
+        item.target = self
+        menu.addItem(item)
+    }
+
+    private func snoozeItem() -> NSMenuItem {
+        let submenu = NSMenu()
+        for minutes in [1, 5, 15] {
+            let item = NSMenuItem(title: "\(minutes) min", action: #selector(snooze(_:)), keyEquivalent: "")
+            item.target = self
+            item.tag = minutes
+            submenu.addItem(item)
+        }
+        let item = NSMenuItem(title: "Snooze", action: nil, keyEquivalent: "")
+        item.submenu = submenu
+        return item
+    }
+
+    // MARK: - Actions
+
+    @objc private func pause() { update { scheduler.pause() } }
+    @objc private func resume() { update { scheduler.resume() } }
+    @objc private func startBreak() { update { scheduler.startBreakNow() } }
+    @objc private func skip() { update { scheduler.skipNextBreak() } }
+    @objc private func endBreak() { update { scheduler.endBreak() } }
+    @objc private func snooze(_ sender: NSMenuItem) { update { scheduler.snooze(minutes: sender.tag) } }
+
+    private func update(_ change: () -> Void) {
+        change()
+        refreshWidth()
+    }
+}
+
+/// Lets clicks fall through the SwiftUI label to the status item button underneath.
+private final class PassthroughHostingView<Content: View>: NSHostingView<Content> {
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+}

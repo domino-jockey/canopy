@@ -27,16 +27,17 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] Count **active screen time**, not clock time. Stops counting after 2 min without input. 5 min idle counts as a break taken and resets the cycle.
 - [x] Defaults: break after 20 min, break length 20 s, every 4th break is long (3 min).
 - [x] Actions: start, stop, pause/resume, start break now, skip next break, end break, snooze +1/+5/+15 min.
-- [x] Sleep/wake: a long gap between ticks counts as time away (no special code). Screen lock relies on idle time growing while locked. Verify for real in Phase 2.
+- [x] Sleep/wake: a long gap between ticks counts as time away (no special code). Screen lock relies on idle time growing while locked (confirmed in Phase 2).
 - [x] Unit tests for the scheduler using a fake clock, so tests don't wait 20 real minutes.
 - [x] ✅ **Done when:** tests pass for normal cycle, long-break cycle, snooze, pause/resume, and sleep/wake. (15/15 passing)
 
 ## Phase 2: Menu bar
-- [ ] Menu bar item showing **icon + `m:ss`**, matching `resources/macos-timer-menu-bar-appearance/` (timer glyph + `0:38`). One fixed style, no display options.
-- [ ] **Rolling digit animation** when the number changes (SwiftUI `.contentTransition(.numericText())`), like the recording.
-- [ ] Menu bar icon as a template image, so it adapts to light/dark menu bars. Different icon when paused.
-- [ ] Dropdown menu: time to next break, Pause/Resume, Start break now, Snooze ▸ (1/5/15 min), Skip next break, Settings…, Quit.
-- [ ] ✅ **Done when:** the menu bar countdown ticks smoothly with rolling digits and every menu action works.
+- [x] Menu bar item showing **icon + `m:ss`**, matching `resources/macos-timer-menu-bar-appearance/` (timer glyph + `0:38`). One fixed style, no display options. Built with AppKit `NSStatusItem` + a SwiftUI label, because `MenuBarExtra` can't animate.
+- [x] **Rolling digit animation** when the number changes (SwiftUI `.contentTransition(.numericText())`), like the recording.
+- [x] SF Symbols icons (adapt to light/dark menu bars): ⏱ working, ☕ on break, ⏸ paused. Custom glyph comes in Phase 14.
+- [x] Dropdown menu: time to next break, Pause/Resume, Start break now, Snooze ▸ (1/5/15 min), Skip next break, End break (during a break), Quit.
+- [ ] "Settings…" menu item: added in Phase 5.
+- [x] ✅ **Done when:** the menu bar countdown ticks smoothly with rolling digits and every menu action works. (All 8 manual checks passed.)
 
 ## Phase 3: Break screen (the signature look)
 - [ ] Borderless full-screen window **on every display**, above all apps and full-screen spaces (window level + `canJoinAllSpaces`, `fullScreenAuxiliary`).
