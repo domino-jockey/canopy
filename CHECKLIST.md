@@ -22,14 +22,14 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] ✅ **Done when:** the app builds, launches, shows no Dock icon, and quits cleanly.
 
 ## Phase 1: Timer engine (the brain)
-- [ ] Create a `Settings` store that saves preferences to disk (`UserDefaults`, Apple's built-in key-value storage).
-- [ ] Create a `BreakScheduler`, a state machine (a thing that is always in exactly one state). States: *working → heads-up → countdown → on break → working*, plus *paused* and *idle*.
-- [ ] Count **active screen time**, not clock time. Only count while the user is active (input within the last N seconds).
-- [ ] Defaults: break after 20 min, break length 20 s, every 4th break is long (3 min).
-- [ ] Actions: start, stop, pause/resume, start break now, skip next break, snooze +1/+5/+15 min.
-- [ ] Handle sleep/wake and screen lock. Don't count time while the Mac is asleep or locked.
-- [ ] Unit tests for the scheduler using a fake clock, so tests don't wait 20 real minutes.
-- [ ] ✅ **Done when:** tests pass for normal cycle, long-break cycle, snooze, pause/resume, and sleep/wake.
+- [x] Create a `TimerSettings` store that saves preferences to disk (`UserDefaults`, Apple's built-in key-value storage).
+- [x] Create a `BreakScheduler`, a state machine (a thing that is always in exactly one state). States: *stopped · working · on break (short/long) · paused*. Heads-up/countdown are "working with little time left", not separate states.
+- [x] Count **active screen time**, not clock time. Stops counting after 2 min without input. 5 min idle counts as a break taken and resets the cycle.
+- [x] Defaults: break after 20 min, break length 20 s, every 4th break is long (3 min).
+- [x] Actions: start, stop, pause/resume, start break now, skip next break, end break, snooze +1/+5/+15 min.
+- [x] Sleep/wake: a long gap between ticks counts as time away (no special code). Screen lock relies on idle time growing while locked. Verify for real in Phase 2.
+- [x] Unit tests for the scheduler using a fake clock, so tests don't wait 20 real minutes.
+- [x] ✅ **Done when:** tests pass for normal cycle, long-break cycle, snooze, pause/resume, and sleep/wake. (15/15 passing)
 
 ## Phase 2: Menu bar
 - [ ] Menu bar item showing **icon + `m:ss`**, matching `resources/macos-timer-menu-bar-appearance/` (timer glyph + `0:38`). One fixed style, no display options.

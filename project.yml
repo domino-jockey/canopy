@@ -22,3 +22,15 @@ targets:
         INFOPLIST_KEY_LSUIElement: YES # menu bar only: no Dock icon
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
+    scheme:
+      testTargets: [GlanceTests]
+
+  GlanceTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [GlanceTests]
+    dependencies:
+      - target: Glance
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
