@@ -1,0 +1,24 @@
+name: Glance
+
+options:
+  bundleIdPrefix: com.jammyjellyfish
+  deploymentTarget:
+    macOS: "27.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_IDENTITY: "-" # "Sign to Run Locally": no Apple account needed
+
+targets:
+  Glance:
+    type: application
+    platform: macOS
+    sources: [Glance]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jammyjellyfish.Glance
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES # menu bar only: no Dock icon
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
