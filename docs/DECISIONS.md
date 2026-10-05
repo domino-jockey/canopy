@@ -45,7 +45,12 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Uses `SACLockScreenImmediate` from `/System/Library/PrivateFrameworks/login.framework` via `dlopen`/`dlsym` (undocumented; the same as ⌃⌘Q). Falls back to `pmset displaysleepnow` if it's ever removed. Never call it in tests or scripts: it really locks the screen.
 
 ## Settings
-- `TimerSettings` is saved as one JSON blob. **Adding a field makes old saved data fail to load → silently resets to defaults.** Nothing is saved yet, but fix this (tolerant decoding) in Phase 5 before the settings window starts saving.
+- `TimerSettings` is saved as one JSON blob. It has a hand-written `init(from:)` that reads each field on its own, so old saved data missing a newer field keeps its other values. **When adding a field, add a `read(...)` line for it**, or it will never load.
+- `nil` ("No limit") is saved by leaving the key out (Swift's default), so for optional fields a missing key means `nil`, not the default. A new optional field with a non-nil default would need different handling.
+- Settings change only through `BreakScheduler.apply(_:)`, which saves and applies them (e.g. restarts the countdown when the interval changes). The settings UI binds to it with a custom `Binding`.
+- Launch at login uses `SMAppService.mainApp`. Its state lives in macOS, so it's read back after every change instead of being saved by us. While running from `build/`, the login item points at that copy.
+- The settings window is an `NSWindow` + `NSHostingController`, not a SwiftUI `Settings` scene: it's opened from the AppKit status menu, and needs `NSApp.activate()` because the app is menu-bar-only.
+- Slider tick labels are placed by estimate (track inset ~10 pt each side); they matched by eye.
 
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.

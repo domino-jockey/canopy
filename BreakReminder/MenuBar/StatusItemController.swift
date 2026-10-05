@@ -6,11 +6,13 @@ import SwiftUI
 @MainActor
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let scheduler: BreakScheduler
+    private let openSettings: () -> Void
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let label: NSHostingView<MenuBarLabel>
 
-    init(scheduler: BreakScheduler) {
+    init(scheduler: BreakScheduler, openSettings: @escaping () -> Void) {
         self.scheduler = scheduler
+        self.openSettings = openSettings
         label = PassthroughHostingView(rootView: MenuBarLabel(scheduler: scheduler))
         super.init()
 
@@ -60,6 +62,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
+        let settings = NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ",")
+        settings.target = self
+        menu.addItem(settings)
         menu.addItem(withTitle: "Quit BreakReminder", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
@@ -95,6 +100,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func startBreak() { update { scheduler.startBreakNow() } }
     @objc private func skipNextBreak() { update { scheduler.skipNextBreak() } }
     @objc private func snooze(_ sender: NSMenuItem) { update { scheduler.snooze(minutes: sender.tag) } }
+    @objc private func showSettings() { openSettings() }
 
     private func update(_ change: () -> Void) {
         change()

@@ -38,7 +38,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] **Rolling digit animation** when the number changes (SwiftUI `.contentTransition(.numericText())`), like the recording.
 - [x] SF Symbols icons (adapt to light/dark menu bars): ⏱ working, ☕ on break, ⏸ paused. Custom glyph comes in Phase 14.
 - [x] Dropdown menu: time to next break, Pause/Resume, Start break now, Snooze ▸ (1/5/15 min), Skip next break, End break (during a break), Quit.
-- [ ] "Settings…" menu item: added in Phase 5.
+- [x] "Settings…" menu item (Phase 5).
 - [x] ✅ **Done when:** the menu bar countdown ticks smoothly with rolling digits and every menu action works. (All 8 manual checks passed.)
 
 ## Phase 3: Break screen (the signature look)
@@ -55,7 +55,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] ✅ **Done when:** a test break covers all monitors with a smooth blur-in, counts down, and blurs out. Compare side by side with the LookAway screenshot. (All checks passed.)
 
 ## Phase 4: Break rules
-- [x] Enforcement modes (Casual / Balanced / Hardcore). The 3 visual cards for picking one come with the settings window (Phase 5).
+- [x] Enforcement modes (Casual / Balanced / Hardcore). The 3 visual cards for picking one are on the Screen Breaks settings page (Phase 5).
   - [x] *Casual*: Skip works anytime.
   - [x] *Balanced*: Skip button shows a filling ring and unlocks **halfway through the break** (was a fixed 5 s).
   - [x] *Hardcore*: no Skip button, no "Skip next break", no snoozing a break that's on screen.
@@ -79,13 +79,17 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] Start a fresh Claude Code session in the renamed folder.
 
 ## Phase 5: Settings window
-- [ ] Sidebar window like LookAway/System Settings, with grouped sections:
-  - **General** · *Focus & Wellbeing:* Screen Breaks, Smart Pause, Wellness Reminders, Stats · *Behavior & Feedback:* Alerts/Nudges, Sounds, Keyboard Shortcuts · About.
-- [ ] Coloured gradient sidebar icons, grouped "card" rows, coral accent colour for toggles.
-- [ ] General: Launch at login (`SMAppService`).
+- [x] Sidebar window like LookAway/System Settings (`NavigationSplitView` in an AppKit window), opened from "Settings…" in the menu.
+  - Only pages with real settings are shown. Now: **General** · *Focus & Wellbeing:* Screen Breaks. Planned order for later pages: *Focus & Wellbeing:* Smart Pause, Wellness Reminders, Stats · *Behavior & Feedback:* Alerts/Nudges, Sounds, Keyboard Shortcuts · About.
+- [x] Coloured gradient sidebar icons, grouped "card" rows, coral accent colour for toggles.
+- [x] General: Launch at login (`SMAppService`).
+- [x] Screen Breaks: interval, break length, long breaks, enforcement cards, skip/snooze limits, double-Esc, End Break early, hold, lock on start.
+- [x] Durations use **DeskRest-style sliders** with fixed stops (big number above, clickable labels under each stop).
+- [x] Settings loading tolerates missing fields (old saved data keeps its values).
+- [x] Changes apply right away. A new break interval restarts the countdown; a new break length applies from the next break.
 - [ ] Each later phase adds its own page here.
-- [ ] Follows system light/dark mode.
-- [ ] ✅ **Done when:** every page opens, every setting saves and survives an app restart.
+- [x] Follows system light/dark mode.
+- [x] ✅ **Done when:** every page opens, every setting saves and survives an app restart. (36 tests passing, all 9 by-eye checks passed.)
 
 ## Phase 6: Alerts & nudges
 - [ ] Alert position: top left / top center / top right.
@@ -110,7 +114,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - (Video playback detection was dropped: the point is to make sure breaks happen.)
 
 ## Phase 8: Wellness reminders
-- [ ] 📸 **Before starting: ask for DeskRest screenshots** (posture flash, settings, break screen).
+- [x] 📸 DeskRest settings screenshots: `resources/deskrest-settings-screenshots/`. Flash reminder in action: `resources/deskrest_demo.mov`.
 - [ ] Two styles to try, pick per reminder:
   - [ ] **LookAway style**: glossy bubble (below).
   - [ ] **DeskRest style**: screen darkens briefly, DeskRest-like icon appears, "Watch your posture" text at the bottom, then fades back to normal.

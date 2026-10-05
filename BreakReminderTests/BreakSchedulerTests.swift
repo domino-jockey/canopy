@@ -161,4 +161,47 @@ struct BreakSchedulerTests {
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
     }
+
+    @Test func oldSavedSettingsKeepTheirValues() throws {
+        // Saved by a version that had only these fields; maxSkipsPerDay was "No limit".
+        let json = #"{"workInterval": 1500, "enforcement": "hardcore", "maxSnoozesPerBreak": 1}"#
+        let settings = try JSONDecoder().decode(TimerSettings.self, from: Data(json.utf8))
+        #expect(settings.workInterval == 25 * 60)
+        #expect(settings.enforcement == .hardcore)
+        #expect(settings.maxSnoozesPerBreak == 1)
+        #expect(settings.maxSkipsPerDay == nil)
+        #expect(settings.shortBreakDuration == TimerSettings().shortBreakDuration)
+    }
+
+    @Test func noLimitSurvivesSaveAndLoad() {
+        let defaults = UserDefaults(suiteName: "BreakReminderTests")!
+        defaults.removePersistentDomain(forName: "BreakReminderTests")
+        var settings = TimerSettings()
+        settings.maxSnoozesPerBreak = nil
+        settings.maxSkipsPerDay = nil
+        settings.save(to: defaults)
+        #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    @Test func applySavesAndRestartsCountdown() {
+        let defaults = FakeClock.cleanDefaults()
+        let clock = FakeClock(defaults: defaults)
+        clock.run(seconds: 5 * 60)
+        var settings = clock.scheduler.settings
+        settings.workInterval = 30 * 60
+        clock.scheduler.apply(settings)
+        #expect(clock.scheduler.workRemaining == 30 * 60)
+        #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    @Test func breakLengthChangeKeepsCountdown() {
+        let clock = FakeClock()
+        clock.run(seconds: 5 * 60)
+        var settings = clock.scheduler.settings
+        settings.shortBreakDuration = 60
+        clock.scheduler.apply(settings)
+        #expect(clock.scheduler.workRemaining == 15 * 60)
+        clock.run(seconds: 15 * 60)
+        #expect(clock.scheduler.breakDuration == 60)
+    }
 }

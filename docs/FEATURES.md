@@ -198,7 +198,7 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 16 | Hold off breaks while typing or dragging | LookAway | |
 | 17 | Smart pause: meetings/calls (mic/camera), deep focus apps, macOS Focus mode | Both | Add Zoom, OBS, games etc. as deep focus apps. No video detection. |
 | 18 | Idle detection + timer reset + "welcome back" heads-up | Both | |
-| 19 | Posture & blink reminders: interval, size, position, sound, dim screen. **Two styles to try:** LookAway bubble and DeskRest flash (screen darkens briefly, icon appears, "Watch your posture" at the bottom, fades back) | Both | Need DeskRest screenshots |
+| 19 | Posture & blink reminders: interval, size, position, sound, dim screen. **Two styles to try:** LookAway bubble and DeskRest flash (screen darkens briefly, icon appears, "Watch your posture" at the bottom, fades back) | Both | DeskRest reference: `deskrest-settings-screenshots/flash_reminder*.png`, `deskrest_demo.mov` |
 | 20 | Office / working hours | Both | |
 | 21 | Planned breaks at fixed times | LookAway | |
 | 22 | Clock Out (end-of-day stop) | DeskRest | |

@@ -4,7 +4,7 @@ A plain-language record of what has been built, phase by phase. Update this at t
 For *why* things are built the way they are (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md).
 For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 
-**Current status:** Phases 0–4 and the Cleanup are done. Next: Phase 5 (settings window).
+**Current status:** Phases 0–5 and the Cleanup are done. Next: Phase 6 (alerts & nudges).
 
 ---
 
@@ -90,9 +90,27 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - The old v1 project (`~/Projects/breakreminder`, a Swift Package, 5 commits) was deleted. Its git history is kept in `docs/archive/breakreminder-v1-history.zip`. To look at it: unzip it into an empty folder, then run `git log` / `git checkout .` there.
 - This folder moved from `~/Projects/breakreminder-v2` to `~/Projects/breakreminder`.
 
+- DeskRest settings screenshots added: `resources/deskrest-settings-screenshots/`, named after the page they show. The flash reminder in action is `resources/deskrest_demo.mov`.
+
+## Phase 5: Settings window
+
+**What it is:** a System Settings-style window, opened from **Settings…** in the menu bar menu.
+
+- `BreakReminder/Settings/SettingsWindowController.swift`: an AppKit window holding the SwiftUI settings. It brings the app forward when opened, since a menu-bar-only app isn't normally active.
+- `BreakReminder/Settings/SettingsView.swift`: the sidebar with LookAway-style gradient icons and the coral accent colour. Only pages with real settings are listed; each later phase adds its own.
+- **General** (`GeneralSettingsPage.swift`): Launch at login. macOS keeps this list itself, so it's read from the system, not saved by us.
+- **Screen Breaks** (`ScreenBreaksSettingsPage.swift`):
+  - Sliders (DeskRest style, `StopSlider.swift`) for break interval (10–90 min), break length (10 s–3 min) and long break length (1–10 min). Big number on top; the numbers under each stop can be clicked.
+  - "Every Nth break is long" stepper.
+  - The 3 enforcement picture cards (Casual / Balanced / Hardcore).
+  - Skips per day and snoozes per break (None / a number / No limit).
+  - More: double-Esc action, End Break early, hold until End Break, lock on break start.
+- **Changes apply right away** and are saved (`BreakScheduler.apply`). A new break interval restarts the countdown; a new break length applies from the next break.
+- **Safe loading:** settings saved by an older version keep their values when new settings are added, instead of all resetting.
+- Tests: 4 new (old saved data, "No limit" round trip, apply restarts countdown, break length waits for next break). **36 tests in total, all passing.** All 9 by-eye checks passed.
+
 **Next steps (where we left off):**
-1. Phase 5: settings window. Make settings loading tolerant of new fields before adding any (otherwise old saved settings fail to load and reset).
-2. Remind the user to send DeskRest screenshots (needed for Phase 8).
+1. Phase 6: alerts & nudges (heads-up before a break, cursor countdown pill, overtime nudge). Add an Alerts / Nudges settings page.
 
 ---
 
@@ -118,3 +136,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `01587bf` | Phase 3: break screen |
 | `d3fb44a` | Phase 4: break rules + docs moved into `docs/` |
 | `ed7dd05` | Cleanup: rename to BreakReminder, archive v1 history |
+| `97f5f91` | Docs: tick cleanup, log rename commit |

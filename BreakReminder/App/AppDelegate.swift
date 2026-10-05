@@ -5,10 +5,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let scheduler = BreakScheduler()
     private var statusItem: StatusItemController?
     private var breakOverlay: BreakOverlayController?
+    private var settingsWindow: SettingsWindowController?
     private var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItem = StatusItemController(scheduler: scheduler)
+        let settingsWindow = SettingsWindowController(scheduler: scheduler)
+        self.settingsWindow = settingsWindow
+        statusItem = StatusItemController(scheduler: scheduler, openSettings: settingsWindow.show)
         breakOverlay = BreakOverlayController(scheduler: scheduler)
         scheduler.start()
         tick()

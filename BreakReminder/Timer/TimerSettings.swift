@@ -51,3 +51,29 @@ struct TimerSettings: Codable, Equatable {
         defaults.set(try! JSONEncoder().encode(self), forKey: Self.key)
     }
 }
+
+extension TimerSettings {
+    /// Reads each field on its own, so saved data from an older version (missing a newer
+    /// field) keeps its other values instead of failing to load and resetting everything.
+    init(from decoder: Decoder) throws {
+        self.init()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        func read<T: Decodable>(_ key: CodingKeys, into value: inout T) {
+            if let saved = try? container.decode(T.self, forKey: key) { value = saved }
+        }
+        read(.workInterval, into: &workInterval)
+        read(.shortBreakDuration, into: &shortBreakDuration)
+        read(.longBreakDuration, into: &longBreakDuration)
+        read(.longBreakEvery, into: &longBreakEvery)
+        read(.idlePauseAfter, into: &idlePauseAfter)
+        read(.idleResetAfter, into: &idleResetAfter)
+        read(.enforcement, into: &enforcement)
+        read(.escapeAction, into: &escapeAction)
+        read(.allowEndingEarly, into: &allowEndingEarly)
+        read(.holdUntilEndBreak, into: &holdUntilEndBreak)
+        read(.lockOnBreakStart, into: &lockOnBreakStart)
+        // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
+        maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
+        maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)
+    }
+}

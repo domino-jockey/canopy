@@ -17,7 +17,7 @@ enum TimerState: Equatable {
 /// Tests call `tick` with fake times instead.
 @MainActor @Observable
 final class BreakScheduler {
-    var settings: TimerSettings
+    private(set) var settings: TimerSettings
     private(set) var state: TimerState = .stopped
     /// Active seconds left before the next break.
     private(set) var workRemaining: TimeInterval
@@ -141,6 +141,17 @@ final class BreakScheduler {
     }
 
     // MARK: - Actions
+
+    /// Saves new settings. A new break interval restarts the countdown; other changes
+    /// (like break length) take effect from the next break.
+    func apply(_ newSettings: TimerSettings) {
+        let intervalChanged = newSettings.workInterval != settings.workInterval
+        settings = newSettings
+        settings.save(to: defaults)
+        if intervalChanged && (state == .working || state == .paused) {
+            workRemaining = settings.workInterval
+        }
+    }
 
     func start() {
         guard state == .stopped else { return }
