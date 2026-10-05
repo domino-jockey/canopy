@@ -76,7 +76,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] Rename leftover screenshots (`alerts.png`, `alerts_2.png`, `lock_screen.png`).
 - [x] Rename the app **Glance → BreakReminder** (bundle ID `com.jammyjellyfish.BreakReminder`).
 - [x] Zip v1's git history into `docs/archive/breakreminder-v1-history.zip`, delete `~/Projects/breakreminder`, rename this folder to `~/Projects/breakreminder`.
-- [ ] Start a fresh Claude Code session in the renamed folder.
+- [x] Start a fresh Claude Code session in the renamed folder.
 
 ## Phase 5: Settings window
 - [ ] Sidebar window like LookAway/System Settings, with grouped sections:

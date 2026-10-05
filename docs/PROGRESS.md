@@ -117,3 +117,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `60eae15` | Phase 2: menu bar countdown |
 | `01587bf` | Phase 3: break screen |
 | `d3fb44a` | Phase 4: break rules + docs moved into `docs/` |
+| `ed7dd05` | Cleanup: rename to BreakReminder, archive v1 history |
