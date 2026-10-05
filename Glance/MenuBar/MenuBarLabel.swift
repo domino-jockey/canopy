@@ -19,19 +19,12 @@ struct MenuBarLabel: View {
         .fixedSize()
     }
 
+    // Breaks aren't shown here: the break screen covers the menu bar.
     private var symbol: String {
-        switch scheduler.state {
-        case .working, .stopped: "timer"
-        case .onBreak: "cup.and.saucer.fill"
-        case .paused: "pause.circle"
-        }
+        scheduler.state == .paused ? "pause.circle" : "timer"
     }
 
     private var time: String? {
-        switch scheduler.state {
-        case .working, .paused: TimeFormat.clock(scheduler.workRemaining)
-        case .onBreak: TimeFormat.clock(scheduler.breakRemaining)
-        case .stopped: nil
-        }
+        scheduler.state == .stopped ? nil : TimeFormat.clock(scheduler.workRemaining)
     }
 }

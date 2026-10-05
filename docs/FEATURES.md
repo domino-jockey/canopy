@@ -4,6 +4,8 @@ Sources:
 - `resources/lookaway-free-trial-screenshots/`: LookAway's settings window (free trial).
 - `resources/lookaway-website-screenshots/`: break screen, heads-up alert, floating countdown.
 - `resources/macos-timer-menu-bar-appearance/`: the menu bar look we want for the timer.
+- `resources/break_screen_recording/`: LookAway's real break screen, including the snooze stack (`extended_snooze_options.png`).
+- LookAway screenshots are named after the settings page they show (e.g. `smart_pause.png`, `lock_screen.png`).
 - [lookaway.com](https://lookaway.com/) and [deskrest.com](https://deskrest.com/): for anything not visible in screenshots.
 
 Legend: 📸 = seen in a screenshot · 🌐 = from the website only · ❌ = out of scope (iPhone/iPad/other devices).
@@ -186,22 +188,23 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 6 | Break screen customization: background, messages | Both | |
 | 7 | Built-in exercises (~10, separate short/long lists) | DeskRest | No routine editor |
 | 8 | Enforcement modes: Casual / Balanced / Hardcore | LookAway | |
-| 9 | Max snoozes per break | LookAway | The only limit. No daily counters. |
-| 10 | Double-Esc action, End Break early, hold until End Break | LookAway | |
+| 9 | Max snoozes per break (default 2) + **daily skip limit** (default 3, counts on-screen skips and "Skip next break") | LookAway | Emergency skips don't count |
+| 10 | Double-Esc action, End Break early, hold until End Break, **emergency skip by typing "emergency"** | LookAway + ours | |
 | 11 | Lock Mac on break start + Lock Screen button | LookAway | |
 | 12 | Heads-up alert before break (Start now / +1m / +5m / +15m) | Both | |
 | 13 | Cursor-following countdown pill | Both | |
 | 14 | Overtime nudge, click to dismiss | LookAway | |
 | 15 | Smart-pause alerts (small pill when pausing/resuming) | LookAway | |
 | 16 | Hold off breaks while typing or dragging | LookAway | |
-| 17 | Smart pause: meetings/calls (mic/camera), video playback, deep focus apps, macOS Focus mode | Both | Add Zoom, OBS, games etc. as deep focus apps |
+| 17 | Smart pause: meetings/calls (mic/camera), deep focus apps, macOS Focus mode | Both | Add Zoom, OBS, games etc. as deep focus apps. No video detection. |
 | 18 | Idle detection + timer reset + "welcome back" heads-up | Both | |
-| 19 | Posture & blink reminders: interval, size, position, sound, dim screen | Both | |
+| 19 | Posture & blink reminders: interval, size, position, sound, dim screen. **Two styles to try:** LookAway bubble and DeskRest flash (screen darkens briefly, icon appears, "Watch your posture" at the bottom, fades back) | Both | Need DeskRest screenshots |
 | 20 | Office / working hours | Both | |
 | 21 | Planned breaks at fixed times | LookAway | |
 | 22 | Clock Out (end-of-day stop) | DeskRest | |
 | 23 | Stats: breaks taken/skipped today, weekly chart, streak | Both | |
-| 24 | Sounds: one volume, toggles for break sounds and reminder sounds | Both | |
+| 24 | Sounds: one volume, toggles for break sounds and reminder sounds | Both | Sounds from BreakTimer (GPL-3.0) |
+| 27 | Visual style: LookAway-like gradient (purplish-pink → orange, check `app_icon.png`), icons based on BreakTimer's | LookAway | GPL-3.0: fine for personal use; sharing the app would mean publishing its source |
 | 25 | Global shortcuts: Pause/Resume, Start break now, Snooze 5 min | Both | |
 | 26 | Launch at login | Both | |
 
@@ -213,6 +216,7 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | iPhone/iPad sync, mobile Live Activities | Mac only |
 | Lock-screen break status | No official macOS way to do it. Fragile hacks. |
 | Per-app & per-website screen time | macOS Screen Time already does it. Extra permission. |
+| Video playback detection | The point is to make sure breaks happen |
 | Screen recording/sharing detection | No reliable detection. Use deep focus apps instead. |
 | Gaming detection | Use deep focus apps instead |
 | Calendar-event pause | Not used. Mic detection covers calls. |
@@ -220,7 +224,6 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | Apple Shortcuts, AppleScript hooks, Focus Filters | Rarely used. Overlaps with Focus mode pause. |
 | Focus sessions | Duplicates the break cycle |
 | Custom routine editor | Built-in exercise list is enough |
-| Posture flash style | Second style for the same reminder |
 | Live-screen blur | Needs Screen Recording permission. Wallpaper blur is the target look. |
 | Screen Score + coloured rings | Simple stats instead |
 | Auto-updates, language picker | Not needed for a personal app |
@@ -228,7 +231,8 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 **Simplified**
 | Was | Now |
 |---|---|
-| Advance skips/day, snoozes/day, snoozes/break | Max snoozes per break only |
+| Advance skips/day, snoozes/day, snoozes/break | Max snoozes per break + one daily skip limit (includes advance skips) |
+| Menu bar changes during a break | None: the break screen covers the menu bar anyway |
 | Menu bar display + timer-style options | One fixed style |
 | 13 keyboard shortcuts | 3 |
 | 3 volume sliders, 8 sound toggles | 1 volume, 2 toggles |

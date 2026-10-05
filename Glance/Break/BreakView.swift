@@ -1,9 +1,12 @@
 import SwiftUI
 
-/// Drives the second stage of the entry animation: the wallpaper and text fading in.
+/// State the break window needs that isn't part of the scheduler.
 @MainActor @Observable
 final class OverlayModel {
+    /// Second stage of the entry animation: the wallpaper and text fading in.
     var revealed = false
+    /// How many letters of "emergency" have been typed so far.
+    var emergencyTyped = 0
 }
 
 /// The content of the full-screen break window.
@@ -13,6 +16,8 @@ struct BreakView: View {
     let message: BreakMessage
     let background: NSImage?
     let onSkip: () -> Void
+    let onEndEarly: () -> Void
+    let onSnooze: (_ minutes: Int) -> Void
     let onLock: () -> Void
 
     var body: some View {
@@ -29,9 +34,9 @@ struct BreakView: View {
 
                 Spacer()
 
-                Text(message.title)
+                Text(scheduler.isWaitingForEndBreak ? "Break's over" : message.title)
                     .font(.system(size: 64, weight: .bold))
-                Text(message.subtitle)
+                Text(scheduler.isWaitingForEndBreak ? "Press End Break when you're ready" : message.subtitle)
                     .font(.title2)
                     .padding(.top, 16)
                 Capsule()
@@ -46,32 +51,65 @@ struct BreakView: View {
 
                 Spacer()
 
-                HStack(spacing: 12) {
-                    Button(action: onSkip) { Label("Skip Break", systemImage: "chevron.forward.2") }
-                    Button(action: onLock) { Label("Lock Screen", systemImage: "lock") }
-                }
-                .buttonStyle(.glass)
-                .controlSize(.extraLarge)
-
-                HStack(spacing: 5) {
-                    Text("Press")
-                    Text("esc")
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.white.opacity(0.15), in: .rect(cornerRadius: 5))
-                    Text("twice to skip the break")
-                }
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .padding(.top, 16)
-                .padding(.bottom, 56)
+                buttons
+                footer
+                    .padding(.top, 16)
+                    .padding(.bottom, 56)
             }
             .multilineTextAlignment(.center)
             .foregroundStyle(.white)
         }
         .opacity(model.revealed ? 1 : 0)
         .environment(\.colorScheme, .dark)
+    }
+
+    private var buttons: some View {
+        HStack(alignment: .bottom, spacing: 12) {
+            if scheduler.canEndEarly {
+                Button(action: onEndEarly) { Label("End Break", systemImage: "checkmark") }
+            }
+            if scheduler.settings.enforcement != .hardcore && !scheduler.isWaitingForEndBreak {
+                SkipColumn(scheduler: scheduler, onSkip: onSkip, onSnooze: onSnooze)
+            }
+            Button(action: onLock) { Label("Lock Screen", systemImage: "lock") }
+        }
+        .buttonStyle(.glass)
+        .controlSize(.extraLarge)
+    }
+
+    private var footer: some View {
+        VStack(spacing: 6) {
+            if scheduler.canSnooze, let left = scheduler.snoozesLeft {
+                Text(left == 1 ? "1 snooze available" : "\(left) snoozes available")
+            }
+            if scheduler.settings.enforcement != .hardcore, let left = scheduler.skipsLeftToday {
+                Text(left == 1 ? "1 skip left today" : "\(left) skips left today")
+            }
+            if model.emergencyTyped > 0 {
+                EmergencyProgress(typed: model.emergencyTyped)
+            } else if let escapeHint {
+                HStack(spacing: 5) {
+                    Text("Press")
+                    Keycap("esc")
+                    Text(escapeHint)
+                }
+            } else if scheduler.settings.enforcement == .hardcore || scheduler.skipsLeftToday == 0 {
+                // No other way out, so mention the emergency word.
+                Text("Type \"emergency\" to skip in an emergency")
+            }
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+    }
+
+    /// Only shown when double-Esc would actually do something.
+    private var escapeHint: String? {
+        switch scheduler.settings.escapeAction {
+        case .skip: scheduler.canSkip || scheduler.settings.enforcement == .balanced && scheduler.skipsLeftToday != 0
+            ? "twice to skip the break" : nil
+        case .snooze: scheduler.canSnooze ? "twice to snooze 5 min" : nil
+        case .nothing: nil
+        }
     }
 
     @ViewBuilder
@@ -87,5 +125,116 @@ struct BreakView: View {
 
     private var time: String {
         TimeFormat.clock(scheduler.breakRemaining)
+    }
+}
+
+/// The Skip button with snooze pills tucked behind it, like LookAway
+/// (`resources/break_screen_recording/extended_snooze_options.png`). Hovering the column makes the pills float up.
+/// The pills are a real part of the layout (space is reserved for them), so clicks and hover work everywhere.
+private struct SkipColumn: View {
+    let scheduler: BreakScheduler
+    let onSkip: () -> Void
+    let onSnooze: (_ minutes: Int) -> Void
+
+    @State private var expanded = false
+    @State private var buttonHeight: CGFloat = 48
+
+    private let spacing: CGFloat = 8
+    /// How much of each tucked pill shows above the one in front of it.
+    private let peek: CGFloat = 8
+
+    var body: some View {
+        let options = scheduler.canSnooze ? [1, 5] : []
+        VStack(spacing: spacing) {
+            ForEach(Array(options.enumerated()), id: \.element) { index, minutes in
+                // How many places this pill is above the Skip button.
+                let distance = CGFloat(options.count - index)
+                Button { onSnooze(minutes) } label: {
+                    Label("+\(minutes) min", systemImage: "zzz")
+                        .frame(maxWidth: .infinity)
+                        .opacity(expanded ? 1 : 0)
+                }
+                // Tucked: slide down behind Skip, shrink from the top so the peek stays visible.
+                .scaleEffect(expanded ? 1 : 1 - distance * 0.1, anchor: .top)
+                .offset(y: expanded ? 0 : distance * (buttonHeight + spacing - peek))
+                .opacity(expanded ? 1 : 0.6)
+                .allowsHitTesting(expanded)
+            }
+            skipButton
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { buttonHeight = $0 }
+                .zIndex(1)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+        .contentShape(.rect)
+        .onHover { hovering in
+            withAnimation(.spring(duration: 0.35, bounce: 0.25)) { expanded = hovering }
+        }
+    }
+
+    private var skipButton: some View {
+        Button(action: onSkip) {
+            Label {
+                Text(scheduler.skipsLeftToday == 0 ? "No skips left" : "Skip Break")
+            } icon: {
+                if scheduler.canSkip {
+                    Image(systemName: "chevron.forward.2")
+                } else if scheduler.skipsLeftToday == 0 {
+                    Image(systemName: "nosign")
+                } else {
+                    let progress = scheduler.breakElapsed / scheduler.balancedSkipDelay
+                    ProgressRing(progress: progress)
+                        // Ticks arrive once a second; animating over that second makes the fill smooth.
+                        .animation(.linear(duration: 1), value: progress)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .disabled(!scheduler.canSkip)
+    }
+}
+
+/// A small ring that fills from 0 to 1.
+private struct ProgressRing: View {
+    let progress: Double
+
+    var body: some View {
+        ZStack {
+            Circle().stroke(.white.opacity(0.25), lineWidth: 2)
+            Circle()
+                .trim(from: 0, to: min(1, progress))
+                .stroke(.white, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+        }
+        .frame(width: 14, height: 14)
+    }
+}
+
+/// Shows "emergency" with the letters typed so far lit up.
+private struct EmergencyProgress: View {
+    let typed: Int
+    private let word = "emergency"
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text(word.prefix(typed)).foregroundStyle(.white)
+            Text(word.dropFirst(typed)).foregroundStyle(.white.opacity(0.35))
+        }
+        .font(.callout.monospaced().weight(.semibold))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .glassEffect()
+    }
+}
+
+private struct Keycap: View {
+    let text: String
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.white.opacity(0.15), in: .rect(cornerRadius: 5))
     }
 }

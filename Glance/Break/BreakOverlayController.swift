@@ -10,10 +10,13 @@ final class BreakOverlayController {
     private var model: OverlayModel?
     private var keyMonitor: Any?
     private var lastEscape: Date?
+    /// The last few letters typed on the break screen, to spot "emergency".
+    private var typed = ""
     private var activationObserver: NSObjectProtocol?
 
     private let blurInDuration = 0.4
     private let revealDuration = 0.6
+    private let emergencyWord = "emergency"
 
     init(scheduler: BreakScheduler) {
         self.scheduler = scheduler
@@ -56,10 +59,11 @@ final class BreakOverlayController {
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
 
         takeFocus()
+        if scheduler.settings.lockOnBreakStart { Self.lockScreen() }
+        typed = ""
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard event.keyCode == 53 else { return event } // 53 = Esc
-            MainActor.assumeIsolated { self?.escapePressed() }
-            return nil
+            MainActor.assumeIsolated { self?.keyPressed(event) }
+            return nil // the break screen swallows all typing
         }
 
         // Stage 1: live blur of the screen fades in. Stage 2: wallpaper and text fade in.
@@ -120,7 +124,9 @@ final class BreakOverlayController {
             model: model,
             message: message,
             background: WallpaperBlur.image(for: screen),
-            onSkip: { [weak self] in self?.scheduler.endBreak() },
+            onSkip: { [weak self] in self?.scheduler.skipBreak() },
+            onEndEarly: { [weak self] in self?.scheduler.endBreakEarly() },
+            onSnooze: { [weak self] in self?.scheduler.snooze(minutes: $0) },
             onLock: { Self.lockScreen() }
         ))
         content.frame = blur.bounds
@@ -140,11 +146,36 @@ final class BreakOverlayController {
 
     // MARK: - Actions
 
+    private func keyPressed(_ event: NSEvent) {
+        guard !event.isARepeat else { return } // holding a key sends repeats; only count real presses
+        if event.keyCode == 53 { // Esc
+            escapePressed()
+        } else {
+            letterTyped(event.charactersIgnoringModifiers?.lowercased() ?? "")
+        }
+    }
+
+    /// Typing "emergency" skips the break in any mode, Hardcore included.
+    private func letterTyped(_ letter: String) {
+        typed = String((typed + letter).suffix(emergencyWord.count))
+        // How much of "emergency" the user has typed so far, e.g. "emer" → 4.
+        let matched = (0...emergencyWord.count).last { typed.hasSuffix(emergencyWord.prefix($0)) } ?? 0
+        model?.emergencyTyped = matched
+        if matched == emergencyWord.count {
+            typed = ""
+            scheduler.emergencySkip()
+        }
+    }
+
     private func escapePressed() {
         let now = Date.now
         if let lastEscape, now.timeIntervalSince(lastEscape) < 1 {
             self.lastEscape = nil
-            scheduler.endBreak()
+            switch scheduler.settings.escapeAction {
+            case .skip: scheduler.skipBreak()
+            case .snooze: scheduler.snooze(minutes: 5)
+            case .nothing: break
+            }
         } else {
             lastEscape = now
         }

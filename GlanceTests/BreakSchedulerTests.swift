@@ -8,8 +8,15 @@ final class FakeClock {
     let scheduler: BreakScheduler
     var now = Date(timeIntervalSinceReferenceDate: 0)
 
-    init(settings: TimerSettings = TimerSettings()) {
-        scheduler = BreakScheduler(settings: settings)
+    /// Test-only storage (not the real app's), wiped for each new clock unless one is passed in.
+    static func cleanDefaults() -> UserDefaults {
+        let defaults = UserDefaults(suiteName: "GlanceTests.scheduler")!
+        defaults.removePersistentDomain(forName: "GlanceTests.scheduler")
+        return defaults
+    }
+
+    init(settings: TimerSettings = TimerSettings(), defaults: UserDefaults = cleanDefaults()) {
+        scheduler = BreakScheduler(settings: settings, defaults: defaults)
         scheduler.start()
         scheduler.tick(now: now, idleSeconds: 0)
     }

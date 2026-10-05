@@ -51,13 +51,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
                 add("Pause", #selector(pause), to: menu)
             }
             add("Start break now", #selector(startBreak), to: menu)
-            menu.addItem(snoozeItem())
-            add("Skip next break", #selector(skip), to: menu)
+            if scheduler.canSnooze { menu.addItem(snoozeItem()) }
+            if scheduler.canSkipNextBreak { add("Skip next break", #selector(skipNextBreak), to: menu) }
         case .onBreak:
-            menu.addItem(info("On break · \(TimeFormat.clock(scheduler.breakRemaining)) left"))
-            menu.addItem(.separator())
-            add("End break", #selector(endBreak), to: menu)
-            menu.addItem(snoozeItem())
+            break // the break screen covers the menu bar, so there's nothing to show
         case .stopped:
             menu.addItem(info("Stopped"))
         }
@@ -96,8 +93,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func pause() { update { scheduler.pause() } }
     @objc private func resume() { update { scheduler.resume() } }
     @objc private func startBreak() { update { scheduler.startBreakNow() } }
-    @objc private func skip() { update { scheduler.skipNextBreak() } }
-    @objc private func endBreak() { update { scheduler.endBreak() } }
+    @objc private func skipNextBreak() { update { scheduler.skipNextBreak() } }
     @objc private func snooze(_ sender: NSMenuItem) { update { scheduler.snooze(minutes: sender.tag) } }
 
     private func update(_ change: () -> Void) {

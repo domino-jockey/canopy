@@ -8,6 +8,8 @@ What we're building is described in [`FEATURES.md`](FEATURES.md) §3. LookAway i
 - **AppKit**: Apple's older Mac UI toolkit. We need it for things SwiftUI can't do: the menu bar item, full-screen overlay windows above everything, and global keyboard shortcuts.
 - **Target: macOS 27+.** This is a personal app for your Mac only, so we can use the newest APIs, including Liquid Glass (Apple's frosted-glass style).
 
+Docs live in `docs/`: progress so far in [`PROGRESS.md`](PROGRESS.md), technical decisions and gotchas in [`DECISIONS.md`](DECISIONS.md). Keep them updated as work happens.
+
 Each phase ends with a **✅ Done when** line. A phase isn't finished until that check passes on your Mac.
 
 ---
@@ -53,17 +55,28 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] ✅ **Done when:** a test break covers all monitors with a smooth blur-in, counts down, and blurs out. Compare side by side with the LookAway screenshot. (All checks passed.)
 
 ## Phase 4: Break rules
-- [ ] Enforcement modes, selected with 3 visual cards:
-  - [ ] *Casual*: Skip works anytime.
-  - [ ] *Balanced*: Skip button shows a filling ring and only unlocks after a few seconds.
-  - [ ] *Hardcore*: no Skip button.
-- [ ] **Max snoozes per break** (e.g. 2, or No limit). Snooze buttons disappear once used up.
-- [ ] Double-Esc action (skip / snooze / nothing).
-- [ ] "Let me End Break early if nearly done".
-- [ ] "Keep break screen up until I press End Break". Hold the next cycle until pressed.
-- [ ] "Lock my Mac when a break starts" + working **Lock Screen** button.
-- [ ] Long breaks: every Nth break, own duration.
-- [ ] ✅ **Done when:** each mode/option behaves as described in a manual test, and snoozes stop working after the limit.
+- [x] Enforcement modes (Casual / Balanced / Hardcore). The 3 visual cards for picking one come with the settings window (Phase 5).
+  - [x] *Casual*: Skip works anytime.
+  - [x] *Balanced*: Skip button shows a filling ring and unlocks **halfway through the break** (was a fixed 5 s).
+  - [x] *Hardcore*: no Skip button, no "Skip next break", no snoozing a break that's on screen.
+- [x] **Max snoozes per break** (default 2, or No limit). Snooze options disappear once used up.
+- [x] **Snooze stack** like LookAway (`resources/break_screen_recording/extended_snooze_options.png`): `+1 min` / `+5 min` pills tucked behind Skip, float up on hover. One hover zone covering the whole column. Pills must be clickable.
+- [x] **Daily skip limit** (default 3): counts on-screen skips + "Skip next break". Survives app restarts, resets at midnight. Emergency skips don't count.
+- [x] Double-Esc action (skip / snooze / nothing). Ignores key-repeat from holding Esc.
+- [x] **Emergency skip: type "emergency"** on the break screen, any mode. Typed letters show in the footer. (Replaces hold-Esc.)
+- [x] "Let me End Break early if nearly done" (last 25%).
+- [x] "Keep break screen up until I press End Break". Hold the next cycle until pressed.
+- [x] "Lock my Mac when a break starts" + working **Lock Screen** button.
+- [x] Long breaks: every Nth break, own duration (from Phase 1).
+- [x] Simplify the menu bar: no break-time label or menu items (the break screen covers the menu bar anyway).
+- [x] ✅ **Done when:** tests pass for every rule, and by eye: snooze stack opens/clicks correctly, Balanced unlocks at half time, typing "emergency" skips, skips stop after 3 in a day.
+
+## Cleanup (between Phase 4 and 5)
+- [x] Move all docs into `docs/`, add `docs/PROGRESS.md`, `docs/DECISIONS.md`, and a root `CLAUDE.md` pointing at them.
+- [x] Rename leftover screenshots (`alerts.png`, `alerts_2.png`, `lock_screen.png`).
+- [ ] Rename the app **Glance → BreakReminder** (bundle ID `com.jammyjellyfish.BreakReminder`).
+- [ ] Zip v1's git history into `docs/archive/breakreminder-v1-history.zip`, delete `~/Projects/breakreminder`, rename this folder to `~/Projects/breakreminder`.
+- [ ] Start a fresh Claude Code session in the renamed folder.
 
 ## Phase 5: Settings window
 - [ ] Sidebar window like LookAway/System Settings, with grouped sections:
@@ -90,13 +103,17 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] Hold off breaks while **typing or dragging** (wait for a pause in input).
 - [ ] Triggers (each toggleable):
   - [ ] **Meetings/calls**: microphone or camera in use (Core Audio / CoreMediaIO).
-  - [ ] **Video playback**: an app is keeping the display awake (power assertions).
   - [ ] **Deep focus apps**: user-picked apps in front (Zoom, OBS, games…).
   - [ ] **macOS Focus mode** active.
 - [ ] Cooldown after smart pause ends (default 1 min).
-- [ ] ✅ **Done when:** joining a FaceTime call, playing a YouTube video, and stepping away each pause the timer, and it resumes correctly afterward.
+- [ ] ✅ **Done when:** joining a FaceTime call, opening a deep focus app, and stepping away each pause the timer, and it resumes correctly afterward.
+- (Video playback detection was dropped: the point is to make sure breaks happen.)
 
 ## Phase 8: Wellness reminders
+- [ ] 📸 **Before starting: ask for DeskRest screenshots** (posture flash, settings, break screen).
+- [ ] Two styles to try, pick per reminder:
+  - [ ] **LookAway style**: glossy bubble (below).
+  - [ ] **DeskRest style**: screen darkens briefly, DeskRest-like icon appears, "Watch your posture" text at the bottom, then fades back to normal.
 - [ ] **Posture reminder** bubble (glossy gradient circle, up-arrow animation). Default every 10 min.
 - [ ] **Blink reminder** bubble (closing/opening eyes animation). Default every 5 min.
 - [ ] Per reminder: enabled, interval, size, 3×3 position grid, ▶ preview button.
@@ -104,7 +121,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** both reminders show at the chosen spot/size/interval and don't appear in a screen recording.
 
 ## Phase 9: Sounds
-- [ ] Start with built-in macOS sounds. Swap in nicer ones later if wanted.
+- [ ] Use sounds from the open-source **BreakTimer** app (GPL-3.0: fine for personal use; sharing the app would mean publishing its source).
 - [ ] Two toggles: **break sounds** (start/end) and **reminder sounds** (posture, blink, alerts).
 - [ ] One volume slider.
 - [ ] ✅ **Done when:** sounds play at the chosen volume, and each toggle silences its group.
@@ -131,7 +148,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** after a few days of use, the numbers and streak match what actually happened.
 
 ## Phase 14: Polish
-- [ ] App icon (gradient blob with a face, our own design, not a LookAway copy).
+- [ ] App icon + menu bar glyph: based on **BreakTimer's** icons, restyled with LookAway's gradient (purplish-pink → orange; check colours against `resources/lookaway-free-trial-screenshots/app_icon.png`).
 - [ ] Every animation is smooth (no jank) on all connected displays, including when a display is plugged in or out mid-break.
 - [ ] Respect "Reduce motion" and "Reduce transparency" accessibility settings.
 - [ ] First-launch onboarding: quick intro + ask for permissions only when a feature needs them.
