@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Glance
+@testable import BreakReminder
 
 /// Drives a scheduler with fake time, one tick per second.
 @MainActor
@@ -10,8 +10,8 @@ final class FakeClock {
 
     /// Test-only storage (not the real app's), wiped for each new clock unless one is passed in.
     static func cleanDefaults() -> UserDefaults {
-        let defaults = UserDefaults(suiteName: "GlanceTests.scheduler")!
-        defaults.removePersistentDomain(forName: "GlanceTests.scheduler")
+        let defaults = UserDefaults(suiteName: "BreakReminderTests.scheduler")!
+        defaults.removePersistentDomain(forName: "BreakReminderTests.scheduler")
         return defaults
     }
 
@@ -154,8 +154,8 @@ struct BreakSchedulerTests {
     }
 
     @Test func settingsSaveAndLoad() {
-        let defaults = UserDefaults(suiteName: "GlanceTests")!
-        defaults.removePersistentDomain(forName: "GlanceTests")
+        let defaults = UserDefaults(suiteName: "BreakReminderTests")!
+        defaults.removePersistentDomain(forName: "BreakReminderTests")
         var settings = TimerSettings()
         settings.workInterval = 25 * 60
         settings.save(to: defaults)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct GlanceApp: App {
+struct BreakReminderApp: App {
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
     var body: some Scene {

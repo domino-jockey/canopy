@@ -1,4 +1,4 @@
-name: Glance
+name: BreakReminder
 
 options:
   bundleIdPrefix: com.jammyjellyfish
@@ -11,26 +11,26 @@ settings:
     CODE_SIGN_IDENTITY: "-" # "Sign to Run Locally": no Apple account needed
 
 targets:
-  Glance:
+  BreakReminder:
     type: application
     platform: macOS
-    sources: [Glance]
+    sources: [BreakReminder]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jammyjellyfish.Glance
+        PRODUCT_BUNDLE_IDENTIFIER: com.jammyjellyfish.BreakReminder
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSUIElement: YES # menu bar only: no Dock icon
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
     scheme:
-      testTargets: [GlanceTests]
+      testTargets: [BreakReminderTests]
 
-  GlanceTests:
+  BreakReminderTests:
     type: bundle.unit-test
     platform: macOS
-    sources: [GlanceTests]
+    sources: [BreakReminderTests]
     dependencies:
-      - target: Glance
+      - target: BreakReminder
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

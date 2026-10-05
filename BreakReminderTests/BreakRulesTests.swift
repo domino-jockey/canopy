@@ -1,5 +1,5 @@
 import Testing
-@testable import Glance
+@testable import BreakReminder
 
 @MainActor
 struct BreakRulesTests {

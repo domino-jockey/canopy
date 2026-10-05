@@ -1,5 +1,5 @@
 import Testing
-@testable import Glance
+@testable import BreakReminder
 
 struct TimeFormatTests {
     @Test(arguments: [

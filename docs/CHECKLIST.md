@@ -16,10 +16,10 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 
 ## Phase 0: Project setup
 - [x] Point Terminal at full Xcode (`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`) and run `sudo xcodebuild -runFirstLaunch`.
-- [x] Create the project with **XcodeGen**: `project.yml` is the recipe. Run `xcodegen` to (re)create `Glance.xcodeproj`. App name **Glance**, bundle ID `com.jammyjellyfish.Glance`.
+- [x] Create the project with **XcodeGen**: `project.yml` is the recipe. Run `xcodegen` to (re)create `BreakReminder.xcodeproj`. App name **BreakReminder**, bundle ID `com.jammyjellyfish.BreakReminder`.
 - [x] Set deployment target to macOS 27.
 - [x] Make it a **menu-bar-only app**: no Dock icon (`INFOPLIST_KEY_LSUIElement = YES` in `project.yml`).
-- [ ] Folders inside `Glance/` (`Timer/`, `Break/`, `Alerts/`, …): created as each phase adds its first file.
+- [ ] Folders inside `BreakReminder/` (`Timer/`, `Break/`, `Alerts/`, …): created as each phase adds its first file.
 - [x] `git init` and add a `.gitignore` for Xcode.
 - [x] ✅ **Done when:** the app builds, launches, shows no Dock icon, and quits cleanly.
 
@@ -74,8 +74,8 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 ## Cleanup (between Phase 4 and 5)
 - [x] Move all docs into `docs/`, add `docs/PROGRESS.md`, `docs/DECISIONS.md`, and a root `CLAUDE.md` pointing at them.
 - [x] Rename leftover screenshots (`alerts.png`, `alerts_2.png`, `lock_screen.png`).
-- [ ] Rename the app **Glance → BreakReminder** (bundle ID `com.jammyjellyfish.BreakReminder`).
-- [ ] Zip v1's git history into `docs/archive/breakreminder-v1-history.zip`, delete `~/Projects/breakreminder`, rename this folder to `~/Projects/breakreminder`.
+- [x] Rename the app **Glance → BreakReminder** (bundle ID `com.jammyjellyfish.BreakReminder`).
+- [x] Zip v1's git history into `docs/archive/breakreminder-v1-history.zip`, delete `~/Projects/breakreminder`, rename this folder to `~/Projects/breakreminder`.
 - [ ] Start a fresh Claude Code session in the renamed folder.
 
 ## Phase 5: Settings window

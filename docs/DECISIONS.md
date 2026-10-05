@@ -16,7 +16,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Red "Cannot find X in scope" diagnostics from SourceKit (the editor's checker) are false alarms in this project. Trust `xcodebuild`.
 
 ## Timer
-- `BreakScheduler` has **no clock**; everything goes through `tick(now:idleSeconds:)`. Keeps it fully testable with `FakeClock` (in `GlanceTests/BreakSchedulerTests.swift`).
+- `BreakScheduler` has **no clock**; everything goes through `tick(now:idleSeconds:)`. Keeps it fully testable with `FakeClock` (in `BreakReminderTests/BreakSchedulerTests.swift`).
 - Don't reset `lastTick` on pause/resume/start: ticks keep arriving while paused, and resetting dropped a second each time.
 - A tick gap > 10 s = the Mac slept; treated as idle time. No sleep/wake notifications needed.
 - Idle time comes from `CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: ~0)`. No permission needed. Keeps growing while the screen is locked.

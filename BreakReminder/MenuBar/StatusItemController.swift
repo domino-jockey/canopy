@@ -60,7 +60,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quit Glance", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: "Quit BreakReminder", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
     private func info(_ title: String) -> NSMenuItem {
