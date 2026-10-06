@@ -81,15 +81,25 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 ## Phase 5: Settings window
 - [x] Sidebar window like LookAway/System Settings (`NavigationSplitView` in an AppKit window), opened from "Settings…" in the menu.
   - Only pages with real settings are shown. Now: **General** · *Focus & Wellbeing:* Screen Breaks. Planned order for later pages: *Focus & Wellbeing:* Smart Pause, Wellness Reminders, Stats · *Behavior & Feedback:* Alerts/Nudges, Sounds, Keyboard Shortcuts · About.
-- [x] Coloured gradient sidebar icons, grouped "card" rows, coral accent colour for toggles.
+- [x] Coloured sidebar icons, grouped "card" rows, accent colour for toggles (now Catppuccin Mocha, see Look & feel).
 - [x] General: Launch at login (`SMAppService`).
 - [x] Screen Breaks: interval, break length, long breaks, enforcement cards, skip/snooze limits, double-Esc, End Break early, hold, lock on start.
 - [x] Durations use **DeskRest-style sliders** with fixed stops (big number above, clickable labels under each stop).
 - [x] Settings loading tolerates missing fields (old saved data keeps its values).
 - [x] Changes apply right away. A new break interval restarts the countdown; a new break length applies from the next break.
 - [ ] Each later phase adds its own page here.
-- [x] Follows system light/dark mode.
+- [x] Follows system light/dark mode. (Replaced by always-dark Mocha in Look & feel.)
 - [x] ✅ **Done when:** every page opens, every setting saves and survives an app restart. (36 tests passing, all 9 by-eye checks passed.)
+
+## Look & feel (after Phase 5, from `PROBLEMS.md`)
+- [x] Slim System Settings-style title bar with ‹ › back/forward.
+- [x] Catppuccin Mocha palette for the whole app (`Theme/Mocha.swift`): settings window, sidebar icons, break screen.
+- [x] Sidebar selection: soft pill like LookAway, not the accent colour.
+- [x] Our own enforcement cards: tiny break screens.
+- [x] General: Menu bar section with Live Status, Display, Timer style, and a live preview strip.
+- [x] App icon in Icon Composer format: Mocha gradient tea mug, Liquid Glass.
+- [x] Menu bar icon: the same mug, monochrome.
+- [x] ✅ **Done when:** checked by eye; 38 tests passing.
 
 ## Phase 6: Alerts & nudges
 - [ ] Alert position: top left / top center / top right.
@@ -170,3 +180,8 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 
 ### Deliberately skipped
 See [`FEATURES.md`](FEATURES.md) §3.2 for the full list and reasons.
+
+## Later: Themes
+- [ ] Turn `Mocha` into a `Theme` with the same colour names, one set per theme (Catppuccin Latte / Frappé / Macchiato / Mocha, maybe our own). Picker in General.
+- [ ] Light themes (Latte) set light mode; dark ones set dark mode.
+- [ ] Preset app icons: one `.icon` per theme, rendered at build time, set with `NSApp.applicationIconImage`. Only the **Dock** icon can change while running; Finder/Spotlight keep the built-in (Mocha) one.

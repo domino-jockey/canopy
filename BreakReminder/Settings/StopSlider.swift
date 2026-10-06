@@ -29,7 +29,7 @@ struct StopSlider: View {
         VStack(spacing: 4) {
             Text("\(stops[index])")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.coral)
+                .foregroundStyle(.tint)
                 .contentTransition(.numericText())
             Text(unit.name(stops[index]))
                 .foregroundStyle(.secondary)
@@ -58,7 +58,7 @@ struct StopSlider: View {
                 Text("\(stops[i])")
                     .font(.caption)
                     .monospacedDigit()
-                    .foregroundStyle(i == index ? Color.coral : .secondary)
+                    .foregroundStyle(i == index ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
                     .fixedSize()
                     .position(x: inset + spacing * CGFloat(i), y: 7)
                     .onTapGesture { value = TimeInterval(stops[i]) * unit.factor }

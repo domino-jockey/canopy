@@ -77,11 +77,12 @@ struct BreakView: View {
                     .contentTransition(.opacity)
                     .padding(.top, 16)
                 Capsule()
+                    .fill(Mocha.surface2)
                     .frame(width: 120, height: 2)
-                    .opacity(0.5)
                     .padding(.vertical, 40)
                 Text(time)
                     .font(.system(size: 56, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Mocha.mauve)
                     .monospacedDigit()
                     .contentTransition(.numericText(countsDown: true))
                     .animation(.default, value: time)
@@ -94,7 +95,7 @@ struct BreakView: View {
                     .padding(.bottom, 56)
             }
             .multilineTextAlignment(.center)
-            .foregroundStyle(.white)
+            .foregroundStyle(Mocha.text)
         }
         .opacity(model.revealed ? 1 : 0)
         .environment(\.colorScheme, .dark)
@@ -111,6 +112,7 @@ struct BreakView: View {
             Button(action: onLock) { Label("Lock Screen", systemImage: "lock") }
         }
         .buttonStyle(.glass)
+        .tint(Mocha.surface0)
         .controlSize(.extraLarge)
     }
 
@@ -136,7 +138,7 @@ struct BreakView: View {
             }
         }
         .font(.callout)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(Mocha.subtext0)
     }
 
     /// Only shown when double-Esc would actually do something.
@@ -149,14 +151,16 @@ struct BreakView: View {
         }
     }
 
+    /// The blurred wallpaper under a strong Mocha tint, so a hint of it shows through.
     @ViewBuilder
     private var backgroundLayer: some View {
         if let background {
             Image(nsImage: background)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
+                .overlay(Mocha.base.opacity(0.82))
         } else {
-            LinearGradient(colors: [.indigo, .purple, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+            LinearGradient(colors: [Mocha.base, Mocha.crust], startPoint: .top, endPoint: .bottom)
         }
     }
 
@@ -235,10 +239,10 @@ private struct ProgressRing: View {
 
     var body: some View {
         ZStack {
-            Circle().stroke(.white.opacity(0.25), lineWidth: 2)
+            Circle().stroke(Mocha.surface2, lineWidth: 2)
             Circle()
                 .trim(from: 0, to: min(1, progress))
-                .stroke(.white, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                .stroke(Mocha.mauve, style: StrokeStyle(lineWidth: 2, lineCap: .round))
                 .rotationEffect(.degrees(-90))
         }
         .frame(width: 14, height: 14)
@@ -252,8 +256,8 @@ private struct EmergencyProgress: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Text(word.prefix(typed)).foregroundStyle(.white)
-            Text(word.dropFirst(typed)).foregroundStyle(.white.opacity(0.35))
+            Text(word.prefix(typed)).foregroundStyle(Mocha.peach)
+            Text(word.dropFirst(typed)).foregroundStyle(Mocha.overlay0)
         }
         .font(.callout.monospaced().weight(.semibold))
         .padding(.horizontal, 12)
@@ -271,6 +275,6 @@ private struct Keycap: View {
             .font(.caption.weight(.semibold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(.white.opacity(0.15), in: .rect(cornerRadius: 5))
+            .background(Mocha.surface1, in: .rect(cornerRadius: 5))
     }
 }

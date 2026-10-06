@@ -180,7 +180,7 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 
 | # | Feature | From | Notes |
 |---|---|:-:|---|
-| 1 | Menu bar timer: icon + `m:ss` countdown, rolling digits | Both | One style only, matching `macos-timer-menu-bar-appearance/` |
+| 1 | Menu bar timer: mug icon + countdown, rolling digits | Both | Live Status on/off, icon and text / text only, `19:42` or `20m` |
 | 2 | Menu bar dropdown with quick actions | Both | |
 | 3 | Break every N min of *active* screen time | Both | |
 | 4 | Short + long breaks (every Nth is long) | Both | |
@@ -204,7 +204,7 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 22 | Clock Out (end-of-day stop) | DeskRest | |
 | 23 | Stats: breaks taken/skipped today, weekly chart, streak | Both | |
 | 24 | Sounds: one volume, toggles for break sounds and reminder sounds | Both | Sounds from BreakTimer (GPL-3.0) |
-| 27 | Visual style: LookAway-like gradient (purplish-pink → orange, check `app_icon.png`), icons based on BreakTimer's | LookAway | GPL-3.0: fine for personal use; sharing the app would mean publishing its source |
+| 27 | Visual style: Catppuccin Mocha throughout; tea-mug app icon (Liquid Glass) | Ours | Themes (other palettes + preset icons) planned for later |
 | 25 | Global shortcuts: Pause/Resume, Start break now, Snooze 5 min | Both | |
 | 26 | Launch at login | Both | |
 
@@ -233,7 +233,6 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 |---|---|
 | Advance skips/day, snoozes/day, snoozes/break | Max snoozes per break + one daily skip limit (includes advance skips) |
 | Menu bar changes during a break | None: the break screen covers the menu bar anyway |
-| Menu bar display + timer-style options | One fixed style |
 | 13 keyboard shortcuts | 3 |
 | 3 volume sliders, 8 sound toggles | 1 volume, 2 toggles |
 | Overtime nudge: shake to dismiss | Click to dismiss |

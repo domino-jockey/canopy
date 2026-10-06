@@ -16,4 +16,17 @@ struct TimeFormatTests {
     func clock(seconds: Double, expected: String) {
         #expect(TimeFormat.clock(seconds) == expected)
     }
+
+    @Test(arguments: [
+        (0.0, "0m"),
+        (0.4, "0m"),
+        (1.0, "1m"),
+        (60.0, "1m"),
+        (60.2, "1m"),
+        (61.0, "2m"),
+        (20.0 * 60, "20m"),
+    ])
+    func minutes(seconds: Double, expected: String) {
+        #expect(TimeFormat.minutes(seconds) == expected)
+    }
 }

@@ -10,6 +10,8 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(scheduler: scheduler)))
         super.init()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
+        window.toolbarStyle = .unified // one slim bar with ‹ › and the title, like System Settings
+        window.backgroundColor = NSColor(Mocha.base) // the title bar area
         window.setContentSize(NSSize(width: 820, height: 640))
         window.isReleasedWhenClosed = false
         window.delegate = self

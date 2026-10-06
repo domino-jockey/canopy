@@ -1,3 +1,5 @@
+**Status: all handled** (see "Look & feel" in `PROGRESS.md`). The user chose Catppuccin Mocha over following the system accent colour.
+
 The window doesn't match other macOS apps. (There's a thicker titlebar with bold text on titlebar. Use screenshots to confirm. Look at the lookaway one and the system settings one)
 General settings should include live status, and timer style (look at screenshots)
 Use the icons from Lookaway for the settings menu

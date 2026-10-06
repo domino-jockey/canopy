@@ -81,7 +81,7 @@ struct ScreenBreaksSettingsPage: View {
     }
 }
 
-/// A picture card for one enforcement mode: a mini "Skip Break" pill on LookAway's gradient.
+/// A picture card for one enforcement mode: a tiny break screen with that mode's Skip button.
 private struct EnforcementCard: View {
     let mode: EnforcementMode
     let isSelected: Bool
@@ -103,36 +103,41 @@ private struct EnforcementCard: View {
         }
     }
 
-    private var symbol: String {
+    private var color: Color {
         switch mode {
-        case .casual: "chevron.forward.2"
-        case .balanced: "circle.dashed"
-        case .hardcore: "nosign"
+        case .casual: Mocha.green
+        case .balanced: Mocha.peach
+        case .hardcore: Mocha.red
         }
     }
 
     var body: some View {
         Button(action: select) {
             VStack(spacing: 8) {
-                ZStack {
-                    LinearGradient(
-                        colors: [Color(red: 0.45, green: 0.25, blue: 0.55), Color(red: 0.75, green: 0.3, blue: 0.35), Color(red: 0.85, green: 0.5, blue: 0.3)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    Label("Skip Break", systemImage: symbol)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white.opacity(mode == .hardcore ? 0.5 : 0.95))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(.white.opacity(0.2), in: Capsule())
+                // A tiny break screen showing how its Skip button behaves in this mode.
+                VStack(spacing: 6) {
+                    Text("0:20")
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Mocha.mauve)
+                    HStack(spacing: 5) {
+                        skipIcon
+                        Text("Skip")
+                    }
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(mode == .hardcore ? Mocha.overlay0 : Mocha.text)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Mocha.surface0, in: Capsule())
                 }
+                .frame(maxWidth: .infinity)
                 .frame(height: 80)
+                .background(Mocha.crust)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Mocha.surface0))
                 .padding(3)
                 .overlay {
                     RoundedRectangle(cornerRadius: 13)
-                        .strokeBorder(isSelected ? Color.coral : .clear, lineWidth: 3)
+                        .strokeBorder(isSelected ? AnyShapeStyle(.tint) : AnyShapeStyle(.clear), lineWidth: 3)
                 }
                 Text(title).fontWeight(isSelected ? .semibold : .regular)
                 Text(subtitle).font(.caption).foregroundStyle(.secondary)
@@ -141,5 +146,25 @@ private struct EnforcementCard: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var skipIcon: some View {
+        switch mode {
+        case .casual:
+            Image(systemName: "chevron.forward.2").foregroundStyle(color)
+        case .balanced:
+            // A ring partway through filling, like the real Balanced Skip button.
+            ZStack {
+                Circle().stroke(Mocha.surface2, lineWidth: 1.5)
+                Circle()
+                    .trim(from: 0, to: 0.6)
+                    .stroke(color, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            .frame(width: 10, height: 10)
+        case .hardcore:
+            Image(systemName: "nosign").foregroundStyle(color)
+        }
     }
 }

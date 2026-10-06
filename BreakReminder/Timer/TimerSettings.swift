@@ -14,6 +14,18 @@ enum EscapeAction: String, Codable {
     case skip, snooze, nothing
 }
 
+/// What the menu bar item shows while Live Status is on.
+enum MenuBarDisplay: String, Codable {
+    case iconAndText, textOnly
+}
+
+enum TimerStyle: String, Codable {
+    /// "19:42"
+    case clock
+    /// "20m"
+    case minutes
+}
+
 /// The numbers and rules that drive the break cycle. All durations are in seconds.
 struct TimerSettings: Codable, Equatable {
     var workInterval: TimeInterval = 20 * 60
@@ -37,6 +49,11 @@ struct TimerSettings: Codable, Equatable {
     /// When the countdown ends, keep the break screen up until End Break is pressed.
     var holdUntilEndBreak = false
     var lockOnBreakStart = false
+
+    /// Show the countdown in the menu bar. Off leaves just the icon.
+    var showLiveStatus = true
+    var menuBarDisplay = MenuBarDisplay.iconAndText
+    var timerStyle = TimerStyle.clock
 
     private static let key = "timerSettings"
 
@@ -72,6 +89,9 @@ extension TimerSettings {
         read(.allowEndingEarly, into: &allowEndingEarly)
         read(.holdUntilEndBreak, into: &holdUntilEndBreak)
         read(.lockOnBreakStart, into: &lockOnBreakStart)
+        read(.showLiveStatus, into: &showLiveStatus)
+        read(.menuBarDisplay, into: &menuBarDisplay)
+        read(.timerStyle, into: &timerStyle)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

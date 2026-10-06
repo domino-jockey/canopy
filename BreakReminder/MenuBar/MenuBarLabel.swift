@@ -1,12 +1,21 @@
 import SwiftUI
 
-/// The icon + countdown shown in the menu bar.
+/// The icon + countdown shown in the menu bar. What's shown follows the Live Status settings.
 struct MenuBarLabel: View {
     let scheduler: BreakScheduler
 
+    private var settings: TimerSettings { scheduler.settings }
+
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: symbol)
+            if time == nil || settings.menuBarDisplay == .iconAndText {
+                // The app icon's mug in one colour (Assets.xcassets/MenuBarIcon). Dimmed while paused.
+                Image("MenuBarIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 15)
+                    .opacity(scheduler.state == .paused ? 0.5 : 1)
+            }
             if let time {
                 Text(time)
                     .monospacedDigit()
@@ -20,11 +29,9 @@ struct MenuBarLabel: View {
     }
 
     // Breaks aren't shown here: the break screen covers the menu bar.
-    private var symbol: String {
-        scheduler.state == .paused ? "pause.circle" : "timer"
-    }
-
     private var time: String? {
-        scheduler.state == .stopped ? nil : TimeFormat.clock(scheduler.workRemaining)
+        guard settings.showLiveStatus, scheduler.state != .stopped else { return nil }
+        let remaining = scheduler.workRemaining
+        return settings.timerStyle == .clock ? TimeFormat.clock(remaining) : TimeFormat.minutes(remaining)
     }
 }

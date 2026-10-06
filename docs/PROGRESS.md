@@ -4,7 +4,7 @@ A plain-language record of what has been built, phase by phase. Update this at t
 For *why* things are built the way they are (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md).
 For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 
-**Current status:** Phases 0–5 and the Cleanup are done. Next: Phase 6 (alerts & nudges).
+**Current status:** Phases 0–5, the Cleanup and the Look & feel pass are done. Next: Phase 6 (alerts & nudges).
 
 ---
 
@@ -116,9 +116,24 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **Stage Manager:** the settings window now gets its own stage. While it's open, the app shows a Dock icon (acts as a normal app); closing the window removes it.
 - All checks passed by eye. 36 tests passing.
 
+## Look & feel (after Phase 5)
+
+**What it is:** the app's own look, from the feedback in [`PROBLEMS.md`](PROBLEMS.md). Tried along the way and dropped: following the system accent colour, a "minimal mono" grey look, and LookAway's purple-pink gradients.
+
+- **Catppuccin Mocha everywhere.** All colours come from one file, `BreakReminder/Theme/Mocha.swift` (the official palette: base, mantle, crust, surface0–2, text, subtext, and accents like mauve, pink, peach, green, red).
+  - **Settings window:** always dark. Sidebar *mantle*, page *base*, text *text*. Toggles, sliders and the big slider numbers are *mauve*.
+  - **Sidebar:** each page has a pastel Mocha square with a dark symbol (General mauve, Screen Breaks green). The selected page gets a soft *surface0* pill, like LookAway (not the accent colour).
+  - **Enforcement cards (our own design):** each card is a tiny break screen: a mauve `0:20` and a small Skip button showing the mode (Casual green ⏭, Balanced peach filling ring, Hardcore red ⊘). Mauve border when selected.
+  - **Break screen:** the blurred wallpaper shows faintly under a strong Mocha *base* tint. Mauve countdown and skip ring, Mocha-tinted glass buttons, "emergency" letters light up peach.
+- **Settings window chrome:** one slim bar with working ‹ › back/forward buttons and the page title, like System Settings. No sidebar-collapse button.
+- **General → Menu bar** (brought back from the cut list): a fake menu bar strip showing the live menu bar item, **Live Status** on/off (off = icon only), **Display** (icon and text / text only), **Timer style** (`19:42` / `20m`).
+- **App icon** (`BreakReminder/AppIcon.icon`, made in Apple's Icon Composer format): a tea mug with a tea-bag tag, filled with a mauve → pink → peach gradient, on a solid Mocha *base* background. Liquid Glass: the mug and the tag are separate glass layers.
+- **Menu bar icon:** the same mug and tag shapes, one colour, no glass (`Assets.xcassets/MenuBarIcon`). macOS colours it to match the menu bar. Dimmed while paused.
+- Tests: 2 new (Live Status settings survive save/load, `20m` format). **38 tests in total, all passing.** All checked by eye.
+
 **Next steps (where we left off):**
-1. Work through the new feedback in [`PROBLEMS.md`](PROBLEMS.md): settings window should look like a native macOS window (thinner titlebar), LookAway's settings icons, General page additions, accent colour, app icon candidates, and giving the app its own vibe. Plan first, then build.
-2. Then Phase 6: alerts & nudges (heads-up before a break, cursor countdown pill, overtime nudge), with an Alerts / Nudges settings page.
+1. Phase 6: alerts & nudges (heads-up before a break, cursor countdown pill, overtime nudge), with an Alerts / Nudges settings page. Use Mocha colours.
+2. Add the Look & feel commit to the table below (it was made right after this was written).
 
 ---
 
@@ -146,3 +161,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `ed7dd05` | Cleanup: rename to BreakReminder, archive v1 history |
 | `97f5f91` | Docs: tick cleanup, log rename commit |
 | `467926b` | Phase 5: settings window |
+| `063d6ad` | Fixes after Phase 5: ⌘Q during a break, frozen fade-out, Stage Manager |

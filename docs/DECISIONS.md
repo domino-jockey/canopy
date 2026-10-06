@@ -28,6 +28,8 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - The status item doesn't size itself to the SwiftUI label: call `refreshWidth()` after changes.
 - The 1 s `Timer` is added in `.common` run-loop mode so it keeps firing while a menu is open.
 - The break screen covers the menu bar, so the menu bar doesn't need any break-time behaviour.
+- The menu bar icon is an SVG in `Assets.xcassets/MenuBarIcon` with **template** rendering, so macOS colours it white/black to match the menu bar. It reuses the app icon's mug coordinates exactly: **change `menubar-mug.svg` together with `AppIcon.icon/Assets/mug.svg` + `tag.svg`.**
+- Live Status settings (`showLiveStatus`, `menuBarDisplay`, `timerStyle`) live in `TimerSettings`, so `MenuBarLabel` (which already watches the scheduler) updates by itself. The General page's preview strip is just another `MenuBarLabel`.
 
 ## Break screen
 - Windows are **non-activating `NSPanel`s** (`.nonactivatingPanel`, `hidesOnDeactivate = false`, `canBecomeKey = true`), level `.screenSaver`, `canJoinAllSpaces` + `fullScreenAuxiliary`.
@@ -56,7 +58,18 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - The settings window is an `NSWindow` + `NSHostingController`, not a SwiftUI `Settings` scene: it's opened from the AppKit status menu, and needs `NSApp.activate()` because the app is menu-bar-only.
 - **Stage Manager** floats windows of menu-bar-only (`.accessory`) apps over the current stage. So the app switches to `.regular` (Dock icon) while settings are open and back to `.accessory` in `windowWillClose`.
 - Slider tick labels are placed by estimate (track inset ~10 pt each side); they matched by eye.
+- Sidebar rows are plain `Button`s in a `List` (no `selection:`), with the selected row's pill drawn by `.listRowBackground`. Why: `List` selection always uses the accent colour; the user wants LookAway's soft pill. The ‹ › buttons use a small history list in `SettingsView`.
+- Controls take their colour from `.tint(Mocha.mauve)` on the detail pane. Custom views that should match use `.foregroundStyle(.tint)`, not `Color.accentColor` (`.tint` doesn't change `Color.accentColor`).
+
+## Look & theme
+- **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
+- Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.
+- **App icon** is an Icon Composer document, `BreakReminder/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
+  - In `icon.json`, the **first group is drawn in front**. `fill` is the background (`solid` or `linear-gradient`); each group has `translucency`, `specular`, `shadow`.
+  - Preview without building: `"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" BreakReminder/AppIcon.icon --export-image --output-file preview.png --platform macOS --rendition Default --width 512 --height 512 --scale 2`
+  - **SF Symbols are not allowed in app icons** (Apple's licence), so the mug is hand-drawn SVG. SF Symbols are fine elsewhere in the UI.
+- macOS caches app icons. After changing the icon, refresh it: `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f build/Build/Products/Debug/BreakReminder.app && touch build/Build/Products/Debug/BreakReminder.app && killall Dock`
 
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.
-- Visual style target: LookAway's gradient (purplish-pink → orange). Check colours against `resources/lookaway-free-trial-screenshots/app_icon.png`.
+- Visual style: Catppuccin Mocha (catppuccin.com/palette, MIT licence). LookAway is still the reference for layout, not colours.

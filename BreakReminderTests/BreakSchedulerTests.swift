@@ -183,6 +183,16 @@ struct BreakSchedulerTests {
         #expect(TimerSettings.load(from: defaults) == settings)
     }
 
+    @Test func menuBarStyleSurvivesSaveAndLoad() {
+        let defaults = FakeClock.cleanDefaults()
+        var settings = TimerSettings()
+        settings.showLiveStatus = false
+        settings.menuBarDisplay = .textOnly
+        settings.timerStyle = .minutes
+        settings.save(to: defaults)
+        #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
     @Test func applySavesAndRestartsCountdown() {
         let defaults = FakeClock.cleanDefaults()
         let clock = FakeClock(defaults: defaults)

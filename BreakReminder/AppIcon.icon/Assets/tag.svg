@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Tea bag string and tag, hanging over the mug's rim. Mocha text colour. -->
+  <g transform="translate(-40 0)" fill="#CDD6F4">
+    <rect x="395" y="330" width="10" height="100"/>
+    <rect x="368" y="430" width="64" height="84" rx="8"/>
+  </g>
+</svg>
