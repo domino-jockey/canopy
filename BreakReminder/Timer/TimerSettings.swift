@@ -26,6 +26,11 @@ enum TimerStyle: String, Codable {
     case minutes
 }
 
+/// Where alert pills appear along the top of the screen.
+enum AlertPosition: String, Codable {
+    case topLeft, topCenter, topRight
+}
+
 /// The numbers and rules that drive the break cycle. All durations are in seconds.
 struct TimerSettings: Codable, Equatable {
     var workInterval: TimeInterval = 20 * 60
@@ -54,6 +59,17 @@ struct TimerSettings: Codable, Equatable {
     var showLiveStatus = true
     var menuBarDisplay = MenuBarDisplay.iconAndText
     var timerStyle = TimerStyle.clock
+
+    var alertPosition = AlertPosition.topCenter
+    /// Heads-up pill: appears this many seconds before a break and stays until it starts.
+    var showHeadsUp = true
+    var headsUpSeconds: TimeInterval = 10
+    /// Pill next to the mouse pointer for the last few seconds before a break.
+    var showCountdown = true
+    var countdownSeconds: TimeInterval = 5
+    /// "45 minutes without a break" when breaks are skipped or snoozed past.
+    var showOvertimeNudge = true
+    var overtimeWhenPaused = false
 
     private static let key = "timerSettings"
 
@@ -92,6 +108,13 @@ extension TimerSettings {
         read(.showLiveStatus, into: &showLiveStatus)
         read(.menuBarDisplay, into: &menuBarDisplay)
         read(.timerStyle, into: &timerStyle)
+        read(.alertPosition, into: &alertPosition)
+        read(.showHeadsUp, into: &showHeadsUp)
+        read(.headsUpSeconds, into: &headsUpSeconds)
+        read(.showCountdown, into: &showCountdown)
+        read(.countdownSeconds, into: &countdownSeconds)
+        read(.showOvertimeNudge, into: &showOvertimeNudge)
+        read(.overtimeWhenPaused, into: &overtimeWhenPaused)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

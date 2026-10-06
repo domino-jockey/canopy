@@ -4,7 +4,7 @@ A plain-language record of what has been built, phase by phase. Update this at t
 For *why* things are built the way they are (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md).
 For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 
-**Current status:** Phases 0–5, the Cleanup and the Look & feel pass are done. Next: Phase 6 (alerts & nudges).
+**Current status:** Phases 0–6, the Cleanup and the Look & feel pass are done. Next: Phase 7 (idle detection & Smart Pause).
 
 ---
 
@@ -131,9 +131,21 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **Menu bar icon:** the same mug and tag shapes, one colour, no glass (`Assets.xcassets/MenuBarIcon`). macOS colours it to match the menu bar. Dimmed while paused.
 - Tests: 2 new (Live Status settings survive save/load, `20m` format). **38 tests in total, all passing.** All checked by eye.
 
+## Phase 6: Alerts & nudges
+
+**What it is:** small floating pills that warn you before a break and nudge you when you dodge breaks. Code in `BreakReminder/Alerts/`.
+
+- **Heads-up** (`HeadsUpAlert`): appears N seconds before a break (default 10) and stays until it starts, counting down. A friendly line, plus **Start this break now · +1m · +5m · +15m** (the + buttons use the normal snooze, greyed out when no snoozes are left).
+- **Cursor countdown** (`CountdownAlert`): "Short break in 5" follows the mouse for the last N seconds (default 5). Clicks go straight through it. Shows alongside the heads-up (user's choice).
+- **Overtime nudge** (`OvertimeAlert`): "⚡ 45 minutes without a break". The scheduler counts screen time since the last break actually *taken* (`timeSinceBreak`); skips, snoozes and emergency skips don't reset it. Once that passes the break interval, the nudge shows, then again every 15 minutes. Click to dismiss. Paused time counts too (option to show the nudge while paused); 5 min away resets it.
+- **Look:** Mocha-tinted Liquid Glass pills with a pastel icon square, like the sidebar. They float above other apps on every Space, never take the keyboard, and appear on the screen the mouse is on.
+- **Alerts / Nudges settings page** (new sidebar section "Behavior & Feedback", peach): position cards (top left / center / right), and each pill's on/off and timing. Each section has a **Preview** button that shows its pill for 5 s with sample values.
+- **Moved / held back:** smart-pause alerts go to Phase 7 (Smart Pause doesn't exist yet). Progressive blur is left out for now; plain glass instead.
+- Tests: 6 new (alert settings save/load, taken break resets overtime, skip and snooze start overtime, paused time counts, long idle resets). **44 tests in total, all passing.** All checked by eye.
+
 **Next steps (where we left off):**
-1. Phase 6: alerts & nudges (heads-up before a break, cursor countdown pill, overtime nudge), with an Alerts / Nudges settings page. Use Mocha colours.
-2. Add the Look & feel commit to the table below (it was made right after this was written).
+1. Phase 7: idle detection & Smart Pause, including the smart-pause alert pills moved from Phase 6.
+2. Add the Phase 6 commit to the table below (if it was made after this was written).
 
 ---
 
@@ -162,3 +174,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `97f5f91` | Docs: tick cleanup, log rename commit |
 | `467926b` | Phase 5: settings window |
 | `063d6ad` | Fixes after Phase 5: ⌘Q during a break, frozen fade-out, Stage Manager |
+| `48804da` | Look & feel: Catppuccin Mocha, mug icon, Live Status |

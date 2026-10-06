@@ -29,6 +29,9 @@ final class BreakScheduler {
     private(set) var completedBreaks = 0
     /// Snoozes used on the upcoming break.
     private(set) var snoozesUsed = 0
+    /// Screen time since the last break actually taken. Skips and snoozes don't reset it.
+    /// Counts while paused too: pausing the timer doesn't mean you've stepped away.
+    private(set) var timeSinceBreak: TimeInterval = 0
 
     /// Skips used today. Saved to disk so restarting the app doesn't reset the daily limit.
     private var dailySkips: DailySkips
@@ -38,6 +41,8 @@ final class BreakScheduler {
 
     /// Ticks normally arrive every second. A bigger gap means the Mac was asleep.
     private let maxTickGap: TimeInterval = 10
+    /// The overtime nudge comes back this often while breaks keep being dodged.
+    static let overtimeRepeat: TimeInterval = 15 * 60
 
     init(settings: TimerSettings = .load(), defaults: UserDefaults = .standard) {
         self.settings = settings
@@ -98,6 +103,13 @@ final class BreakScheduler {
         Calendar.current.startOfDay(for: lastTick ?? .now)
     }
 
+    /// Which overtime nudge is due: 0 once screen time passes the break interval, then 1, 2…
+    /// every 15 minutes. Nil while you're within your break interval.
+    var overtimeStep: Int? {
+        guard timeSinceBreak > settings.workInterval else { return nil }
+        return Int((timeSinceBreak - settings.workInterval) / Self.overtimeRepeat)
+    }
+
     var canEndEarly: Bool {
         isWaitingForEndBreak || (isOnBreak && settings.allowEndingEarly && breakRemaining <= breakDuration / 4)
     }
@@ -128,14 +140,22 @@ final class BreakScheduler {
         case .working:
             if awaySeconds >= settings.idleResetAfter {
                 resetWork()
+                timeSinceBreak = 0
             } else if awaySeconds < settings.idlePauseAfter {
                 workRemaining -= elapsed
+                timeSinceBreak += elapsed
                 if workRemaining <= 0 { beginBreak() }
+            }
+        case .paused:
+            if awaySeconds >= settings.idleResetAfter {
+                timeSinceBreak = 0
+            } else if awaySeconds < settings.idlePauseAfter {
+                timeSinceBreak += elapsed
             }
         case .onBreak:
             breakRemaining = max(0, breakRemaining - elapsed)
-            if breakRemaining <= 0 && !settings.holdUntilEndBreak { endBreak() }
-        case .stopped, .paused:
+            if breakRemaining <= 0 && !settings.holdUntilEndBreak { endBreak(taken: true) }
+        case .stopped:
             break
         }
     }
@@ -156,6 +176,7 @@ final class BreakScheduler {
     func start() {
         guard state == .stopped else { return }
         completedBreaks = 0
+        timeSinceBreak = 0
         resetWork()
         state = .working
     }
@@ -203,19 +224,19 @@ final class BreakScheduler {
     func skipBreak() {
         guard canSkip else { return }
         recordSkip()
-        endBreak()
+        endBreak(taken: false)
     }
 
     /// End Break button: near the end of a break, or when holding until End Break.
     func endBreakEarly() {
         guard canEndEarly else { return }
-        endBreak()
+        endBreak(taken: true)
     }
 
     /// Ends the break in any mode, Hardcore included. Triggered by holding Esc.
     func emergencySkip() {
         guard isOnBreak else { return }
-        endBreak()
+        endBreak(taken: false)
     }
 
     // MARK: - Helpers
@@ -226,7 +247,9 @@ final class BreakScheduler {
         state = .onBreak(nextBreakKind)
     }
 
-    private func endBreak() {
+    /// `taken` is false when the break was skipped, so it doesn't reset `timeSinceBreak`.
+    private func endBreak(taken: Bool) {
+        if taken { timeSinceBreak = 0 }
         completedBreaks += 1
         resetWork()
         state = .working

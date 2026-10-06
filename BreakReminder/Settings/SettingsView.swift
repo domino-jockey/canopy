@@ -1,12 +1,13 @@
 import SwiftUI
 
 enum SettingsPage: Hashable {
-    case general, screenBreaks
+    case general, screenBreaks, alerts
 
     var title: String {
         switch self {
         case .general: "General"
         case .screenBreaks: "Screen Breaks"
+        case .alerts: "Alerts / Nudges"
         }
     }
 
@@ -14,14 +15,16 @@ enum SettingsPage: Hashable {
         switch self {
         case .general: "gearshape.fill"
         case .screenBreaks: "leaf.fill"
+        case .alerts: "bell.fill"
         }
     }
 
-    /// Each page has its own Mocha accent. Later pages: blue, peach, pink, yellow…
+    /// Each page has its own Mocha accent. Later pages: blue, pink, yellow…
     var color: Color {
         switch self {
         case .general: Mocha.mauve
         case .screenBreaks: Mocha.green
+        case .alerts: Mocha.peach
         }
     }
 }
@@ -29,6 +32,7 @@ enum SettingsPage: Hashable {
 /// Sidebar window like System Settings. Each later phase adds its page to `SettingsPage`.
 struct SettingsView: View {
     let scheduler: BreakScheduler
+    let previewAlert: (AlertKind) -> Void
     /// Pages visited, for the ‹ › buttons. `position` is the one on screen.
     @State private var history: [SettingsPage] = [.general]
     @State private var position = 0
@@ -42,6 +46,9 @@ struct SettingsView: View {
                 Section("Focus & Wellbeing") {
                     row(.screenBreaks)
                 }
+                Section("Behavior & Feedback") {
+                    row(.alerts)
+                }
             }
             .scrollContentBackground(.hidden)
             .background(Mocha.mantle)
@@ -52,6 +59,7 @@ struct SettingsView: View {
                 switch page {
                 case .general: GeneralSettingsPage(scheduler: scheduler)
                 case .screenBreaks: ScreenBreaksSettingsPage(scheduler: scheduler)
+                case .alerts: AlertsSettingsPage(scheduler: scheduler, preview: previewAlert)
                 }
             }
             .formStyle(.grouped)

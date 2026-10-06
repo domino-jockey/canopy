@@ -5,11 +5,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let scheduler = BreakScheduler()
     private var statusItem: StatusItemController?
     private var breakOverlay: BreakOverlayController?
+    private var alerts: AlertsController?
     private var settingsWindow: SettingsWindowController?
     private var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let settingsWindow = SettingsWindowController(scheduler: scheduler)
+        let alerts = AlertsController(scheduler: scheduler)
+        self.alerts = alerts
+        let settingsWindow = SettingsWindowController(scheduler: scheduler, previewAlert: alerts.preview)
         self.settingsWindow = settingsWindow
         statusItem = StatusItemController(scheduler: scheduler, openSettings: settingsWindow.show)
         breakOverlay = BreakOverlayController(scheduler: scheduler)
@@ -38,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let anyInput = CGEventType(rawValue: ~0)!
         let idle = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: anyInput)
         scheduler.tick(now: .now, idleSeconds: idle)
+        alerts?.update()
         statusItem?.refreshWidth()
     }
 }

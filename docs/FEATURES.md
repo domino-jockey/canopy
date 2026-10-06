@@ -191,10 +191,10 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 9 | Max snoozes per break (default 2) + **daily skip limit** (default 3, counts on-screen skips and "Skip next break") | LookAway | Emergency skips don't count |
 | 10 | Double-Esc action, End Break early, hold until End Break, **emergency skip by typing "emergency"** | LookAway + ours | |
 | 11 | Lock Mac on break start + Lock Screen button | LookAway | |
-| 12 | Heads-up alert before break (Start now / +1m / +5m / +15m) | Both | |
+| 12 | Heads-up alert before break (Start now / +1m / +5m / +15m) | Both | One "N seconds before" setting; stays until the break |
 | 13 | Cursor-following countdown pill | Both | |
 | 14 | Overtime nudge, click to dismiss | LookAway | |
-| 15 | Smart-pause alerts (small pill when pausing/resuming) | LookAway | |
+| 15 | Smart-pause alerts (small pill when pausing/resuming) | LookAway | Built with Smart Pause (Phase 7) |
 | 16 | Hold off breaks while typing or dragging | LookAway | |
 | 17 | Smart pause: meetings/calls (mic/camera), deep focus apps, macOS Focus mode | Both | Add Zoom, OBS, games etc. as deep focus apps. No video detection. |
 | 18 | Idle detection + timer reset + "welcome back" heads-up | Both | |
@@ -236,3 +236,5 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 13 keyboard shortcuts | 3 |
 | 3 volume sliders, 8 sound toggles | 1 volume, 2 toggles |
 | Overtime nudge: shake to dismiss | Click to dismiss |
+| Break reminder: "N min before" + "visible for N s" | One setting: appears N s before, stays until the break |
+| Progressive blur on alert pills | Plain glass (may come back later) |

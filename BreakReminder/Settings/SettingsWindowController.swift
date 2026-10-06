@@ -6,8 +6,10 @@ import SwiftUI
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let window: NSWindow
 
-    init(scheduler: BreakScheduler) {
-        window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(scheduler: scheduler)))
+    init(scheduler: BreakScheduler, previewAlert: @escaping (AlertKind) -> Void) {
+        window = NSWindow(contentViewController: NSHostingController(
+            rootView: SettingsView(scheduler: scheduler, previewAlert: previewAlert)
+        ))
         super.init()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
         window.toolbarStyle = .unified // one slim bar with ‹ › and the title, like System Settings

@@ -61,6 +61,13 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Sidebar rows are plain `Button`s in a `List` (no `selection:`), with the selected row's pill drawn by `.listRowBackground`. Why: `List` selection always uses the accent colour; the user wants LookAway's soft pill. The ‹ › buttons use a small history list in `SettingsView`.
 - Controls take their colour from `.tint(Mocha.mauve)` on the detail pane. Custom views that should match use `.foregroundStyle(.tint)`, not `Color.accentColor` (`.tint` doesn't change `Color.accentColor`).
 
+## Alerts
+- Each pill is an `AlertPanel`: a borderless, non-activating `NSPanel` at `.statusBar` level on all Spaces. It never takes the keyboard. `FirstClickHostingView` (`acceptsFirstMouse` → true) makes the first click on an unfocused pill press its button.
+- `AlertsController.update()` runs every tick, right after `scheduler.tick`, and decides what's shown from the scheduler's state. No separate timers, except a 60 fps one that moves the countdown pill with the mouse while it's up.
+- The pills read an `AlertModel` the controller fills in, not the scheduler directly, so Preview can show sample values (`0:10`, `5`, `45 minutes`).
+- Overtime uses `BreakScheduler.timeSinceBreak` (reset only by a break that ends normally or via End Break, and by long idle) and `overtimeStep` (0 past the interval, +1 every 15 min). `endBreak(taken:)` marks skips so they don't reset it. Each step shows the nudge once.
+- Heads-up and overtime share the top spot; the heads-up wins, the nudge waits until it's gone.
+
 ## Look & theme
 - **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
 - Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.

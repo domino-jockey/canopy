@@ -102,13 +102,14 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] ✅ **Done when:** checked by eye; 38 tests passing.
 
 ## Phase 6: Alerts & nudges
-- [ ] Alert position: top left / top center / top right.
-- [ ] "Progressive blur" edge style for alert pills.
-- [ ] **Heads-up before break**: appears N min before (default 1), visible for N s (default 10). Shows countdown + friendly line + buttons *Start this break now · +1m · +5m · +15m*.
-- [ ] **Cursor-following countdown pill** ("Short break in 5") during the last N seconds. Pill follows the mouse and ignores clicks.
-- [ ] **Overtime nudge** ("45 minutes without a break") when breaks are being dodged. **Click to dismiss**. Option to show even when paused.
-- [ ] Smart-pause alerts: a small pill when a smart pause starts/ends.
-- [ ] ✅ **Done when:** all four alert types appear at the right time, in the chosen position, and their buttons work.
+- [x] Alert position: top left / top center / top right.
+- [ ] ~~"Progressive blur" edge style for alert pills.~~ Left out for now (plain glass). Add later if missed.
+- [x] **Heads-up before break**: appears N s before (default 10) and stays until the break starts (user's call: one setting). Shows countdown + friendly line + buttons *Start this break now · +1m · +5m · +15m*.
+- [x] **Cursor-following countdown pill** ("Short break in 5") during the last N seconds. Pill follows the mouse and ignores clicks. Shows alongside the heads-up.
+- [x] **Overtime nudge** ("45 minutes without a break") when breaks are being dodged, repeating every 15 min. **Click to dismiss**. Option to show even when paused.
+- [ ] Smart-pause alerts: moved to Phase 7.
+- [x] Preview button for each alert on the settings page.
+- [x] ✅ **Done when:** all three alert types appear at the right time, in the chosen position, and their buttons work.
 
 ## Phase 7: Idle detection & Smart Pause
 - [ ] Idle detection (seconds since last input, via `CGEventSource`).
@@ -120,6 +121,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
   - [ ] **Deep focus apps**: user-picked apps in front (Zoom, OBS, games…).
   - [ ] **macOS Focus mode** active.
 - [ ] Cooldown after smart pause ends (default 1 min).
+- [ ] Smart-pause alerts (moved from Phase 6): a small pill when a smart pause starts/ends, using `AlertPanel` and the alert position setting.
 - [ ] ✅ **Done when:** joining a FaceTime call, opening a deep focus app, and stepping away each pause the timer, and it resumes correctly afterward.
 - (Video playback detection was dropped: the point is to make sure breaks happen.)
 

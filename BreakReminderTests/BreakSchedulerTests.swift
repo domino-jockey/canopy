@@ -193,6 +193,67 @@ struct BreakSchedulerTests {
         #expect(TimerSettings.load(from: defaults) == settings)
     }
 
+    @Test func alertSettingsSurviveSaveAndLoad() {
+        let defaults = FakeClock.cleanDefaults()
+        var settings = TimerSettings()
+        settings.alertPosition = .topRight
+        settings.showHeadsUp = false
+        settings.headsUpSeconds = 30
+        settings.showCountdown = false
+        settings.countdownSeconds = 3
+        settings.showOvertimeNudge = false
+        settings.overtimeWhenPaused = true
+        settings.save(to: defaults)
+        #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    // MARK: - Overtime
+
+    @Test func takenBreakResetsTimeSinceBreak() {
+        let clock = FakeClock()
+        clock.run(seconds: 20 * 60 + 20)
+        #expect(clock.scheduler.timeSinceBreak == 0)
+        #expect(clock.scheduler.overtimeStep == nil)
+    }
+
+    @Test func skippedBreakStartsOvertime() {
+        var settings = TimerSettings()
+        settings.enforcement = .casual
+        let clock = FakeClock(settings: settings)
+        clock.run(seconds: 20 * 60)
+        #expect(clock.scheduler.overtimeStep == nil) // exactly at the interval: the break is on screen
+        clock.scheduler.skipBreak()
+        clock.run(seconds: 1)
+        #expect(clock.scheduler.overtimeStep == 0)
+        clock.run(seconds: 15 * 60)
+        #expect(clock.scheduler.overtimeStep == 1)
+    }
+
+    @Test func snoozingPastIntervalStartsOvertime() {
+        let clock = FakeClock()
+        clock.run(seconds: 19 * 60)
+        clock.scheduler.snooze(minutes: 5)
+        clock.run(seconds: 61)
+        #expect(clock.scheduler.overtimeStep == 0)
+    }
+
+    @Test func timeSinceBreakCountsWhilePaused() {
+        let clock = FakeClock()
+        clock.run(seconds: 60)
+        clock.scheduler.pause()
+        clock.run(seconds: 60)
+        #expect(clock.scheduler.timeSinceBreak == 120)
+        #expect(clock.scheduler.workRemaining == 19 * 60)
+    }
+
+    @Test func longIdleResetsTimeSinceBreak() {
+        let clock = FakeClock()
+        clock.run(seconds: 60)
+        clock.scheduler.pause()
+        clock.run(seconds: 1, idle: 5 * 60)
+        #expect(clock.scheduler.timeSinceBreak == 0)
+    }
+
     @Test func applySavesAndRestartsCountdown() {
         let defaults = FakeClock.cleanDefaults()
         let clock = FakeClock(defaults: defaults)
