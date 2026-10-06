@@ -52,7 +52,7 @@ final class BreakScheduler {
 
     // MARK: - Rules
 
-    private var isOnBreak: Bool {
+    var isOnBreak: Bool {
         if case .onBreak = state { true } else { false }
     }
 

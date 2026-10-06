@@ -50,12 +50,32 @@ final class BreakOverlayController {
         }
     }
 
+    /// Keeps the break screen's copy of the scheduler's values up to date while the break is on.
+    /// Once the break ends it stops, so the screen fades out showing exactly what it last showed.
+    private func observeDisplay(_ model: OverlayModel) {
+        let display = withObservationTracking {
+            BreakDisplay(scheduler)
+        } onChange: { [weak self, weak model] in
+            Task { @MainActor in
+                guard let self, let model, self.model === model, self.scheduler.isOnBreak else { return }
+                self.observeDisplay(model)
+            }
+        }
+        // Switching to "Break's over" changes the text and buttons; animate it instead of snapping.
+        if display.isWaitingForEndBreak != model.display.isWaitingForEndBreak {
+            withAnimation(.easeInOut(duration: 0.6)) { model.display = display }
+        } else {
+            model.display = display
+        }
+    }
+
     // MARK: - Show / hide
 
     private func show(kind: BreakKind) {
-        let model = OverlayModel()
+        let model = OverlayModel(display: BreakDisplay(scheduler))
         let message = BreakMessages.random(for: kind)
         self.model = model
+        observeDisplay(model)
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
 
         takeFocus()
@@ -120,7 +140,6 @@ final class BreakOverlayController {
         blur.state = .active
 
         let content = NSHostingView(rootView: BreakView(
-            scheduler: scheduler,
             model: model,
             message: message,
             background: WallpaperBlur.image(for: screen),

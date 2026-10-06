@@ -25,6 +25,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.timer = timer
     }
 
+    /// ⌘Q would make the break screen vanish, so quitting is refused during a break.
+    /// Logging out and shutting down ask via an Apple event, and still quit normally.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if scheduler.isOnBreak && NSAppleEventManager.shared().currentAppleEvent == nil {
+            return .terminateCancel
+        }
+        return .terminateNow
+    }
+
     private func tick() {
         let anyInput = CGEventType(rawValue: ~0)!
         let idle = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: anyInput)

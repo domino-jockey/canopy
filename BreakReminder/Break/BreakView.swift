@@ -1,17 +1,50 @@
 import SwiftUI
 
+/// What the break screen shows: a copy of the scheduler's values. The overlay controller refreshes it
+/// while the break is on, and stops when the break ends, so nothing changes while the screen fades out.
+struct BreakDisplay: Equatable {
+    var remaining: TimeInterval
+    var isWaitingForEndBreak: Bool
+    var canEndEarly: Bool
+    var canSkip: Bool
+    var canSnooze: Bool
+    var snoozesLeft: Int?
+    var skipsLeftToday: Int?
+    /// How far the Balanced-mode ring has filled, 0 to 1.
+    var skipProgress: Double
+    var enforcement: EnforcementMode
+    var escapeAction: EscapeAction
+
+    @MainActor init(_ scheduler: BreakScheduler) {
+        remaining = scheduler.breakRemaining
+        isWaitingForEndBreak = scheduler.isWaitingForEndBreak
+        canEndEarly = scheduler.canEndEarly
+        canSkip = scheduler.canSkip
+        canSnooze = scheduler.canSnooze
+        snoozesLeft = scheduler.snoozesLeft
+        skipsLeftToday = scheduler.skipsLeftToday
+        skipProgress = scheduler.breakElapsed / scheduler.balancedSkipDelay
+        enforcement = scheduler.settings.enforcement
+        escapeAction = scheduler.settings.escapeAction
+    }
+}
+
 /// State the break window needs that isn't part of the scheduler.
 @MainActor @Observable
 final class OverlayModel {
+    var display: BreakDisplay
     /// Second stage of the entry animation: the wallpaper and text fading in.
     var revealed = false
     /// How many letters of "emergency" have been typed so far.
     var emergencyTyped = 0
+
+    init(display: BreakDisplay) {
+        self.display = display
+    }
 }
 
 /// The content of the full-screen break window.
 struct BreakView: View {
-    let scheduler: BreakScheduler
     let model: OverlayModel
     let message: BreakMessage
     let background: NSImage?
@@ -19,6 +52,8 @@ struct BreakView: View {
     let onEndEarly: () -> Void
     let onSnooze: (_ minutes: Int) -> Void
     let onLock: () -> Void
+
+    private var display: BreakDisplay { model.display }
 
     var body: some View {
         ZStack {
@@ -34,10 +69,12 @@ struct BreakView: View {
 
                 Spacer()
 
-                Text(scheduler.isWaitingForEndBreak ? "Break's over" : message.title)
+                Text(display.isWaitingForEndBreak ? "Break's over" : message.title)
                     .font(.system(size: 64, weight: .bold))
-                Text(scheduler.isWaitingForEndBreak ? "Press End Break when you're ready" : message.subtitle)
+                    .contentTransition(.opacity)
+                Text(display.isWaitingForEndBreak ? "Press End Break when you're ready" : message.subtitle)
                     .font(.title2)
+                    .contentTransition(.opacity)
                     .padding(.top, 16)
                 Capsule()
                     .frame(width: 120, height: 2)
@@ -65,11 +102,11 @@ struct BreakView: View {
 
     private var buttons: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            if scheduler.canEndEarly {
+            if display.canEndEarly {
                 Button(action: onEndEarly) { Label("End Break", systemImage: "checkmark") }
             }
-            if scheduler.settings.enforcement != .hardcore && !scheduler.isWaitingForEndBreak {
-                SkipColumn(scheduler: scheduler, onSkip: onSkip, onSnooze: onSnooze)
+            if display.enforcement != .hardcore && !display.isWaitingForEndBreak {
+                SkipColumn(display: display, onSkip: onSkip, onSnooze: onSnooze)
             }
             Button(action: onLock) { Label("Lock Screen", systemImage: "lock") }
         }
@@ -79,10 +116,10 @@ struct BreakView: View {
 
     private var footer: some View {
         VStack(spacing: 6) {
-            if scheduler.canSnooze, let left = scheduler.snoozesLeft {
+            if display.canSnooze, let left = display.snoozesLeft {
                 Text(left == 1 ? "1 snooze available" : "\(left) snoozes available")
             }
-            if scheduler.settings.enforcement != .hardcore, let left = scheduler.skipsLeftToday {
+            if display.enforcement != .hardcore, let left = display.skipsLeftToday {
                 Text(left == 1 ? "1 skip left today" : "\(left) skips left today")
             }
             if model.emergencyTyped > 0 {
@@ -93,7 +130,7 @@ struct BreakView: View {
                     Keycap("esc")
                     Text(escapeHint)
                 }
-            } else if scheduler.settings.enforcement == .hardcore || scheduler.skipsLeftToday == 0 {
+            } else if display.enforcement == .hardcore || display.skipsLeftToday == 0 {
                 // No other way out, so mention the emergency word.
                 Text("Type \"emergency\" to skip in an emergency")
             }
@@ -104,10 +141,10 @@ struct BreakView: View {
 
     /// Only shown when double-Esc would actually do something.
     private var escapeHint: String? {
-        switch scheduler.settings.escapeAction {
-        case .skip: scheduler.canSkip || scheduler.settings.enforcement == .balanced && scheduler.skipsLeftToday != 0
+        switch display.escapeAction {
+        case .skip: display.canSkip || display.enforcement == .balanced && display.skipsLeftToday != 0
             ? "twice to skip the break" : nil
-        case .snooze: scheduler.canSnooze ? "twice to snooze 5 min" : nil
+        case .snooze: display.canSnooze ? "twice to snooze 5 min" : nil
         case .nothing: nil
         }
     }
@@ -124,7 +161,7 @@ struct BreakView: View {
     }
 
     private var time: String {
-        TimeFormat.clock(scheduler.breakRemaining)
+        TimeFormat.clock(display.remaining)
     }
 }
 
@@ -132,7 +169,7 @@ struct BreakView: View {
 /// (`resources/break_screen_recording/extended_snooze_options.png`). Hovering the column makes the pills float up.
 /// The pills are a real part of the layout (space is reserved for them), so clicks and hover work everywhere.
 private struct SkipColumn: View {
-    let scheduler: BreakScheduler
+    let display: BreakDisplay
     let onSkip: () -> Void
     let onSnooze: (_ minutes: Int) -> Void
 
@@ -144,7 +181,7 @@ private struct SkipColumn: View {
     private let peek: CGFloat = 8
 
     var body: some View {
-        let options = scheduler.canSnooze ? [1, 5] : []
+        let options = display.canSnooze ? [1, 5] : []
         VStack(spacing: spacing) {
             ForEach(Array(options.enumerated()), id: \.element) { index, minutes in
                 // How many places this pill is above the Skip button.
@@ -174,22 +211,21 @@ private struct SkipColumn: View {
     private var skipButton: some View {
         Button(action: onSkip) {
             Label {
-                Text(scheduler.skipsLeftToday == 0 ? "No skips left" : "Skip Break")
+                Text(display.skipsLeftToday == 0 ? "No skips left" : "Skip Break")
             } icon: {
-                if scheduler.canSkip {
+                if display.canSkip {
                     Image(systemName: "chevron.forward.2")
-                } else if scheduler.skipsLeftToday == 0 {
+                } else if display.skipsLeftToday == 0 {
                     Image(systemName: "nosign")
                 } else {
-                    let progress = scheduler.breakElapsed / scheduler.balancedSkipDelay
-                    ProgressRing(progress: progress)
+                    ProgressRing(progress: display.skipProgress)
                         // Ticks arrive once a second; animating over that second makes the fill smooth.
-                        .animation(.linear(duration: 1), value: progress)
+                        .animation(.linear(duration: 1), value: display.skipProgress)
                 }
             }
             .frame(maxWidth: .infinity)
         }
-        .disabled(!scheduler.canSkip)
+        .disabled(!display.canSkip)
     }
 }
 

@@ -90,7 +90,7 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - The old v1 project (`~/Projects/breakreminder`, a Swift Package, 5 commits) was deleted. Its git history is kept in `docs/archive/breakreminder-v1-history.zip`. To look at it: unzip it into an empty folder, then run `git log` / `git checkout .` there.
 - This folder moved from `~/Projects/breakreminder-v2` to `~/Projects/breakreminder`.
 
-- DeskRest settings screenshots added: `resources/deskrest-settings-screenshots/`, named after the page they show. The flash reminder in action is `resources/deskrest_demo.mov`.
+- DeskRest settings screenshots added: `resources/deskrest-settings-screenshots/`, named after the page they show. The flash reminder in action is `resources/deskrest-flash-reminder.mov`.
 
 ## Phase 5: Settings window
 
@@ -109,8 +109,16 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **Safe loading:** settings saved by an older version keep their values when new settings are added, instead of all resetting.
 - Tests: 4 new (old saved data, "No limit" round trip, apply restarts countdown, break length waits for next break). **36 tests in total, all passing.** All 9 by-eye checks passed.
 
+### Fixes after Phase 5 (user feedback)
+- **⌘Q during a break** no longer quits the app (it made the break vanish). Quitting is refused while a break is on screen; logging out and shutting down still work. `AppDelegate.applicationShouldTerminate`.
+- **Break screen fade-out** no longer changes while fading (Skip turned back into the waiting ring, the timer and footer changed). The break screen now shows a copy of the scheduler's values (`BreakDisplay`), refreshed every second during the break and frozen when it ends.
+- **"Break's over"** (hold until End Break) now animates in: text cross-fades, End Break fades in as Skip fades out, everything glides into place.
+- **Stage Manager:** the settings window now gets its own stage. While it's open, the app shows a Dock icon (acts as a normal app); closing the window removes it.
+- All checks passed by eye. 36 tests passing.
+
 **Next steps (where we left off):**
-1. Phase 6: alerts & nudges (heads-up before a break, cursor countdown pill, overtime nudge). Add an Alerts / Nudges settings page.
+1. Work through the new feedback in [`PROBLEMS.md`](PROBLEMS.md): settings window should look like a native macOS window (thinner titlebar), LookAway's settings icons, General page additions, accent colour, app icon candidates, and giving the app its own vibe. Plan first, then build.
+2. Then Phase 6: alerts & nudges (heads-up before a break, cursor countdown pill, overtime nudge), with an Alerts / Nudges settings page.
 
 ---
 
@@ -137,3 +145,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `d3fb44a` | Phase 4: break rules + docs moved into `docs/` |
 | `ed7dd05` | Cleanup: rename to BreakReminder, archive v1 history |
 | `97f5f91` | Docs: tick cleanup, log rename commit |
+| `467926b` | Phase 5: settings window |

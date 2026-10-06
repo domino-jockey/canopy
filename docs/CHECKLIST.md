@@ -114,7 +114,7 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - (Video playback detection was dropped: the point is to make sure breaks happen.)
 
 ## Phase 8: Wellness reminders
-- [x] 📸 DeskRest settings screenshots: `resources/deskrest-settings-screenshots/`. Flash reminder in action: `resources/deskrest_demo.mov`.
+- [x] 📸 DeskRest settings screenshots: `resources/deskrest-settings-screenshots/`. Flash reminder in action: `resources/deskrest-flash-reminder.mov`.
 - [ ] Two styles to try, pick per reminder:
   - [ ] **LookAway style**: glossy bubble (below).
   - [ ] **DeskRest style**: screen darkens briefly, DeskRest-like icon appears, "Watch your posture" text at the bottom, then fades back to normal.

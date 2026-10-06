@@ -39,6 +39,10 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Esc is key code 53. Ignore `isARepeat`: holding a key sends repeats, which otherwise look like a double-tap.
 - SwiftUI animations: `.animation(_:value:)` on a parent overrides the animation of everything inside it. Use the scoped form `.animation(_:body:)` to animate just one property.
 - Views placed outside their parent's frame (via `.background` + `.offset`) don't reliably get clicks or hover. Build things like the snooze stack as a real layout instead.
+- `BreakView` doesn't read the scheduler directly. It reads `BreakDisplay`, a copy the overlay controller refreshes (via `withObservationTracking`) only **while on a break**. Why: when a break ends the scheduler is already back to "working" during the fade-out, and live reads made Skip, the timer and the footer change mid-fade.
+  - Don't set `model.display` inside the tracking closure (it would re-trigger itself). Compute the value inside, assign outside.
+  - The switch to "Break's over" is animated by wrapping that one update in `withAnimation`; Texts use `.contentTransition(.opacity)` to cross-fade.
+- ⌘Q during a break is refused in `applicationShouldTerminate`. Logout/shutdown send an Apple event (`NSAppleEventManager.shared().currentAppleEvent` is non-nil), so those still quit. `pkill` (SIGTERM) bypasses this, so the restart command still works.
 
 ## Lock Screen
 - The user's Mac requires the password **5 min** after display sleep (`sysadminctl -screenLock status` → 300 s), so `pmset displaysleepnow` doesn't lock.
@@ -50,6 +54,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Settings change only through `BreakScheduler.apply(_:)`, which saves and applies them (e.g. restarts the countdown when the interval changes). The settings UI binds to it with a custom `Binding`.
 - Launch at login uses `SMAppService.mainApp`. Its state lives in macOS, so it's read back after every change instead of being saved by us. While running from `build/`, the login item points at that copy.
 - The settings window is an `NSWindow` + `NSHostingController`, not a SwiftUI `Settings` scene: it's opened from the AppKit status menu, and needs `NSApp.activate()` because the app is menu-bar-only.
+- **Stage Manager** floats windows of menu-bar-only (`.accessory`) apps over the current stage. So the app switches to `.regular` (Dock icon) while settings are open and back to `.accessory` in `windowWillClose`.
 - Slider tick labels are placed by estimate (track inset ~10 pt each side); they matched by eye.
 
 ## Assets & licensing

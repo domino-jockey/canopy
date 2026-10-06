@@ -3,20 +3,28 @@ import SwiftUI
 
 /// The settings window, opened from the menu bar's "Settings…" item.
 @MainActor
-final class SettingsWindowController {
+final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let window: NSWindow
 
     init(scheduler: BreakScheduler) {
         window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(scheduler: scheduler)))
+        super.init()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
         window.setContentSize(NSSize(width: 820, height: 640))
         window.isReleasedWhenClosed = false
+        window.delegate = self
         window.center()
     }
 
     func show() {
-        // A menu-bar-only app isn't active by default, so bring it forward with the window.
+        // Menu-bar-only apps' windows float over Stage Manager instead of getting their own stage,
+        // so act as a normal app (with a Dock icon) while settings are open.
+        NSApp.setActivationPolicy(.regular)
         NSApp.activate()
         window.makeKeyAndOrderFront(nil)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
     }
 }
