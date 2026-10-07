@@ -9,38 +9,84 @@ final class AlertModel {
     var canSnooze = true
 }
 
-/// Heads-up before a break: countdown, a friendly line, and buttons to start now or push it back.
+/// Heads-up before a break, laid out like LookAway's: a round clock badge, the time above a friendly line,
+/// and a row of buttons underneath.
 struct HeadsUpAlert: View {
     let model: AlertModel
     let onStart: () -> Void
     let onSnooze: (_ minutes: Int) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                AlertIcon(symbol: "leaf.fill", color: Mocha.green)
-                Text(TimeFormat.clock(model.secondsToBreak))
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(Mocha.mauve)
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                    .animation(.default, value: model.secondsToBreak)
-                Text(model.breakKind == .long
-                     ? "A long break is coming. Time to stretch."
-                     : "Almost time. Your eyes will appreciate this.")
-                    .foregroundStyle(Mocha.subtext1)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 14) {
+                ClockBadge()
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(TimeFormat.paddedClock(model.secondsToBreak))
+                        .font(.title2.weight(.bold))
+                        .monospacedDigit()
+                        .contentTransition(.numericText(countsDown: true))
+                        .animation(.default, value: model.secondsToBreak)
+                    Text(model.breakKind == .long
+                         ? "A long break is coming. Time to stretch."
+                         : "Almost time. Your eyes will appreciate this.")
+                        .foregroundStyle(Mocha.subtext0)
+                }
             }
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 Button("Start this break now", action: onStart)
+                    .buttonStyle(HeadsUpButtonStyle(filled: true))
                 ForEach([1, 5, 15], id: \.self) { minutes in
                     Button("+\(minutes)m") { onSnooze(minutes) }
+                        .buttonStyle(HeadsUpButtonStyle(filled: false))
                         .disabled(!model.canSnooze)
                 }
             }
-            .buttonStyle(.glass)
-            .tint(Mocha.surface0)
         }
-        .alertPill()
+        .font(.body)
+        .padding(16)
+        .glassEffect(.regular.tint(Mocha.base.opacity(0.75)), in: .rect(cornerRadius: 26))
+        .overlay(RoundedRectangle(cornerRadius: 26).strokeBorder(Mocha.surface1.opacity(0.8)))
+        .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
+        .foregroundStyle(Mocha.text)
+        .environment(\.colorScheme, .dark)
+    }
+}
+
+/// A round clock face in the app icon's mauve → pink → peach gradient: tick marks and one hand.
+private struct ClockBadge: View {
+    var body: some View {
+        ZStack {
+            Circle().fill(LinearGradient(colors: [Mocha.mauve, Mocha.pink, Mocha.peach],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+            ForEach(0..<12) { hour in
+                Capsule()
+                    .fill(Mocha.crust.opacity(0.35))
+                    .frame(width: 1.5, height: 4)
+                    .offset(y: -16)
+                    .rotationEffect(.degrees(Double(hour) * 30))
+            }
+            Capsule()
+                .fill(Mocha.crust.opacity(0.8))
+                .frame(width: 2.5, height: 12)
+                .offset(y: -4)
+        }
+        .frame(width: 44, height: 44)
+    }
+}
+
+/// LookAway's heads-up buttons: a softly filled pill for the main action, outline-only pills for snoozes.
+private struct HeadsUpButtonStyle: ButtonStyle {
+    let filled: Bool
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(filled ? Mocha.surface0 : .clear, in: Capsule())
+            .overlay(Capsule().strokeBorder(filled ? .clear : Mocha.surface1))
+            .contentShape(Capsule())
+            .opacity(isEnabled ? (configuration.isPressed ? 0.6 : 1) : 0.4)
     }
 }
 

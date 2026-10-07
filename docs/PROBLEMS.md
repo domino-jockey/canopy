@@ -9,3 +9,6 @@ Icon for the app candidates: leaf Icon that can be found in the breaks section o
 I would also like to have the ui match my accent color, using detection. (However the sidebar on the right should follow the accent color, for example right now it is making the selected menu green, I would like it to be like lookaway.)
 
 Also, is there any way to make this app have it's own vibe, instead of a direct copy of lookaway?
+
+# Handled after Phase 6
+the headsup doesn't look like lookaway's. → Redesigned like LookAway's (see "Heads-up redesign" in `PROGRESS.md`).

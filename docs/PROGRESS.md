@@ -143,6 +143,11 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **Moved / held back:** smart-pause alerts go to Phase 7 (Smart Pause doesn't exist yet). Progressive blur is left out for now; plain glass instead.
 - Tests: 6 new (alert settings save/load, taken break resets overtime, skip and snooze start overtime, paused time counts, long idle resets). **44 tests in total, all passing.** All checked by eye.
 
+### Heads-up redesign (after Phase 6, from `PROBLEMS.md`)
+- Laid out like LookAway's (`lookaway-website-screenshots/*9.06.52*`): a round **clock badge** (mauve → pink → peach, like the app icon) on the left, a bold `00:03` above the friendly line, and the buttons on their own row underneath.
+- "Start this break now" is a softly filled pill; `+1m · +5m · +15m` are outline-only pills (dimmed when no snoozes are left). Bigger padding, rounder corners and a thin border on the card.
+- New `TimeFormat.paddedClock` (`00:03`), used only by the heads-up. 1 new test.
+
 **Next steps (where we left off):**
 1. Phase 7: idle detection & Smart Pause, including the smart-pause alert pills moved from Phase 6.
 2. Add the Phase 6 commit to the table below (if it was made after this was written).

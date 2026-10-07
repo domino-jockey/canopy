@@ -29,4 +29,13 @@ struct TimeFormatTests {
     func minutes(seconds: Double, expected: String) {
         #expect(TimeFormat.minutes(seconds) == expected)
     }
+
+    @Test(arguments: [
+        (3.0, "00:03"),
+        (65.0, "01:05"),
+        (-1.0, "00:00"),
+    ])
+    func paddedClock(seconds: Double, expected: String) {
+        #expect(TimeFormat.paddedClock(seconds) == expected)
+    }
 }
