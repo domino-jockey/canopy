@@ -202,8 +202,15 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **My messages:** your own one-line messages, mixed in on every break.
 - Tests: 7 new (exercises by default, messages when off, turned-off exercises, all off falls back, own messages, every symbol exists, settings save/load). **77 tests in total, all passing.**
 
+## Phase 13: Stats
+
+- `StatsLog` (in `BreakReminder/Stats/`): per day, breaks **taken** (finished, or ended with End Break), **skipped** (skip, Skip next break, emergency) and **snoozed**. The scheduler records each one and saves it; days older than 120 are dropped.
+- **Stats** page (yellow chart icon): tiles for today's taken / skipped / snoozed and the day **streak** 🔥; a bar chart of breaks taken over the last 7 days, with the daily goal as a dashed line and a hover card showing that day's skips and snoozes; a **Daily goal** stepper (default 8).
+- Streak = days in a row with at least the goal. Today only joins once it reaches the goal, so the streak doesn't drop to 0 every morning.
+- Tests: 6 new (scheduler records the three events, survives restart, 7 days oldest first, streak, gap breaks streak, old days dropped). **83 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 13: stats.
+1. Phase 14: polish.
 
 ---
 
@@ -240,3 +247,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `44645e5` | Phase 9: sounds |
 | `dcdd0c7` | Phase 10: keyboard shortcuts |
 | `fedc35a` | Phase 11: office hours, planned breaks, Clock Out |
+| `79029c7` | Phase 12: break screen customization, exercises |

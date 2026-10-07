@@ -6,6 +6,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Not a software engineer: explain jargon in plain language, moderate detail.
 - **Plan first** for anything non-trivial, wait for a go-ahead. **Never commit unless asked.**
 - Visual things (animations, windows, menu bar) can't be checked from the terminal: Terminal has no Screen Recording permission, so `screencapture` fails. Give the user a numbered check list and let them verify.
+- **But views can be rendered to PNGs from a throwaway test** (no permission needed): SwiftUI-only views with `ImageRenderer`; Forms and other AppKit-backed views by putting an `NSHostingView` in an off-screen borderless `NSWindow` and using `cacheDisplay(in:to:)`. Liquid Glass buttons and toggle tints don't draw this way, but layout, text and charts do. Good for catching overlaps before the user looks. Don't commit the test.
 - Keep `docs/` up to date (PROGRESS, CHECKLIST, this file) so work survives conversation compaction.
 - Git identity is `domino-jockey <hayden.tus@gmail.com>`; the user hasn't said whether that's right. Ask before changing anything.
 

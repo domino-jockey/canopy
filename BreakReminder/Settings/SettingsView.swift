@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SettingsPage: Hashable {
-    case general, screenBreaks, breakScreen, schedule, smartPause, wellness, alerts, sounds, shortcuts
+    case general, screenBreaks, breakScreen, schedule, smartPause, wellness, stats, alerts, sounds, shortcuts
 
     var title: String {
         switch self {
@@ -11,6 +11,7 @@ enum SettingsPage: Hashable {
         case .schedule: "Schedule"
         case .smartPause: "Smart Pause"
         case .wellness: "Wellness Reminders"
+        case .stats: "Stats"
         case .alerts: "Alerts / Nudges"
         case .sounds: "Sounds"
         case .shortcuts: "Keyboard Shortcuts"
@@ -25,6 +26,7 @@ enum SettingsPage: Hashable {
         case .schedule: "calendar"
         case .smartPause: "pause.fill"
         case .wellness: "heart.fill"
+        case .stats: "chart.bar.fill"
         case .alerts: "bell.fill"
         case .sounds: "speaker.wave.2.fill"
         case .shortcuts: "command"
@@ -40,6 +42,7 @@ enum SettingsPage: Hashable {
         case .schedule: Mocha.sapphire
         case .smartPause: Mocha.blue
         case .wellness: Mocha.pink
+        case .stats: Mocha.yellow
         case .alerts: Mocha.peach
         case .sounds: Mocha.teal
         case .shortcuts: Mocha.lavender
@@ -69,6 +72,7 @@ struct SettingsView: View {
                     row(.schedule)
                     row(.smartPause)
                     row(.wellness)
+                    row(.stats)
                 }
                 Section("Behavior & Feedback") {
                     row(.alerts)
@@ -88,6 +92,7 @@ struct SettingsView: View {
                 case .breakScreen: BreakScreenSettingsPage(scheduler: scheduler)
                 case .schedule: ScheduleSettingsPage(scheduler: scheduler, previewClockOut: previewClockOut)
                 case .smartPause: SmartPauseSettingsPage(scheduler: scheduler)
+                case .stats: StatsSettingsPage(scheduler: scheduler)
                 case .wellness: WellnessSettingsPage(scheduler: scheduler, preview: previewWellness)
                 case .alerts: AlertsSettingsPage(scheduler: scheduler, preview: previewAlert)
                 case .sounds: SoundsSettingsPage(scheduler: scheduler)

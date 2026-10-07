@@ -171,6 +171,9 @@ struct TimerSettings: Codable, Equatable {
     /// The user's own break messages, added to the mix. One line each.
     var customMessages: [String] = []
 
+    /// Breaks taken in a day to keep the streak going.
+    var dailyBreakGoal = 8
+
     func reminder(_ kind: WellnessKind) -> WellnessReminder {
         kind == .posture ? posture : blink
     }
@@ -247,6 +250,7 @@ extension TimerSettings {
         read(.showExercises, into: &showExercises)
         read(.disabledExercises, into: &disabledExercises)
         read(.customMessages, into: &customMessages)
+        read(.dailyBreakGoal, into: &dailyBreakGoal)
         backgroundImagePath = try? container.decode(String.self, forKey: .backgroundImagePath)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)

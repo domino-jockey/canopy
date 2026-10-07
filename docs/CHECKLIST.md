@@ -159,8 +159,8 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** a long break shows an exercise from the long-break list, and a custom message/background shows up. (Tests pass; waiting on the by-eye check.)
 
 ## Phase 13: Stats
-- [ ] Save a small daily log on disk: breaks taken, skipped, snoozed.
-- [ ] Stats page: today's numbers, a 7-day bar chart (Swift Charts), and a **streak** (days in a row hitting your goal).
+- [x] Save a small daily log on disk: breaks taken, skipped, snoozed (last 120 days).
+- [x] Stats page: today's numbers, a 7-day bar chart (Swift Charts) with the goal as a dashed line and hover details, and a **streak** (days in a row hitting your goal, default 8 breaks).
 - [ ] ✅ **Done when:** after a few days of use, the numbers and streak match what actually happened.
 
 ## Phase 14: Polish

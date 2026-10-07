@@ -58,6 +58,9 @@ final class BreakScheduler {
     /// How long a due break has waited for the user to stop typing.
     @ObservationIgnored private var heldForTyping: TimeInterval = 0
 
+    /// Breaks taken, skipped and snoozed per day. Saved to disk.
+    private(set) var stats: StatsLog
+
     /// Skips used today. Saved to disk so restarting the app doesn't reset the daily limit.
     private var dailySkips: DailySkips
 
@@ -78,6 +81,7 @@ final class BreakScheduler {
         self.defaults = defaults
         self.workRemaining = settings.workInterval
         self.dailySkips = DailySkips.load(from: defaults)
+        self.stats = StatsLog.load(from: defaults)
     }
 
     var nextBreakKind: BreakKind {
@@ -270,6 +274,7 @@ final class BreakScheduler {
     func skipNextBreak() {
         guard canSkipNextBreak else { return }
         recordSkip()
+        record(.skipped)
         completedBreaks += 1
         resetWork()
     }
@@ -285,6 +290,7 @@ final class BreakScheduler {
             workRemaining += delay
         }
         snoozesUsed += 1
+        record(.snoozed)
     }
 
     /// Skip the break that's on screen, if the enforcement mode allows it.
@@ -342,6 +348,7 @@ final class BreakScheduler {
     /// `taken` is false when the break was skipped, so it doesn't reset `timeSinceBreak`.
     private func endBreak(taken: Bool) {
         if taken { timeSinceBreak = 0 }
+        record(taken ? .taken : .skipped)
         // Planned breaks are extra: they don't move the regular cycle towards its long break.
         if plannedBreakName == nil { completedBreaks += 1 }
         plannedBreakName = nil
@@ -352,6 +359,11 @@ final class BreakScheduler {
     private func resetWork() {
         workRemaining = settings.workInterval
         snoozesUsed = 0
+    }
+
+    private func record(_ event: StatsLog.Event) {
+        stats.record(event, on: lastTick ?? .now)
+        stats.save(to: defaults)
     }
 
     private func recordSkip() {
