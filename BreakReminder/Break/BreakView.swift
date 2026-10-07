@@ -45,9 +45,16 @@ final class OverlayModel {
 
 /// The content of the full-screen break window.
 struct BreakView: View {
+    /// A picture under a Mocha tint (0 to 1: how strongly the tint covers it).
+    struct Background {
+        var image: NSImage
+        var tint: Double
+    }
+
     let model: OverlayModel
     let message: BreakMessage
-    let background: NSImage?
+    let background: Background?
+    let showClock: Bool
     let onSkip: () -> Void
     let onEndEarly: () -> Void
     let onSnooze: (_ minutes: Int) -> Void
@@ -66,8 +73,16 @@ struct BreakView: View {
                         .font(.title3.weight(.semibold))
                 }
                 .padding(.top, 48)
+                .opacity(showClock ? 1 : 0)
 
                 Spacer()
+
+                if let symbol = message.symbol, !display.isWaitingForEndBreak {
+                    Image(systemName: symbol)
+                        .font(.system(size: 56))
+                        .foregroundStyle(Mocha.mauve)
+                        .padding(.bottom, 24)
+                }
 
                 Text(display.isWaitingForEndBreak ? "Break's over" : message.title)
                     .font(.system(size: 64, weight: .bold))
@@ -151,16 +166,18 @@ struct BreakView: View {
         }
     }
 
-    /// The blurred wallpaper under a strong Mocha tint, so a hint of it shows through.
+    /// A picture under a Mocha tint, or a Mocha gradient with a soft mauve glow at the top.
     @ViewBuilder
     private var backgroundLayer: some View {
         if let background {
-            Image(nsImage: background)
+            Image(nsImage: background.image)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .overlay(Mocha.base.opacity(0.82))
+                .overlay(Mocha.base.opacity(background.tint))
         } else {
             LinearGradient(colors: [Mocha.base, Mocha.crust], startPoint: .top, endPoint: .bottom)
+                .overlay(RadialGradient(colors: [Mocha.mauve.opacity(0.25), .clear],
+                                        center: .top, startRadius: 0, endRadius: 900))
         }
     }
 

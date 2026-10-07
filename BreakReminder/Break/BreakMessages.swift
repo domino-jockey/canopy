@@ -1,6 +1,10 @@
-struct BreakMessage {
-    let title: String
-    let subtitle: String
+import Foundation
+
+/// What the break screen says. Exercises also have a symbol.
+struct BreakMessage: Codable, Equatable, Hashable {
+    var title: String
+    var subtitle: String
+    var symbol: String? = nil
 }
 
 enum BreakMessages {
@@ -18,7 +22,39 @@ enum BreakMessages {
         BreakMessage(title: "Move your body", subtitle: "Roll your neck, stretch your wrists, loosen your back"),
     ]
 
-    static func random(for kind: BreakKind) -> BreakMessage {
-        (kind == .long ? long : short).randomElement()!
+    /// Built-in exercises (like DeskRest's): quick eye and neck ones for short breaks, standing ones for long breaks.
+    static let shortExercises = [
+        BreakMessage(title: "Palming", subtitle: "Rub your hands warm, cup them over your closed eyes and relax", symbol: "hand.raised.fill"),
+        BreakMessage(title: "Eye circles", subtitle: "Slowly roll your eyes in a big circle, then the other way", symbol: "eye"),
+        BreakMessage(title: "Near and far", subtitle: "Look at your thumb up close, then at something far away. Repeat", symbol: "scope"),
+        BreakMessage(title: "Neck tilt", subtitle: "Tilt your ear towards your shoulder, hold, then switch sides", symbol: "figure.mind.and.body"),
+        BreakMessage(title: "Shoulder rolls", subtitle: "Roll your shoulders back five times, then forward five times", symbol: "figure.cooldown"),
+        BreakMessage(title: "Chin tucks", subtitle: "Pull your chin straight back, hold for a moment, release. Repeat", symbol: "person.fill"),
+        BreakMessage(title: "Wrist stretch", subtitle: "Hold one arm out and gently pull the fingers back, then switch", symbol: "hand.point.up.left.fill"),
+    ]
+
+    static let longExercises = [
+        BreakMessage(title: "Stand and reach", subtitle: "Stand up, reach both arms to the ceiling and stretch tall", symbol: "figure.arms.open"),
+        BreakMessage(title: "Chest opener", subtitle: "Clasp your hands behind your back and gently lift them", symbol: "figure.flexibility"),
+        BreakMessage(title: "Lunge stretch", subtitle: "Step one foot back into a lunge, hold, then switch legs", symbol: "figure.strengthtraining.functional"),
+        BreakMessage(title: "Walk and water", subtitle: "Take a short walk and drink a glass of water", symbol: "figure.walk"),
+    ]
+
+    static var allExercises: [BreakMessage] { shortExercises + longExercises }
+
+    /// Everything a break of this kind could show, given the settings: exercises (the ones left on) or the
+    /// built-in messages, plus the user's own messages.
+    static func pool(for kind: BreakKind, settings: TimerSettings) -> [BreakMessage] {
+        let exercises = (kind == .long ? longExercises : shortExercises)
+            .filter { !settings.disabledExercises.contains($0.title) }
+        let builtIn = settings.showExercises && !exercises.isEmpty ? exercises : (kind == .long ? long : short)
+        let own = settings.customMessages
+            .filter { !$0.isEmpty }
+            .map { BreakMessage(title: $0, subtitle: "") }
+        return builtIn + own
+    }
+
+    static func random(for kind: BreakKind, settings: TimerSettings) -> BreakMessage {
+        pool(for: kind, settings: settings).randomElement()!
     }
 }

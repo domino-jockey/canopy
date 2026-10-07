@@ -154,9 +154,9 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** with hours set to end in 2 minutes, the app stops and Clock Out appears. A planned break fires on time. (Tests pass; waiting on the by-eye check.)
 
 ## Phase 12: Break screen customization & exercises
-- [ ] "Customize break screen" page: background = blurred wallpaper (default) / image / gradient · custom messages list · show/hide clock.
-- [ ] **Built-in exercises** (DeskRest): about 10 eye/neck/shoulder/stand exercises with short instructions. Separate lists for short vs long breaks.
-- [ ] ✅ **Done when:** a long break shows an exercise from the long-break list, and a custom message/background shows up.
+- [x] "Break Screen" page: background = blurred wallpaper (default) / picture / gradient · custom messages list · show/hide clock.
+- [x] **Built-in exercises** (DeskRest): 11 eye/neck/shoulder/stand exercises with short instructions and a symbol. Separate lists for short (7) vs long (4) breaks, each one can be turned off.
+- [ ] ✅ **Done when:** a long break shows an exercise from the long-break list, and a custom message/background shows up. (Tests pass; waiting on the by-eye check.)
 
 ## Phase 13: Stats
 - [ ] Save a small daily log on disk: breaks taken, skipped, snoozed.

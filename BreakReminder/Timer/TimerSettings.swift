@@ -26,6 +26,16 @@ enum TimerStyle: String, Codable {
     case minutes
 }
 
+/// What's behind the break screen's text.
+enum BreakBackground: String, Codable {
+    /// The screen's own wallpaper, blurred.
+    case wallpaper
+    /// A picture the user picked.
+    case image
+    /// A Mocha gradient.
+    case gradient
+}
+
 /// Where alert pills appear along the top of the screen.
 enum AlertPosition: String, Codable {
     case topLeft, topCenter, topRight
@@ -150,6 +160,17 @@ struct TimerSettings: Codable, Equatable {
     var clockOutTime = 18 * 60
     var clockOutMessage = "Close the laptop. The rest can wait until tomorrow."
 
+    var breakBackground = BreakBackground.wallpaper
+    /// File path of the picture for `.image`.
+    var backgroundImagePath: String?
+    var showClockOnBreak = true
+    /// Breaks show an exercise instead of a plain message.
+    var showExercises = true
+    /// Titles of built-in exercises turned off.
+    var disabledExercises: Set<String> = []
+    /// The user's own break messages, added to the mix. One line each.
+    var customMessages: [String] = []
+
     func reminder(_ kind: WellnessKind) -> WellnessReminder {
         kind == .posture ? posture : blink
     }
@@ -221,6 +242,12 @@ extension TimerSettings {
         read(.clockOutEnabled, into: &clockOutEnabled)
         read(.clockOutTime, into: &clockOutTime)
         read(.clockOutMessage, into: &clockOutMessage)
+        read(.breakBackground, into: &breakBackground)
+        read(.showClockOnBreak, into: &showClockOnBreak)
+        read(.showExercises, into: &showExercises)
+        read(.disabledExercises, into: &disabledExercises)
+        read(.customMessages, into: &customMessages)
+        backgroundImagePath = try? container.decode(String.self, forKey: .backgroundImagePath)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

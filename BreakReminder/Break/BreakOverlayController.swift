@@ -74,7 +74,7 @@ final class BreakOverlayController {
     private func show(kind: BreakKind) {
         let model = OverlayModel(display: BreakDisplay(scheduler))
         let message = scheduler.plannedBreakName.map { BreakMessage(title: $0, subtitle: "Your planned break. Enjoy it.") }
-            ?? BreakMessages.random(for: kind)
+            ?? BreakMessages.random(for: kind, settings: scheduler.settings)
         self.model = model
         observeDisplay(model)
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
@@ -145,7 +145,8 @@ final class BreakOverlayController {
         let content = NSHostingView(rootView: BreakView(
             model: model,
             message: message,
-            background: WallpaperBlur.image(for: screen),
+            background: background(for: screen),
+            showClock: scheduler.settings.showClockOnBreak,
             onSkip: { [weak self] in self?.scheduler.skipBreak() },
             onEndEarly: { [weak self] in self?.scheduler.endBreakEarly() },
             onSnooze: { [weak self] in self?.scheduler.snooze(minutes: $0) },
@@ -158,6 +159,19 @@ final class BreakOverlayController {
 
         window.orderFrontRegardless()
         return window
+    }
+
+    /// The picture behind the break screen's text. Nil means the Mocha gradient.
+    private func background(for screen: NSScreen) -> BreakView.Background? {
+        let settings = scheduler.settings
+        switch settings.breakBackground {
+        case .wallpaper:
+            return WallpaperBlur.image(for: screen).map { BreakView.Background(image: $0, tint: 0.82) }
+        case .image:
+            return settings.backgroundImagePath.flatMap(WallpaperBlur.picture).map { BreakView.Background(image: $0, tint: 0.55) }
+        case .gradient:
+            return nil
+        }
     }
 
     /// Gives the break window the keyboard, so its buttons look enabled and Esc reaches it.

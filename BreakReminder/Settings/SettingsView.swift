@@ -1,12 +1,13 @@
 import SwiftUI
 
 enum SettingsPage: Hashable {
-    case general, screenBreaks, schedule, smartPause, wellness, alerts, sounds, shortcuts
+    case general, screenBreaks, breakScreen, schedule, smartPause, wellness, alerts, sounds, shortcuts
 
     var title: String {
         switch self {
         case .general: "General"
         case .screenBreaks: "Screen Breaks"
+        case .breakScreen: "Break Screen"
         case .schedule: "Schedule"
         case .smartPause: "Smart Pause"
         case .wellness: "Wellness Reminders"
@@ -20,6 +21,7 @@ enum SettingsPage: Hashable {
         switch self {
         case .general: "gearshape.fill"
         case .screenBreaks: "leaf.fill"
+        case .breakScreen: "paintbrush.fill"
         case .schedule: "calendar"
         case .smartPause: "pause.fill"
         case .wellness: "heart.fill"
@@ -34,6 +36,7 @@ enum SettingsPage: Hashable {
         switch self {
         case .general: Mocha.mauve
         case .screenBreaks: Mocha.green
+        case .breakScreen: Mocha.flamingo
         case .schedule: Mocha.sapphire
         case .smartPause: Mocha.blue
         case .wellness: Mocha.pink
@@ -62,6 +65,7 @@ struct SettingsView: View {
                 row(.general)
                 Section("Focus & Wellbeing") {
                     row(.screenBreaks)
+                    row(.breakScreen)
                     row(.schedule)
                     row(.smartPause)
                     row(.wellness)
@@ -81,6 +85,7 @@ struct SettingsView: View {
                 switch page {
                 case .general: GeneralSettingsPage(scheduler: scheduler)
                 case .screenBreaks: ScreenBreaksSettingsPage(scheduler: scheduler)
+                case .breakScreen: BreakScreenSettingsPage(scheduler: scheduler)
                 case .schedule: ScheduleSettingsPage(scheduler: scheduler, previewClockOut: previewClockOut)
                 case .smartPause: SmartPauseSettingsPage(scheduler: scheduler)
                 case .wellness: WellnessSettingsPage(scheduler: scheduler, preview: previewWellness)

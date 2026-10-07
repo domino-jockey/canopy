@@ -193,8 +193,17 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - The menu has a new **Start** item while stopped.
 - Tests: 7 new (office hours rule, timer sleeps off hours, planned break on time, doesn't move the cycle, skipped while asleep, Clock Out fires once, settings save/load). **70 tests in total, all passing.**
 
+## Phase 12: Break screen customization & exercises
+
+- New **Break Screen** page (flamingo paintbrush), under Screen Breaks.
+- **Background:** blurred wallpaper (as before), a **picture** you choose (lightly blurred, lighter tint), or a Mocha **gradient** with a soft mauve glow at the top.
+- **Show the time at the top** toggle.
+- **Exercises** (on by default): 7 quick ones for short breaks (palming, eye circles, near and far, neck tilt, shoulder rolls, chin tucks, wrist stretch), 4 for long breaks (stand and reach, chest opener, lunge stretch, walk and water). The break screen shows the exercise's symbol above its title. Each can be turned off; if all of a kind are off, the old messages come back.
+- **My messages:** your own one-line messages, mixed in on every break.
+- Tests: 7 new (exercises by default, messages when off, turned-off exercises, all off falls back, own messages, every symbol exists, settings save/load). **77 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 12: break screen customization & exercises.
+1. Phase 13: stats.
 
 ---
 
@@ -230,3 +239,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `1523472` | Phase 8: wellness reminders |
 | `44645e5` | Phase 9: sounds |
 | `dcdd0c7` | Phase 10: keyboard shortcuts |
+| `fedc35a` | Phase 11: office hours, planned breaks, Clock Out |
