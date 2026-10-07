@@ -6,13 +6,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController?
     private var breakOverlay: BreakOverlayController?
     private var alerts: AlertsController?
+    private var wellness: WellnessController?
     private var settingsWindow: SettingsWindowController?
     private var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let alerts = AlertsController(scheduler: scheduler)
         self.alerts = alerts
-        let settingsWindow = SettingsWindowController(scheduler: scheduler, previewAlert: alerts.preview)
+        let wellness = WellnessController(scheduler: scheduler)
+        self.wellness = wellness
+        let settingsWindow = SettingsWindowController(
+            scheduler: scheduler, previewAlert: alerts.preview, previewWellness: wellness.preview
+        )
         self.settingsWindow = settingsWindow
         statusItem = StatusItemController(scheduler: scheduler, openSettings: settingsWindow.show)
         breakOverlay = BreakOverlayController(scheduler: scheduler)
@@ -52,6 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         scheduler.tick(now: .now, idleSeconds: idle, typingIdleSeconds: typingIdle,
                        smartPause: SmartPauseMonitor.reason(for: scheduler.settings))
         alerts?.update()
+        wellness?.update(idleSeconds: idle)
         statusItem?.refreshWidth()
     }
 }

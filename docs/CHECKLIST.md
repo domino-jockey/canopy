@@ -127,14 +127,14 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 
 ## Phase 8: Wellness reminders
 - [x] 📸 DeskRest settings screenshots: `resources/deskrest-settings-screenshots/`. Flash reminder in action: `resources/deskrest-flash-reminder.mov`.
-- [ ] Two styles to try, pick per reminder:
-  - [ ] **LookAway style**: glossy bubble (below).
-  - [ ] **DeskRest style**: screen darkens briefly, DeskRest-like icon appears, "Watch your posture" text at the bottom, then fades back to normal.
-- [ ] **Posture reminder** bubble (glossy gradient circle, up-arrow animation). Default every 10 min.
-- [ ] **Blink reminder** bubble (closing/opening eyes animation). Default every 5 min.
-- [ ] Per reminder: enabled, interval, size, 3×3 position grid, ▶ preview button.
-- [ ] Common: dim screen while showing · keep active during smart pause · hide from screen recordings (`sharingType = .none`) · reset timers after a break.
-- [ ] ✅ **Done when:** both reminders show at the chosen spot/size/interval and don't appear in a screen recording.
+- [x] Two styles to try, pick per reminder:
+  - [x] **LookAway style**: glossy bubble (below).
+  - [x] **DeskRest style**: screen darkens briefly, app icon appears, "Watch your posture" text underneath, then fades back to normal.
+- [x] **Posture reminder** bubble (glossy gradient circle, up-arrow animation). Default every 10 min.
+- [x] **Blink reminder** bubble (closing/opening eyes animation). Default every 5 min.
+- [x] Per reminder: enabled, interval, style, size, 3×3 position grid, ▶ preview button. (Both start **off**.)
+- [x] Common: dim screen while showing · keep active during smart pause · hide from screen recordings (`sharingType = .none`) · reset timers after a break.
+- [ ] ✅ **Done when:** both reminders show at the chosen spot/size/interval and don't appear in a screen recording. (Tests pass; waiting on the by-eye check.)
 
 ## Phase 9: Sounds
 - [ ] Use sounds from the open-source **BreakTimer** app (GPL-3.0: fine for personal use; sharing the app would mean publishing its source).

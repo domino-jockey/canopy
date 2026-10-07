@@ -1,13 +1,14 @@
 import SwiftUI
 
 enum SettingsPage: Hashable {
-    case general, screenBreaks, smartPause, alerts
+    case general, screenBreaks, smartPause, wellness, alerts
 
     var title: String {
         switch self {
         case .general: "General"
         case .screenBreaks: "Screen Breaks"
         case .smartPause: "Smart Pause"
+        case .wellness: "Wellness Reminders"
         case .alerts: "Alerts / Nudges"
         }
     }
@@ -17,6 +18,7 @@ enum SettingsPage: Hashable {
         case .general: "gearshape.fill"
         case .screenBreaks: "leaf.fill"
         case .smartPause: "pause.fill"
+        case .wellness: "heart.fill"
         case .alerts: "bell.fill"
         }
     }
@@ -27,6 +29,7 @@ enum SettingsPage: Hashable {
         case .general: Mocha.mauve
         case .screenBreaks: Mocha.green
         case .smartPause: Mocha.blue
+        case .wellness: Mocha.pink
         case .alerts: Mocha.peach
         }
     }
@@ -36,6 +39,7 @@ enum SettingsPage: Hashable {
 struct SettingsView: View {
     let scheduler: BreakScheduler
     let previewAlert: (AlertKind) -> Void
+    let previewWellness: (WellnessKind) -> Void
     /// Pages visited, for the ‹ › buttons. `position` is the one on screen.
     @State private var history: [SettingsPage] = [.general]
     @State private var position = 0
@@ -49,6 +53,7 @@ struct SettingsView: View {
                 Section("Focus & Wellbeing") {
                     row(.screenBreaks)
                     row(.smartPause)
+                    row(.wellness)
                 }
                 Section("Behavior & Feedback") {
                     row(.alerts)
@@ -64,6 +69,7 @@ struct SettingsView: View {
                 case .general: GeneralSettingsPage(scheduler: scheduler)
                 case .screenBreaks: ScreenBreaksSettingsPage(scheduler: scheduler)
                 case .smartPause: SmartPauseSettingsPage(scheduler: scheduler)
+                case .wellness: WellnessSettingsPage(scheduler: scheduler, preview: previewWellness)
                 case .alerts: AlertsSettingsPage(scheduler: scheduler, preview: previewAlert)
                 }
             }

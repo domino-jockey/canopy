@@ -31,6 +31,36 @@ enum AlertPosition: String, Codable {
     case topLeft, topCenter, topRight
 }
 
+enum WellnessKind: CaseIterable {
+    case posture, blink
+}
+
+/// LookAway's glossy bubble, or DeskRest's brief screen flash.
+enum ReminderStyle: String, Codable {
+    case bubble, flash
+}
+
+enum ReminderSize: String, Codable {
+    case small, medium, large
+}
+
+/// One cell of a 3×3 grid on the screen. Row 0 is the top, column 0 the left.
+struct GridPosition: Codable, Equatable, Hashable {
+    var row: Int
+    var column: Int
+
+    static let center = GridPosition(row: 1, column: 1)
+}
+
+/// A posture or blink reminder's settings.
+struct WellnessReminder: Codable, Equatable {
+    var enabled = false
+    var interval: TimeInterval
+    var style = ReminderStyle.bubble
+    var size = ReminderSize.large
+    var position = GridPosition.center
+}
+
 /// An app picked as a "deep focus" app.
 struct FocusApp: Codable, Equatable, Hashable {
     var bundleID: String
@@ -93,6 +123,20 @@ struct TimerSettings: Codable, Equatable {
     /// "Welcome back" pill after being away long enough to reset the cycle.
     var showWelcomeBack = true
 
+    var posture = WellnessReminder(interval: 10 * 60)
+    var blink = WellnessReminder(interval: 5 * 60)
+    /// Darken the screen a little while a bubble reminder shows.
+    var dimForReminders = true
+    var remindersDuringSmartPause = false
+    /// Screen recordings and screen sharing don't see the reminders.
+    var hideRemindersFromRecordings = true
+    /// A break restarts both reminders' countdowns.
+    var resetRemindersAfterBreak = true
+
+    func reminder(_ kind: WellnessKind) -> WellnessReminder {
+        kind == .posture ? posture : blink
+    }
+
     private static let key = "timerSettings"
 
     static func load(from defaults: UserDefaults = .standard) -> TimerSettings {
@@ -145,6 +189,12 @@ extension TimerSettings {
         read(.pauseForFocusMode, into: &pauseForFocusMode)
         read(.smartPauseCooldown, into: &smartPauseCooldown)
         read(.showWelcomeBack, into: &showWelcomeBack)
+        read(.posture, into: &posture)
+        read(.blink, into: &blink)
+        read(.dimForReminders, into: &dimForReminders)
+        read(.remindersDuringSmartPause, into: &remindersDuringSmartPause)
+        read(.hideRemindersFromRecordings, into: &hideRemindersFromRecordings)
+        read(.resetRemindersAfterBreak, into: &resetRemindersAfterBreak)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

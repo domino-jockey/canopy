@@ -6,9 +6,10 @@ import SwiftUI
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let window: NSWindow
 
-    init(scheduler: BreakScheduler, previewAlert: @escaping (AlertKind) -> Void) {
+    init(scheduler: BreakScheduler, previewAlert: @escaping (AlertKind) -> Void,
+         previewWellness: @escaping (WellnessKind) -> Void) {
         window = NSWindow(contentViewController: NSHostingController(
-            rootView: SettingsView(scheduler: scheduler, previewAlert: previewAlert)
+            rootView: SettingsView(scheduler: scheduler, previewAlert: previewAlert, previewWellness: previewWellness)
         ))
         super.init()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]

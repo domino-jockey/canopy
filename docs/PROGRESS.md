@@ -160,8 +160,18 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **Smart Pause settings page** (blue pause icon): typing hold, the three triggers, focus app list (Add App… / remove), cooldown, "count as a break when away for", welcome back.
 - Tests: 11 new (smart pause holds the countdown, cooldown, no cooldown, overtime during smart pause, typing hold, 30 s cap, typing hold off, welcome back counts once, waking from sleep, settings save/load, Focus links). **56 tests in total, all passing.**
 
+## Phase 8: Wellness reminders
+
+**What it is:** posture and blink reminders between breaks. Code in `BreakReminder/Wellness/`.
+
+- **Two styles**, picked per reminder: LookAway's **bubble** (a glossy mauve → pink → peach circle that springs in; posture has an arrow nudging up, blink has eyes blinking) at a chosen spot on a 3×3 grid, or DeskRest's **screen flash** (every display darkens for ~1 s with the app icon and "Watch your posture" / "Remember to blink").
+- Counts **screen time** only (`WellnessTimer`): working, not idle, not on a break; not during Smart Pause unless allowed. Posture every 10 min, blink every 5 min by default. If both are due at once, posture shows and blink starts over.
+- Both start **off**; turn them on in the new **Wellness Reminders** page (pink heart): enabled, show every, style, size, position grid, ▶ try it. Common: dim the screen for bubbles, keep during Smart Pause, hide from screen recordings, restart after a break.
+- Windows ignore clicks and never take the keyboard. Shown on the screen the mouse is on (bubble) or every screen (flash).
+- Tests: 5 new (off by default, 5/10 min schedule and clash rule, only enabled ones, reset, settings save/load). **61 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 8: wellness reminders.
+1. Phase 9: sounds.
 
 ---
 
@@ -193,3 +203,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `48804da` | Look & feel: Catppuccin Mocha, mug icon, Live Status |
 | `8c3dc5d` | Phase 6: alerts & nudges |
 | `5c06b76` | Heads-up redesign (LookAway layout) |
+| `02323bf` | Phase 7: Smart Pause, typing hold, welcome back |
