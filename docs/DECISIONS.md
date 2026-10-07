@@ -75,6 +75,10 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Typing idle = the smallest of `secondsSinceLastEventType` for keyDown, left- and right-mouse-dragged.
 - `returnsFromIdle` is a counter, not a flag: the alerts controller compares it with the last value it saw, so it can't miss or double-show a return.
 
+## Keyboard shortcuts
+- Swift packages go in `project.yml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
+- `KeyboardShortcuts.Recorder` stores shortcuts in `UserDefaults` itself, so they're not part of `TimerSettings`.
+
 ## Look & theme
 - **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
 - Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.

@@ -22,6 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = StatusItemController(scheduler: scheduler, openSettings: settingsWindow.show)
         breakOverlay = BreakOverlayController(scheduler: scheduler)
         scheduler.start()
+        Shortcuts.listen(scheduler: scheduler) { [weak self] in self?.statusItem?.refreshWidth() }
         tick()
 
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in

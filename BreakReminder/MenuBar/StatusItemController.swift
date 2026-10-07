@@ -1,4 +1,5 @@
 import AppKit
+import KeyboardShortcuts
 import SwiftUI
 
 /// The menu bar item. Uses AppKit's NSStatusItem with a SwiftUI label inside,
@@ -48,11 +49,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             menu.addItem(info("\(prefix)\(next) in \(TimeFormat.clock(scheduler.workRemaining))"))
             menu.addItem(.separator())
             if scheduler.state == .paused {
-                add("Resume", #selector(resume), to: menu)
+                add("Resume", #selector(resume), to: menu, shortcut: .pauseResume)
             } else {
-                add("Pause", #selector(pause), to: menu)
+                add("Pause", #selector(pause), to: menu, shortcut: .pauseResume)
             }
-            add("Start break now", #selector(startBreak), to: menu)
+            add("Start break now", #selector(startBreak), to: menu, shortcut: .startBreakNow)
             if scheduler.canSnooze { menu.addItem(snoozeItem()) }
             if scheduler.canSkipNextBreak { add("Skip next break", #selector(skipNextBreak), to: menu) }
         case .onBreak:
@@ -74,9 +75,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         return item
     }
 
-    private func add(_ title: String, _ action: Selector, to menu: NSMenu) {
+    /// `shortcut`: show the user's recorded global shortcut next to the item.
+    private func add(_ title: String, _ action: Selector, to menu: NSMenu, shortcut: KeyboardShortcuts.Name? = nil) {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
         item.target = self
+        if let shortcut { item.setShortcut(for: shortcut) }
         menu.addItem(item)
     }
 

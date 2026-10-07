@@ -10,11 +10,18 @@ settings:
     SWIFT_VERSION: "6.0"
     CODE_SIGN_IDENTITY: "-" # "Sign to Run Locally": no Apple account needed
 
+packages:
+  KeyboardShortcuts: # global shortcut recorder (MIT)
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: 3.1.0
+
 targets:
   BreakReminder:
     type: application
     platform: macOS
     sources: [BreakReminder]
+    dependencies:
+      - package: KeyboardShortcuts
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.jammyjellyfish.BreakReminder

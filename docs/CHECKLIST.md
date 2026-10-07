@@ -143,9 +143,9 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** sounds play at the chosen volume, and each toggle silences its group. (Tests pass; waiting on the by-ear check.)
 
 ## Phase 10: Keyboard shortcuts
-- [ ] Global shortcut recorder rows (the [`KeyboardShortcuts`](https://github.com/sindresorhus/KeyboardShortcuts) Swift package does this well).
-- [ ] Three actions: **Pause/Resume** · **Start break now** · **Snooze 5 min**.
-- [ ] ✅ **Done when:** each shortcut works while another app is in front.
+- [x] Global shortcut recorder rows (the [`KeyboardShortcuts`](https://github.com/sindresorhus/KeyboardShortcuts) Swift package, 3.1.0, MIT).
+- [x] Three actions: **Pause/Resume** · **Start break now** · **Snooze 5 min**. No defaults: you record your own.
+- [ ] ✅ **Done when:** each shortcut works while another app is in front. (Waiting on the by-hand check.)
 
 ## Phase 11: Scheduling
 - [ ] **Office/working hours**: per-weekday hours. Outside them, the app sleeps.

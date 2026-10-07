@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SettingsPage: Hashable {
-    case general, screenBreaks, smartPause, wellness, alerts, sounds
+    case general, screenBreaks, smartPause, wellness, alerts, sounds, shortcuts
 
     var title: String {
         switch self {
@@ -11,6 +11,7 @@ enum SettingsPage: Hashable {
         case .wellness: "Wellness Reminders"
         case .alerts: "Alerts / Nudges"
         case .sounds: "Sounds"
+        case .shortcuts: "Keyboard Shortcuts"
         }
     }
 
@@ -22,6 +23,7 @@ enum SettingsPage: Hashable {
         case .wellness: "heart.fill"
         case .alerts: "bell.fill"
         case .sounds: "speaker.wave.2.fill"
+        case .shortcuts: "command"
         }
     }
 
@@ -34,6 +36,7 @@ enum SettingsPage: Hashable {
         case .wellness: Mocha.pink
         case .alerts: Mocha.peach
         case .sounds: Mocha.teal
+        case .shortcuts: Mocha.lavender
         }
     }
 }
@@ -61,6 +64,7 @@ struct SettingsView: View {
                 Section("Behavior & Feedback") {
                     row(.alerts)
                     row(.sounds)
+                    row(.shortcuts)
                 }
             }
             .scrollContentBackground(.hidden)
@@ -76,6 +80,7 @@ struct SettingsView: View {
                 case .wellness: WellnessSettingsPage(scheduler: scheduler, preview: previewWellness)
                 case .alerts: AlertsSettingsPage(scheduler: scheduler, preview: previewAlert)
                 case .sounds: SoundsSettingsPage(scheduler: scheduler)
+                case .shortcuts: ShortcutsSettingsPage()
                 }
             }
             .formStyle(.grouped)

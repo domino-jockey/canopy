@@ -177,8 +177,14 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - **Sounds** settings page (teal speaker): break sounds and reminder sounds toggles, each with a ▶, and one volume slider that plays a sample when let go.
 - Tests: 2 new (every sound loads from the app, settings save/load). **63 tests in total, all passing.**
 
+## Phase 10: Keyboard shortcuts
+
+- Three global shortcuts with the **KeyboardShortcuts** package (Sindre Sorhus, MIT; added in `project.yml` under `packages:`): **Pause or resume**, **Start break now**, **Snooze 5 minutes**. They start empty; record them on the new **Keyboard Shortcuts** page (lavender ⌘). The package saves them itself and warns about clashes with system shortcuts.
+- The menu bar menu shows the recorded shortcut next to Pause/Resume and Start break now.
+- No new tests (shortcuts need real key presses). **63 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 10: keyboard shortcuts.
+1. Phase 11: scheduling.
 
 ---
 
@@ -212,3 +218,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `5c06b76` | Heads-up redesign (LookAway layout) |
 | `02323bf` | Phase 7: Smart Pause, typing hold, welcome back |
 | `1523472` | Phase 8: wellness reminders |
+| `44645e5` | Phase 9: sounds |
