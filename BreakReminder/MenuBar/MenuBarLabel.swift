@@ -9,12 +9,12 @@ struct MenuBarLabel: View {
     var body: some View {
         HStack(spacing: 4) {
             if time == nil || settings.menuBarDisplay == .iconAndText {
-                // The app icon's mug in one colour (Assets.xcassets/MenuBarIcon). Dimmed while paused.
+                // The app icon's mug in one colour (Assets.xcassets/MenuBarIcon). Dimmed while paused or smart-paused.
                 Image("MenuBarIcon")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 15)
-                    .opacity(scheduler.state == .paused ? 0.5 : 1)
+                    .opacity(scheduler.state == .paused || scheduler.isSmartPaused ? 0.5 : 1)
             }
             if let time {
                 Text(time)

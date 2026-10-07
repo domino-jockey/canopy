@@ -31,6 +31,12 @@ enum AlertPosition: String, Codable {
     case topLeft, topCenter, topRight
 }
 
+/// An app picked as a "deep focus" app.
+struct FocusApp: Codable, Equatable, Hashable {
+    var bundleID: String
+    var name: String
+}
+
 /// The numbers and rules that drive the break cycle. All durations are in seconds.
 struct TimerSettings: Codable, Equatable {
     var workInterval: TimeInterval = 20 * 60
@@ -70,6 +76,22 @@ struct TimerSettings: Codable, Equatable {
     /// "45 minutes without a break" when breaks are skipped or snoozed past.
     var showOvertimeNudge = true
     var overtimeWhenPaused = false
+    /// Small pill when Smart Pause starts holding the timer, and when the timer resumes.
+    var showSmartPauseAlerts = true
+
+    /// A due break waits for a pause in typing or dragging (up to 30 s).
+    var holdOffWhileTyping = true
+    /// Smart Pause: microphone or camera in use.
+    var pauseForMeetings = true
+    var pauseForFocusApps = true
+    /// Apps that pause the timer while they're in front.
+    var focusApps: [FocusApp] = []
+    /// Smart Pause: a macOS Focus (like Do Not Disturb) is on.
+    var pauseForFocusMode = false
+    /// After Smart Pause ends, wait this long before the timer counts again.
+    var smartPauseCooldown: TimeInterval = 60
+    /// "Welcome back" pill after being away long enough to reset the cycle.
+    var showWelcomeBack = true
 
     private static let key = "timerSettings"
 
@@ -115,6 +137,14 @@ extension TimerSettings {
         read(.countdownSeconds, into: &countdownSeconds)
         read(.showOvertimeNudge, into: &showOvertimeNudge)
         read(.overtimeWhenPaused, into: &overtimeWhenPaused)
+        read(.showSmartPauseAlerts, into: &showSmartPauseAlerts)
+        read(.holdOffWhileTyping, into: &holdOffWhileTyping)
+        read(.pauseForMeetings, into: &pauseForMeetings)
+        read(.pauseForFocusApps, into: &pauseForFocusApps)
+        read(.focusApps, into: &focusApps)
+        read(.pauseForFocusMode, into: &pauseForFocusMode)
+        read(.smartPauseCooldown, into: &smartPauseCooldown)
+        read(.showWelcomeBack, into: &showWelcomeBack)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

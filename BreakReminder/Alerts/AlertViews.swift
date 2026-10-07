@@ -7,6 +7,8 @@ final class AlertModel {
     var secondsToBreak: TimeInterval = 0
     var minutesWithoutBreak = 0
     var canSnooze = true
+    /// What Smart Pause is holding the timer for. Nil means it just resumed.
+    var smartPause: SmartPauseReason?
 }
 
 /// Heads-up before a break, laid out like LookAway's: a round clock badge, the time above a friendly line,
@@ -129,6 +131,46 @@ struct OvertimeAlert: View {
             .alertPill()
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// "Paused for your call" when Smart Pause starts, "Timer resumed" when it ends.
+struct SmartPauseAlert: View {
+    let model: AlertModel
+
+    private var title: String {
+        switch model.smartPause {
+        case .meeting: "Paused for your call"
+        case .focusApp(let name): "Paused while \(name) is open"
+        case .focusMode: "Paused for your Focus"
+        case nil: "Timer resumed"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            AlertIcon(symbol: model.smartPause == nil ? "play.fill" : "pause.fill",
+                      color: model.smartPause == nil ? Mocha.green : Mocha.blue)
+            Text(title).font(.headline)
+        }
+        .alertPill()
+    }
+}
+
+/// After being away long enough for it to count as a break.
+struct WelcomeBackAlert: View {
+    let model: AlertModel
+
+    var body: some View {
+        HStack(spacing: 10) {
+            AlertIcon(symbol: "hand.wave.fill", color: Mocha.yellow)
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Welcome back").font(.headline)
+                Text("That counted as a break. Next one in \(TimeFormat.clock(model.secondsToBreak)).")
+                    .foregroundStyle(Mocha.subtext0)
+            }
+        }
+        .alertPill()
     }
 }
 

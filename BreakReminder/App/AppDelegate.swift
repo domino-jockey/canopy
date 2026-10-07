@@ -37,10 +37,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return .terminateNow
     }
 
+    /// `breakreminder://` links, opened by Shortcuts automations.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        urls.forEach { _ = SmartPauseMonitor.handle($0) }
+        tick()
+    }
+
     private func tick() {
         let anyInput = CGEventType(rawValue: ~0)!
         let idle = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: anyInput)
-        scheduler.tick(now: .now, idleSeconds: idle)
+        let typingIdle = [CGEventType.keyDown, .leftMouseDragged, .rightMouseDragged]
+            .map { CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: $0) }
+            .min()!
+        scheduler.tick(now: .now, idleSeconds: idle, typingIdleSeconds: typingIdle,
+                       smartPause: SmartPauseMonitor.reason(for: scheduler.settings))
         alerts?.update()
         statusItem?.refreshWidth()
     }

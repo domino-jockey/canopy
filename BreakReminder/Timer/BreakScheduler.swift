@@ -5,6 +5,13 @@ enum BreakKind: Equatable {
     case short, long
 }
 
+/// Why Smart Pause is holding the timer.
+enum SmartPauseReason: Equatable {
+    case meeting
+    case focusApp(name: String)
+    case focusMode
+}
+
 enum TimerState: Equatable {
     case stopped
     case working
@@ -33,6 +40,18 @@ final class BreakScheduler {
     /// Counts while paused too: pausing the timer doesn't mean you've stepped away.
     private(set) var timeSinceBreak: TimeInterval = 0
 
+    /// What Smart Pause detected on the last tick. Nil when nothing is holding the timer.
+    private(set) var smartPauseReason: SmartPauseReason?
+    /// After Smart Pause ends, the timer waits until this time before counting again.
+    private(set) var smartPauseCooldownEnds: Date?
+    /// Goes up by one each time the user comes back after being away long enough to reset the cycle.
+    /// The alerts controller watches it to show "Welcome back".
+    private(set) var returnsFromIdle = 0
+    /// The user has been away long enough to reset, and hasn't come back yet.
+    @ObservationIgnored private var isAway = false
+    /// How long a due break has waited for the user to stop typing.
+    @ObservationIgnored private var heldForTyping: TimeInterval = 0
+
     /// Skips used today. Saved to disk so restarting the app doesn't reset the daily limit.
     private var dailySkips: DailySkips
 
@@ -41,6 +60,10 @@ final class BreakScheduler {
 
     /// Ticks normally arrive every second. A bigger gap means the Mac was asleep.
     private let maxTickGap: TimeInterval = 10
+    /// A due break waits until there's been no typing or dragging for this long...
+    static let typingPause: TimeInterval = 2
+    /// ...but never longer than this, so typing can't dodge a break forever.
+    static let maxTypingHold: TimeInterval = 30
     /// The overtime nudge comes back this often while breaks keep being dodged.
     static let overtimeRepeat: TimeInterval = 15 * 60
 
@@ -110,6 +133,20 @@ final class BreakScheduler {
         return Int((timeSinceBreak - settings.workInterval) / Self.overtimeRepeat)
     }
 
+    /// Smart Pause is holding the timer: something was detected, or the cooldown after it hasn't passed.
+    var isSmartPaused: Bool {
+        isSmartPaused(at: lastTick ?? .now)
+    }
+
+    private func isSmartPaused(at time: Date) -> Bool {
+        smartPauseReason != nil || smartPauseCooldownEnds.map { time < $0 } == true
+    }
+
+    /// The work countdown is running: working, and not held by Smart Pause.
+    var isCountingDown: Bool {
+        state == .working && !isSmartPaused
+    }
+
     var canEndEarly: Bool {
         isWaitingForEndBreak || (isOnBreak && settings.allowEndingEarly && breakRemaining <= breakDuration / 4)
     }
@@ -130,21 +167,38 @@ final class BreakScheduler {
 
     // MARK: - Clock
 
-    func tick(now: Date, idleSeconds: TimeInterval) {
+    /// - Parameters:
+    ///   - idleSeconds: since the last input of any kind.
+    ///   - typingIdleSeconds: since the last key press or mouse drag.
+    ///   - smartPause: what Smart Pause detects right now, if anything.
+    func tick(now: Date, idleSeconds: TimeInterval, typingIdleSeconds: TimeInterval = .infinity,
+              smartPause: SmartPauseReason? = nil) {
         defer { lastTick = now }
         let elapsed = lastTick.map { now.timeIntervalSince($0) } ?? 0
         // Time spent asleep counts as time away, the same as being idle.
         let awaySeconds = max(idleSeconds, elapsed > maxTickGap ? elapsed : 0)
+
+        if smartPause == nil && smartPauseReason != nil {
+            smartPauseCooldownEnds = now + settings.smartPauseCooldown
+        }
+        smartPauseReason = smartPause
 
         switch state {
         case .working:
             if awaySeconds >= settings.idleResetAfter {
                 resetWork()
                 timeSinceBreak = 0
+                isAway = true
             } else if awaySeconds < settings.idlePauseAfter {
-                workRemaining -= elapsed
+                if isAway {
+                    isAway = false
+                    returnsFromIdle += 1
+                }
                 timeSinceBreak += elapsed
-                if workRemaining <= 0 { beginBreak() }
+                // Smart Pause holds the countdown, like pausing does.
+                guard !isSmartPaused(at: now) else { break }
+                workRemaining -= elapsed
+                if workRemaining <= 0 { breakDue(elapsed: elapsed, typingIdleSeconds: typingIdleSeconds) }
             }
         case .paused:
             if awaySeconds >= settings.idleResetAfter {
@@ -241,7 +295,17 @@ final class BreakScheduler {
 
     // MARK: - Helpers
 
+    /// Starts the break, unless "hold off while typing" says to wait for a pause in typing first.
+    private func breakDue(elapsed: TimeInterval, typingIdleSeconds: TimeInterval) {
+        if settings.holdOffWhileTyping && typingIdleSeconds < Self.typingPause && heldForTyping < Self.maxTypingHold {
+            heldForTyping += elapsed
+            return
+        }
+        beginBreak()
+    }
+
     private func beginBreak() {
+        heldForTyping = 0
         breakDuration = nextBreakKind == .long ? settings.longBreakDuration : settings.shortBreakDuration
         breakRemaining = breakDuration
         state = .onBreak(nextBreakKind)

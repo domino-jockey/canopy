@@ -44,7 +44,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         switch scheduler.state {
         case .working, .paused:
             let next = scheduler.nextBreakKind == .long ? "Long break" : "Next break"
-            let prefix = scheduler.state == .paused ? "Paused · " : ""
+            let prefix = scheduler.state == .paused ? "Paused · " : scheduler.isSmartPaused ? "Smart Pause · " : ""
             menu.addItem(info("\(prefix)\(next) in \(TimeFormat.clock(scheduler.workRemaining))"))
             menu.addItem(.separator())
             if scheduler.state == .paused {

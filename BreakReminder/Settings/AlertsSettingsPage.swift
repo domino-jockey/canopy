@@ -48,6 +48,15 @@ struct AlertsSettingsPage: View {
             }
 
             Section {
+                Toggle("Show when Smart Pause pauses or resumes the timer", isOn: settings.showSmartPauseAlerts)
+                previewButton(.smartPause)
+            } header: {
+                Text("Smart pause alerts")
+            } footer: {
+                Text("A small pill for a few seconds. Smart Pause has its own settings page.")
+            }
+
+            Section {
                 Toggle("Show how long I've gone without a break", isOn: settings.showOvertimeNudge)
                 Toggle("Show even when paused", isOn: settings.overtimeWhenPaused)
                     .disabled(!scheduler.settings.showOvertimeNudge)

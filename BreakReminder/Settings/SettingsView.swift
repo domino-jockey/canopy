@@ -1,12 +1,13 @@
 import SwiftUI
 
 enum SettingsPage: Hashable {
-    case general, screenBreaks, alerts
+    case general, screenBreaks, smartPause, alerts
 
     var title: String {
         switch self {
         case .general: "General"
         case .screenBreaks: "Screen Breaks"
+        case .smartPause: "Smart Pause"
         case .alerts: "Alerts / Nudges"
         }
     }
@@ -15,6 +16,7 @@ enum SettingsPage: Hashable {
         switch self {
         case .general: "gearshape.fill"
         case .screenBreaks: "leaf.fill"
+        case .smartPause: "pause.fill"
         case .alerts: "bell.fill"
         }
     }
@@ -24,6 +26,7 @@ enum SettingsPage: Hashable {
         switch self {
         case .general: Mocha.mauve
         case .screenBreaks: Mocha.green
+        case .smartPause: Mocha.blue
         case .alerts: Mocha.peach
         }
     }
@@ -45,6 +48,7 @@ struct SettingsView: View {
                 row(.general)
                 Section("Focus & Wellbeing") {
                     row(.screenBreaks)
+                    row(.smartPause)
                 }
                 Section("Behavior & Feedback") {
                     row(.alerts)
@@ -59,6 +63,7 @@ struct SettingsView: View {
                 switch page {
                 case .general: GeneralSettingsPage(scheduler: scheduler)
                 case .screenBreaks: ScreenBreaksSettingsPage(scheduler: scheduler)
+                case .smartPause: SmartPauseSettingsPage(scheduler: scheduler)
                 case .alerts: AlertsSettingsPage(scheduler: scheduler, preview: previewAlert)
                 }
             }

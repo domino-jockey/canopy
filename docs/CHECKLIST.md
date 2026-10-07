@@ -112,17 +112,17 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [x] ✅ **Done when:** all three alert types appear at the right time, in the chosen position, and their buttons work.
 
 ## Phase 7: Idle detection & Smart Pause
-- [ ] Idle detection (seconds since last input, via `CGEventSource`).
-- [ ] Idle mode *Automatic*: short idle pauses the timer. Long idle counts as a break and resets the timer.
-- [ ] "Welcome back" heads-up after idle.
-- [ ] Hold off breaks while **typing or dragging** (wait for a pause in input).
-- [ ] Triggers (each toggleable):
-  - [ ] **Meetings/calls**: microphone or camera in use (Core Audio / CoreMediaIO).
-  - [ ] **Deep focus apps**: user-picked apps in front (Zoom, OBS, games…).
-  - [ ] **macOS Focus mode** active.
-- [ ] Cooldown after smart pause ends (default 1 min).
-- [ ] Smart-pause alerts (moved from Phase 6): a small pill when a smart pause starts/ends, using `AlertPanel` and the alert position setting.
-- [ ] ✅ **Done when:** joining a FaceTime call, opening a deep focus app, and stepping away each pause the timer, and it resumes correctly afterward.
+- [x] Idle detection (seconds since last input, via `CGEventSource`). (Already in Phase 1.)
+- [x] Idle mode *Automatic*: short idle pauses the timer. Long idle counts as a break and resets the timer. "Count as a break when away for" picker on the Smart Pause page.
+- [x] "Welcome back" heads-up after idle.
+- [x] Hold off breaks while **typing or dragging** (wait for a 2 s pause in input, at most 30 s).
+- [x] Triggers (each toggleable):
+  - [x] **Meetings/calls**: microphone or camera in use (Core Audio / CoreMediaIO).
+  - [x] **Deep focus apps**: user-picked apps in front (Zoom, OBS, games…).
+  - [x] **macOS Focus mode** active. Via a Shortcuts automation (`breakreminder://focus-on` / `focus-off`): macOS won't tell free-signed apps about Focus.
+- [x] Cooldown after smart pause ends (default 1 min).
+- [x] Smart-pause alerts (moved from Phase 6): a small pill when a smart pause starts/ends, using `AlertPanel` and the alert position setting.
+- [ ] ✅ **Done when:** joining a FaceTime call, opening a deep focus app, and stepping away each pause the timer, and it resumes correctly afterward. (Tests pass; waiting on the by-eye check.)
 - (Video playback detection was dropped: the point is to make sure breaks happen.)
 
 ## Phase 8: Wellness reminders

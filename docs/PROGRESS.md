@@ -148,9 +148,20 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - "Start this break now" is a softly filled pill; `+1m · +5m · +15m` are outline-only pills (dimmed when no snoozes are left). Bigger padding, rounder corners and a thin border on the card.
 - New `TimeFormat.paddedClock` (`00:03`), used only by the heads-up. 1 new test.
 
+## Phase 7: Idle detection & Smart Pause
+
+**What it is:** the timer holds itself during calls, focus apps and Focus, waits for you to stop typing, and greets you after you've been away. Code in `BreakReminder/SmartPause/` and `BreakScheduler`.
+
+- **Smart Pause** (`SmartPauseMonitor`, asked every tick): microphone or camera in use by any app (no permission needed), a picked **deep focus app** in front, or a **macOS Focus**. While held, the countdown stops (overtime still counts), the menu bar icon dims and the menu says "Smart Pause · …". After it ends, a **cooldown** (default 1 min) passes before counting again.
+- **macOS Focus** works through Shortcuts: macOS only tells apps with a paid developer certificate whether Focus is on. The Smart Pause page explains the two automations (`breakreminder://focus-on` / `focus-off`).
+- **Hold off while typing/dragging:** a due break waits for a 2 s pause in key presses or drags, at most 30 s.
+- **Welcome back** pill after being away long enough to reset the cycle (or waking from sleep): "That counted as a break. Next one in 20:00".
+- **Smart pause alerts:** "Paused for your call" / "Paused while Xcode is open" / "Paused for your Focus", then "Timer resumed". Toggle + Preview on the Alerts page.
+- **Smart Pause settings page** (blue pause icon): typing hold, the three triggers, focus app list (Add App… / remove), cooldown, "count as a break when away for", welcome back.
+- Tests: 11 new (smart pause holds the countdown, cooldown, no cooldown, overtime during smart pause, typing hold, 30 s cap, typing hold off, welcome back counts once, waking from sleep, settings save/load, Focus links). **56 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 7: idle detection & Smart Pause, including the smart-pause alert pills moved from Phase 6.
-2. Add the Phase 6 commit to the table below (if it was made after this was written).
+1. Phase 8: wellness reminders.
 
 ---
 
@@ -180,3 +191,5 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `467926b` | Phase 5: settings window |
 | `063d6ad` | Fixes after Phase 5: ⌘Q during a break, frozen fade-out, Stage Manager |
 | `48804da` | Look & feel: Catppuccin Mocha, mug icon, Live Status |
+| `8c3dc5d` | Phase 6: alerts & nudges |
+| `5c06b76` | Heads-up redesign (LookAway layout) |

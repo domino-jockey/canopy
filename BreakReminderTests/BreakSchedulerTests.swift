@@ -21,10 +21,11 @@ final class FakeClock {
         scheduler.tick(now: now, idleSeconds: 0)
     }
 
-    func run(seconds: Int, idle: TimeInterval = 0) {
+    func run(seconds: Int, idle: TimeInterval = 0, typingIdle: TimeInterval = .infinity,
+             smartPause: SmartPauseReason? = nil) {
         for _ in 0..<seconds {
             now += 1
-            scheduler.tick(now: now, idleSeconds: idle)
+            scheduler.tick(now: now, idleSeconds: idle, typingIdleSeconds: typingIdle, smartPause: smartPause)
         }
     }
 

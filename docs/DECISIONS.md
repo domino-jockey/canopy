@@ -68,6 +68,13 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Overtime uses `BreakScheduler.timeSinceBreak` (reset only by a break that ends normally or via End Break, and by long idle) and `overtimeStep` (0 past the interval, +1 every 15 min). `endBreak(taken:)` marks skips so they don't reset it. Each step shows the nudge once.
 - Heads-up and overtime share the top spot; the heads-up wins, the nudge waits until it's gone.
 
+## Smart Pause
+- Detection lives in `SmartPauseMonitor` (hardware/app checks, not testable); the rules (hold, cooldown, typing hold, welcome back) live in `BreakScheduler.tick`, which gets the detected reason as a parameter. Tests pass fake reasons.
+- Mic: Core Audio `kAudioDevicePropertyDeviceIsRunningSomewhere` on every device with input streams. Camera: CoreMediaIO `kCMIODevicePropertyDeviceIsRunningSomewhere`. Neither needs a permission prompt.
+- **macOS Focus can't be read directly.** `INFocusStatusCenter` needs the Communication Notifications entitlement, which needs a paid developer provisioning profile (the build fails with "requires a provisioning profile"). Without it, it says "authorized" but always reports not focused. The DoNotDisturb database in `~/Library/DoNotDisturb/DB/` has no "active" record on macOS 27. So: Shortcuts automations open `breakreminder://focus-on/off` (URL scheme in `BreakReminder/Info.plist`, merged into the generated Info.plist via `INFOPLIST_FILE`).
+- Typing idle = the smallest of `secondsSinceLastEventType` for keyDown, left- and right-mouse-dragged.
+- `returnsFromIdle` is a counter, not a flag: the alerts controller compares it with the last value it saw, so it can't miss or double-show a return.
+
 ## Look & theme
 - **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
 - Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.
