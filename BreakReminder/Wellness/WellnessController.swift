@@ -33,7 +33,7 @@ final class WellnessController {
 
         // Count screen time only: working, at the Mac, and (unless allowed) not held by Smart Pause.
         // A long gap between ticks means the Mac slept.
-        let counting = scheduler.state == .working
+        let counting = scheduler.state == .working && !scheduler.isOffHours
             && idleSeconds < settings.idlePauseAfter
             && (!scheduler.isSmartPaused || settings.remindersDuringSmartPause)
             && elapsed < 10

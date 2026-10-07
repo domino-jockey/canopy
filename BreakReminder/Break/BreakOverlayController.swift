@@ -73,7 +73,8 @@ final class BreakOverlayController {
 
     private func show(kind: BreakKind) {
         let model = OverlayModel(display: BreakDisplay(scheduler))
-        let message = BreakMessages.random(for: kind)
+        let message = scheduler.plannedBreakName.map { BreakMessage(title: $0, subtitle: "Your planned break. Enjoy it.") }
+            ?? BreakMessages.random(for: kind)
         self.model = model
         observeDisplay(model)
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }

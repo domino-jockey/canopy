@@ -14,7 +14,7 @@ struct MenuBarLabel: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 15)
-                    .opacity(scheduler.state == .paused || scheduler.isSmartPaused ? 0.5 : 1)
+                    .opacity(scheduler.state == .paused || scheduler.isSmartPaused || scheduler.isOffHours ? 0.5 : 1)
             }
             if let time {
                 Text(time)
@@ -30,7 +30,7 @@ struct MenuBarLabel: View {
 
     // Breaks aren't shown here: the break screen covers the menu bar.
     private var time: String? {
-        guard settings.showLiveStatus, scheduler.state != .stopped else { return nil }
+        guard settings.showLiveStatus, scheduler.state != .stopped, !scheduler.isOffHours else { return nil }
         let remaining = scheduler.workRemaining
         return settings.timerStyle == .clock ? TimeFormat.clock(remaining) : TimeFormat.minutes(remaining)
     }

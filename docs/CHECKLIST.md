@@ -148,10 +148,10 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** each shortcut works while another app is in front. (Waiting on the by-hand check.)
 
 ## Phase 11: Scheduling
-- [ ] **Office/working hours**: per-weekday hours. Outside them, the app sleeps.
-- [ ] **Planned breaks**: fixed-time breaks (e.g. 12:30 lunch, 45 min).
-- [ ] **Clock Out** (DeskRest): at your end-of-day time, show a full-screen "time to stop" with a personal message.
-- [ ] ✅ **Done when:** with hours set to end in 2 minutes, the app stops and Clock Out appears. A planned break fires on time.
+- [x] **Office/working hours**: per-weekday hours. Outside them, the app sleeps.
+- [x] **Planned breaks**: fixed-time breaks (e.g. 12:30 lunch, 45 min).
+- [x] **Clock Out** (DeskRest): at your end-of-day time, show a full-screen "time to stop" with a personal message.
+- [ ] ✅ **Done when:** with hours set to end in 2 minutes, the app stops and Clock Out appears. A planned break fires on time. (Tests pass; waiting on the by-eye check.)
 
 ## Phase 12: Break screen customization & exercises
 - [ ] "Customize break screen" page: background = blurred wallpaper (default) / image / gradient · custom messages list · show/hide clock.

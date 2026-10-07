@@ -183,8 +183,18 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - The menu bar menu shows the recorded shortcut next to Pause/Resume and Start break now.
 - No new tests (shortcuts need real key presses). **63 tests in total, all passing.**
 
+## Phase 11: Scheduling
+
+**What it is:** clock-time rules, on a new **Schedule** page (sapphire calendar). Code in `BreakReminder/Schedule/`.
+
+- **Office hours:** per weekday on/off with from–to times (weekdays 9–5 by default; the whole feature starts off). Outside them the timer sleeps: no countdown, no breaks, no reminders, no overtime. The menu bar shows just the dimmed icon and the menu says "Outside office hours".
+- **Planned breaks:** name, time, length (e.g. Lunch 12:30, 45 min), every day. The break screen shows the name as its title. They don't count towards the regular cycle (the long-break counter). Missed while the Mac was asleep → skipped.
+- **Clock Out:** at the set time (default 6 PM, off by default) every display shows "Time to clock out" with your message. **Done for today** stops the timer; **Keep working** closes it. Preview button on the page.
+- The menu has a new **Start** item while stopped.
+- Tests: 7 new (office hours rule, timer sleeps off hours, planned break on time, doesn't move the cycle, skipped while asleep, Clock Out fires once, settings save/load). **70 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 11: scheduling.
+1. Phase 12: break screen customization & exercises.
 
 ---
 
@@ -219,3 +229,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `02323bf` | Phase 7: Smart Pause, typing hold, welcome back |
 | `1523472` | Phase 8: wellness reminders |
 | `44645e5` | Phase 9: sounds |
+| `dcdd0c7` | Phase 10: keyboard shortcuts |

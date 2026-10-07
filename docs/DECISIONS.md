@@ -75,6 +75,12 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Typing idle = the smallest of `secondsSinceLastEventType` for keyDown, left- and right-mouse-dragged.
 - `returnsFromIdle` is a counter, not a flag: the alerts controller compares it with the last value it saw, so it can't miss or double-show a return.
 
+## Scheduling
+- Times of day are saved as **minutes after midnight** (`Int`), in the Mac's time zone. Settings pickers convert with `DaySchedule.date(forMinutes:)` / `minutes(of:)`.
+- "Has 12:30 just passed?" = `DaySchedule.passed(minute, from: lastTick, to: now)`: true exactly once across consecutive ticks. Skipped when the tick gap is > 10 s (asleep), so waking up at 1 PM doesn't start lunch.
+- `checkClockTimes` runs in a `defer` after the countdown in `tick`, so a planned break starting this tick isn't counted down by a second at once. (Swift runs `defer`s in reverse order, so it still sees the old `lastTick`.)
+- `clockOuts` is a counter for the same reason as `returnsFromIdle`.
+
 ## Keyboard shortcuts
 - Swift packages go in `project.yml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
 - `KeyboardShortcuts.Recorder` stores shortcuts in `UserDefaults` itself, so they're not part of `TimerSettings`.

@@ -140,6 +140,16 @@ struct TimerSettings: Codable, Equatable {
     /// 0 to 1.
     var soundVolume = 0.6
 
+    /// Outside office hours the timer sleeps: no countdown, no breaks, no reminders.
+    var officeHoursEnabled = false
+    /// One per weekday, Sunday first (matching `Calendar`'s weekday numbers minus 1). Weekdays 9 to 5.
+    var officeHours = (0..<7).map { DayHours(on: (1...5).contains($0), start: 9 * 60, end: 17 * 60) }
+    var plannedBreaks: [PlannedBreak] = []
+    /// At this time of day, a full-screen "time to stop" with a personal message.
+    var clockOutEnabled = false
+    var clockOutTime = 18 * 60
+    var clockOutMessage = "Close the laptop. The rest can wait until tomorrow."
+
     func reminder(_ kind: WellnessKind) -> WellnessReminder {
         kind == .posture ? posture : blink
     }
@@ -205,6 +215,12 @@ extension TimerSettings {
         read(.breakSounds, into: &breakSounds)
         read(.reminderSounds, into: &reminderSounds)
         read(.soundVolume, into: &soundVolume)
+        read(.officeHoursEnabled, into: &officeHoursEnabled)
+        read(.officeHours, into: &officeHours)
+        read(.plannedBreaks, into: &plannedBreaks)
+        read(.clockOutEnabled, into: &clockOutEnabled)
+        read(.clockOutTime, into: &clockOutTime)
+        read(.clockOutMessage, into: &clockOutMessage)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

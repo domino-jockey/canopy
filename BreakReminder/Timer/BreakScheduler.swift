@@ -47,6 +47,12 @@ final class BreakScheduler {
     /// Goes up by one each time the user comes back after being away long enough to reset the cycle.
     /// The alerts controller watches it to show "Welcome back".
     private(set) var returnsFromIdle = 0
+    /// Outside office hours (when they're on): the timer sleeps.
+    private(set) var isOffHours = false
+    /// Name of the planned break on screen. Nil for regular breaks.
+    private(set) var plannedBreakName: String?
+    /// Goes up by one each time the Clock Out time passes. The Clock Out screen watches it.
+    private(set) var clockOuts = 0
     /// The user has been away long enough to reset, and hasn't come back yet.
     @ObservationIgnored private var isAway = false
     /// How long a due break has waited for the user to stop typing.
@@ -144,7 +150,7 @@ final class BreakScheduler {
 
     /// The work countdown is running: working, and not held by Smart Pause.
     var isCountingDown: Bool {
-        state == .working && !isSmartPaused
+        state == .working && !isSmartPaused && !isOffHours
     }
 
     var canEndEarly: Bool {
@@ -182,8 +188,13 @@ final class BreakScheduler {
             smartPauseCooldownEnds = now + settings.smartPauseCooldown
         }
         smartPauseReason = smartPause
+        isOffHours = !DaySchedule.isWorkingHours(now, settings: settings)
+        // After the countdown, so a planned break starting now isn't counted down straight away.
+        defer { checkClockTimes(now: now, elapsed: elapsed) }
 
         switch state {
+        case .working where isOffHours:
+            break
         case .working:
             if awaySeconds >= settings.idleResetAfter {
                 resetWork()
@@ -200,6 +211,8 @@ final class BreakScheduler {
                 workRemaining -= elapsed
                 if workRemaining <= 0 { breakDue(elapsed: elapsed, typingIdleSeconds: typingIdleSeconds) }
             }
+        case .paused where isOffHours:
+            break
         case .paused:
             if awaySeconds >= settings.idleResetAfter {
                 timeSinceBreak = 0
@@ -295,6 +308,21 @@ final class BreakScheduler {
 
     // MARK: - Helpers
 
+    /// Planned breaks and Clock Out fire when their time of day passes. Skipped if the Mac was asleep then.
+    private func checkClockTimes(now: Date, elapsed: TimeInterval) {
+        guard let lastTick, elapsed <= maxTickGap else { return }
+        if settings.clockOutEnabled && DaySchedule.passed(settings.clockOutTime, from: lastTick, to: now) {
+            clockOuts += 1
+        }
+        if state == .working || state == .paused,
+           let planned = settings.plannedBreaks.first(where: { DaySchedule.passed($0.time, from: lastTick, to: now) }) {
+            plannedBreakName = planned.name
+            breakDuration = planned.duration
+            breakRemaining = planned.duration
+            state = .onBreak(.long)
+        }
+    }
+
     /// Starts the break, unless "hold off while typing" says to wait for a pause in typing first.
     private func breakDue(elapsed: TimeInterval, typingIdleSeconds: TimeInterval) {
         if settings.holdOffWhileTyping && typingIdleSeconds < Self.typingPause && heldForTyping < Self.maxTypingHold {
@@ -314,7 +342,9 @@ final class BreakScheduler {
     /// `taken` is false when the break was skipped, so it doesn't reset `timeSinceBreak`.
     private func endBreak(taken: Bool) {
         if taken { timeSinceBreak = 0 }
-        completedBreaks += 1
+        // Planned breaks are extra: they don't move the regular cycle towards its long break.
+        if plannedBreakName == nil { completedBreaks += 1 }
+        plannedBreakName = nil
         resetWork()
         state = .working
     }

@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var breakOverlay: BreakOverlayController?
     private var alerts: AlertsController?
     private var wellness: WellnessController?
+    private var clockOut: ClockOutController?
     private var settingsWindow: SettingsWindowController?
     private var timer: Timer?
 
@@ -15,8 +16,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.alerts = alerts
         let wellness = WellnessController(scheduler: scheduler)
         self.wellness = wellness
+        let clockOut = ClockOutController(scheduler: scheduler)
+        self.clockOut = clockOut
         let settingsWindow = SettingsWindowController(
-            scheduler: scheduler, previewAlert: alerts.preview, previewWellness: wellness.preview
+            scheduler: scheduler, previewAlert: alerts.preview, previewWellness: wellness.preview,
+            previewClockOut: clockOut.show
         )
         self.settingsWindow = settingsWindow
         statusItem = StatusItemController(scheduler: scheduler, openSettings: settingsWindow.show)
@@ -59,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                        smartPause: SmartPauseMonitor.reason(for: scheduler.settings))
         alerts?.update()
         wellness?.update(idleSeconds: idle)
+        clockOut?.update()
         statusItem?.refreshWidth()
     }
 }

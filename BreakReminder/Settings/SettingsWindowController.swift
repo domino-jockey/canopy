@@ -7,9 +7,10 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let window: NSWindow
 
     init(scheduler: BreakScheduler, previewAlert: @escaping (AlertKind) -> Void,
-         previewWellness: @escaping (WellnessKind) -> Void) {
+         previewWellness: @escaping (WellnessKind) -> Void, previewClockOut: @escaping () -> Void) {
         window = NSWindow(contentViewController: NSHostingController(
-            rootView: SettingsView(scheduler: scheduler, previewAlert: previewAlert, previewWellness: previewWellness)
+            rootView: SettingsView(scheduler: scheduler, previewAlert: previewAlert, previewWellness: previewWellness,
+                                   previewClockOut: previewClockOut)
         ))
         super.init()
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]

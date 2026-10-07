@@ -45,8 +45,12 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         switch scheduler.state {
         case .working, .paused:
             let next = scheduler.nextBreakKind == .long ? "Long break" : "Next break"
-            let prefix = scheduler.state == .paused ? "Paused · " : scheduler.isSmartPaused ? "Smart Pause · " : ""
-            menu.addItem(info("\(prefix)\(next) in \(TimeFormat.clock(scheduler.workRemaining))"))
+            if scheduler.isOffHours {
+                menu.addItem(info("Outside office hours"))
+            } else {
+                let prefix = scheduler.state == .paused ? "Paused · " : scheduler.isSmartPaused ? "Smart Pause · " : ""
+                menu.addItem(info("\(prefix)\(next) in \(TimeFormat.clock(scheduler.workRemaining))"))
+            }
             menu.addItem(.separator())
             if scheduler.state == .paused {
                 add("Resume", #selector(resume), to: menu, shortcut: .pauseResume)
@@ -60,6 +64,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             break // the break screen covers the menu bar, so there's nothing to show
         case .stopped:
             menu.addItem(info("Stopped"))
+            menu.addItem(.separator())
+            add("Start", #selector(start), to: menu)
         }
 
         menu.addItem(.separator())
@@ -98,6 +104,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     // MARK: - Actions
 
+    @objc private func start() { update { scheduler.start() } }
     @objc private func pause() { update { scheduler.pause() } }
     @objc private func resume() { update { scheduler.resume() } }
     @objc private func startBreak() { update { scheduler.startBreakNow() } }
