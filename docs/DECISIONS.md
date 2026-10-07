@@ -69,6 +69,10 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Overtime uses `BreakScheduler.timeSinceBreak` (reset only by a break that ends normally or via End Break, and by long idle) and `overtimeStep` (0 past the interval, +1 every 15 min). `endBreak(taken:)` marks skips so they don't reset it. Each step shows the nudge once.
 - Heads-up and overtime share the top spot; the heads-up wins, the nudge waits until it's gone.
 
+## Performance
+- **`@Observable` notifies on every set, even with the same value.** Anything set once per tick redraws every view that reads it, hidden windows included. Set only when different (`AlertsController.assign`, `BreakScheduler.tick`). This took idle CPU from ~10% to ~1%.
+- Measure with `ps -o %cpu=,rss= -p $(pgrep -x BreakReminder)` over a minute, and `sample BreakReminder 5` to see where time goes. After `pkill`, wait a second before `open`, or launch fails with error -600.
+
 ## Smart Pause
 - Detection lives in `SmartPauseMonitor` (hardware/app checks, not testable); the rules (hold, cooldown, typing hold, welcome back) live in `BreakScheduler.tick`, which gets the detected reason as a parameter. Tests pass fake reasons.
 - Mic: Core Audio `kAudioDevicePropertyDeviceIsRunningSomewhere` on every device with input streams. Camera: CoreMediaIO `kCMIODevicePropertyDeviceIsRunningSomewhere`. Neither needs a permission prompt.
@@ -81,6 +85,9 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - "Has 12:30 just passed?" = `DaySchedule.passed(minute, from: lastTick, to: now)`: true exactly once across consecutive ticks. Skipped when the tick gap is > 10 s (asleep), so waking up at 1 PM doesn't start lunch.
 - `checkClockTimes` runs in a `defer` after the countdown in `tick`, so a planned break starting this tick isn't counted down by a second at once. (Swift runs `defer`s in reverse order, so it still sees the old `lastTick`.)
 - `clockOuts` is a counter for the same reason as `returnsFromIdle`.
+
+## Onboarding
+- The welcome window is shown once (`hasSeenWelcome` in UserDefaults) and **skipped under tests** (`XCTestConfigurationFilePath` is set): tests run inside the real app with the real UserDefaults, so they'd use it up otherwise. To see it again: `defaults delete com.jammyjellyfish.BreakReminder hasSeenWelcome`.
 
 ## Keyboard shortcuts
 - Swift packages go in `project.yml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).

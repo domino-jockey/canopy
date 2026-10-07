@@ -62,18 +62,22 @@ final class AlertsController {
         let left = scheduler.workRemaining
         updateFlash()
 
-        model.breakKind = scheduler.nextBreakKind
-        model.canSnooze = scheduler.canSnooze
+        // Every change redraws the pills (even hidden ones), so only change what's different,
+        // and only follow the countdown when a pill showing it could be up.
+        assign(\.breakKind, scheduler.nextBreakKind)
+        assign(\.canSnooze, scheduler.canSnooze)
         switch previewing {
-        case .headsUp: model.secondsToBreak = settings.headsUpSeconds
-        case .countdown: model.secondsToBreak = settings.countdownSeconds
-        case .overtime: model.minutesWithoutBreak = 45
-        case .smartPause: model.smartPause = .meeting
-        case .welcomeBack: model.secondsToBreak = settings.workInterval
+        case .headsUp: assign(\.secondsToBreak, settings.headsUpSeconds)
+        case .countdown: assign(\.secondsToBreak, settings.countdownSeconds)
+        case .overtime: assign(\.minutesWithoutBreak, 45)
+        case .smartPause: assign(\.smartPause, .meeting)
+        case .welcomeBack: assign(\.secondsToBreak, settings.workInterval)
         case nil:
-            model.secondsToBreak = left
-            model.minutesWithoutBreak = Int(scheduler.timeSinceBreak / 60)
-            if flash?.kind == .smartPause { model.smartPause = scheduler.smartPauseReason }
+            if left <= max(settings.headsUpSeconds, settings.countdownSeconds) + 1 || flash?.kind == .welcomeBack {
+                assign(\.secondsToBreak, left)
+            }
+            assign(\.minutesWithoutBreak, Int(scheduler.timeSinceBreak / 60))
+            if flash?.kind == .smartPause { assign(\.smartPause, scheduler.smartPauseReason) }
         }
 
         // Heads-up and countdown: from N seconds before the break until it starts.
@@ -101,6 +105,10 @@ final class AlertsController {
         followCursor(countdown.isShown)
     }
 
+    private func assign<Value: Equatable>(_ property: ReferenceWritableKeyPath<AlertModel, Value>, _ value: Value) {
+        if model[keyPath: property] != value { model[keyPath: property] = value }
+    }
+
     /// Starts a short-lived pill when Smart Pause starts or ends, or the user comes back from being away.
     private func updateFlash() {
         if let flash, flash.ends <= .now { self.flash = nil }
@@ -110,7 +118,7 @@ final class AlertsController {
             wasSmartPaused = scheduler.isSmartPaused
             // Only worth mentioning while the timer would otherwise be counting.
             if settings.showSmartPauseAlerts && scheduler.state == .working {
-                model.smartPause = scheduler.smartPauseReason
+                assign(\.smartPause, scheduler.smartPauseReason)
                 flash = (.smartPause, .now + flashLength)
             }
         }

@@ -13,6 +13,9 @@ final class BreakOverlayController {
     /// The last few letters typed on the break screen, to spot "emergency".
     private var typed = ""
     private var activationObserver: NSObjectProtocol?
+    private var screensObserver: NSObjectProtocol?
+    /// The message on screen, so a display plugged in mid-break shows the same one.
+    private var message: BreakMessage?
 
     private let blurInDuration = 0.4
     private let revealDuration = 0.6
@@ -26,6 +29,12 @@ final class BreakOverlayController {
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.takeFocus() }
+        }
+        // A display plugged in or out mid-break: cover exactly the screens there are now.
+        screensObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.screensChanged() }
         }
     }
 
@@ -76,6 +85,7 @@ final class BreakOverlayController {
         let message = scheduler.plannedBreakName.map { BreakMessage(title: $0, subtitle: "Your planned break. Enjoy it.") }
             ?? BreakMessages.random(for: kind, settings: scheduler.settings)
         self.model = model
+        self.message = message
         observeDisplay(model)
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
 
@@ -120,6 +130,15 @@ final class BreakOverlayController {
                 MainActor.assumeIsolated { closing.forEach { $0.close() } }
             }
         }
+    }
+
+    /// Swaps the break windows for fresh ones on the current screens, already fully shown (no fade).
+    private func screensChanged() {
+        guard let model, let message, !windows.isEmpty else { return }
+        windows.forEach { $0.close() }
+        windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
+        windows.forEach { $0.alphaValue = 1 }
+        takeFocus()
     }
 
     private func makeWindow(on screen: NSScreen, model: OverlayModel, message: BreakMessage) -> NSWindow {

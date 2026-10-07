@@ -27,6 +27,7 @@ struct WellnessBubble: View {
     let kind: WellnessKind
     let diameter: CGFloat
     @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -42,15 +43,16 @@ struct WellnessBubble: View {
         .frame(width: diameter, height: diameter)
         .overlay(Circle().strokeBorder(.white.opacity(0.35), lineWidth: 2))
         .shadow(color: .black.opacity(0.35), radius: 12, y: 4)
-        .scaleEffect(appeared ? 1 : 0.4)
-        .opacity(appeared ? 1 : 0)
+        // "Reduce motion": no bounce in, no moving arrow or blinking (the window still fades).
+        .scaleEffect(appeared || reduceMotion ? 1 : 0.4)
+        .opacity(appeared || reduceMotion ? 1 : 0)
         .onAppear {
             withAnimation(.spring(duration: 0.5, bounce: 0.4)) { appeared = true }
         }
     }
 
     private var postureArrow: some View {
-        PhaseAnimator([false, true]) { up in
+        PhaseAnimator(reduceMotion ? [false] : [false, true]) { up in
             Image(systemName: "chevron.up")
                 .font(.system(size: diameter * 0.36, weight: .black))
                 .foregroundStyle(Mocha.crust)
@@ -59,7 +61,7 @@ struct WellnessBubble: View {
     }
 
     private var blinkingEyes: some View {
-        PhaseAnimator([true, false]) { open in
+        PhaseAnimator(reduceMotion ? [true] : [true, false]) { open in
             HStack(spacing: diameter * 0.2) {
                 ForEach(0..<2, id: \.self) { _ in
                     Capsule()

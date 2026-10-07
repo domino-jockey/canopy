@@ -46,7 +46,7 @@ struct HeadsUpAlert: View {
         }
         .font(.body)
         .padding(16)
-        .glassEffect(.regular.tint(Mocha.base.opacity(0.75)), in: .rect(cornerRadius: 26))
+        .modifier(AlertBackground(cornerRadius: 26, tint: 0.75))
         .overlay(RoundedRectangle(cornerRadius: 26).strokeBorder(Mocha.surface1.opacity(0.8)))
         .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
         .foregroundStyle(Mocha.text)
@@ -188,12 +188,27 @@ private struct AlertIcon: View {
     }
 }
 
+/// Mocha-tinted Liquid Glass, or solid Mocha when "Reduce transparency" is on.
+private struct AlertBackground: ViewModifier {
+    let cornerRadius: CGFloat
+    let tint: Double
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    func body(content: Content) -> some View {
+        if reduceTransparency {
+            content.background(Mocha.base, in: .rect(cornerRadius: cornerRadius))
+        } else {
+            content.glassEffect(.regular.tint(Mocha.base.opacity(tint)), in: .rect(cornerRadius: cornerRadius))
+        }
+    }
+}
+
 private extension View {
     /// Mocha-tinted Liquid Glass pill.
     func alertPill() -> some View {
         padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .glassEffect(.regular.tint(Mocha.base.opacity(0.6)), in: .rect(cornerRadius: 18))
+            .modifier(AlertBackground(cornerRadius: 18, tint: 0.6))
             .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
             .foregroundStyle(Mocha.text)
             .environment(\.colorScheme, .dark)

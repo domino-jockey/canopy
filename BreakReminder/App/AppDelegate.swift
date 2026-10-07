@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var wellness: WellnessController?
     private var clockOut: ClockOutController?
     private var settingsWindow: SettingsWindowController?
+    private let welcome = WelcomeWindowController()
     private var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -26,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = StatusItemController(scheduler: scheduler, openSettings: settingsWindow.show)
         breakOverlay = BreakOverlayController(scheduler: scheduler)
         scheduler.start()
+        welcome.showIfFirstLaunch(openSettings: settingsWindow.show)
         Shortcuts.listen(scheduler: scheduler) { [weak self] in self?.statusItem?.refreshWidth() }
         tick()
 

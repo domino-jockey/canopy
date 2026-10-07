@@ -191,8 +191,10 @@ final class BreakScheduler {
         if smartPause == nil && smartPauseReason != nil {
             smartPauseCooldownEnds = now + settings.smartPauseCooldown
         }
-        smartPauseReason = smartPause
-        isOffHours = !DaySchedule.isWorkingHours(now, settings: settings)
+        // Only set when different: every set redraws whatever is watching.
+        if smartPauseReason != smartPause { smartPauseReason = smartPause }
+        let offHours = !DaySchedule.isWorkingHours(now, settings: settings)
+        if isOffHours != offHours { isOffHours = offHours }
         // After the countdown, so a planned break starting now isn't counted down straight away.
         defer { checkClockTimes(now: now, elapsed: elapsed) }
 

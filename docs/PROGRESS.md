@@ -209,8 +209,18 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - Streak = days in a row with at least the goal. Today only joins once it reaches the goal, so the streak doesn't drop to 0 every morning.
 - Tests: 6 new (scheduler records the three events, survives restart, 7 days oldest first, streak, gap breaks streak, old days dropped). **83 tests in total, all passing.**
 
+## Phase 14: Polish
+
+- **Displays changing mid-break:** plugging a screen in or out swaps the break windows for ones covering the current screens (already shown, same message).
+- **Accessibility:** "Reduce transparency" → alert pills and the break screen use solid Mocha instead of glass/blur. "Reduce motion" → wellness bubbles don't bounce, nudge or blink; the snooze stack slides without a spring.
+- **Welcome window** on first launch (app icon, three things to know, Open Settings / Get Started). It doesn't show while tests run (tests run inside the app).
+- **About** page (grey ⓘ, own "BreakReminder" sidebar section): icon, version, credits with links.
+- **CPU fix:** idle CPU was ~10%. Cause: the alert pills' shared values were set every second, and with `@Observable` every set redraws whatever watches it, even hidden pill windows. Now values are only set when they change, and the countdown only when a pill showing it could be up. Now ~1% CPU, ~115 MB memory (Debug build).
+- The old Phase 14 icon item (BreakTimer icon + LookAway gradient) was dropped: the Mocha mug replaced it.
+- **83 tests, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 14: polish.
+1. Phase 15: packaging.
 
 ---
 
@@ -248,3 +258,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `dcdd0c7` | Phase 10: keyboard shortcuts |
 | `fedc35a` | Phase 11: office hours, planned breaks, Clock Out |
 | `79029c7` | Phase 12: break screen customization, exercises |
+| `d2fe14e` | Phase 13: stats |

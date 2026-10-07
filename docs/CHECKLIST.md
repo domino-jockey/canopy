@@ -164,12 +164,12 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** after a few days of use, the numbers and streak match what actually happened.
 
 ## Phase 14: Polish
-- [ ] App icon + menu bar glyph: based on **BreakTimer's** icons, restyled with LookAway's gradient (purplish-pink → orange; check colours against `resources/lookaway-free-trial-screenshots/app_icon.png`).
-- [ ] Every animation is smooth (no jank) on all connected displays, including when a display is plugged in or out mid-break.
-- [ ] Respect "Reduce motion" and "Reduce transparency" accessibility settings.
-- [ ] First-launch onboarding: quick intro + ask for permissions only when a feature needs them.
-- [ ] About page (version, credits).
-- [ ] Check memory/CPU use stays low over a full day (Activity Monitor).
+- [x] ~~App icon + menu bar glyph based on BreakTimer's icons with LookAway's gradient.~~ Replaced by the Mocha tea mug (Look & feel).
+- [x] Every animation is smooth on all connected displays, including when a display is plugged in or out mid-break (break windows are rebuilt for the new set of screens).
+- [x] Respect "Reduce motion" (no bounce/arrow/blink on bubbles, gentler snooze stack) and "Reduce transparency" (solid Mocha instead of glass and blur).
+- [x] First-launch welcome window: quick intro. No permissions to ask for (nothing needs one).
+- [x] About page (version, credits).
+- [x] Check memory/CPU use stays low. Measured: ~115 MB, ~1% CPU idle (Debug build). Was ~10% until pills stopped redrawing every second.
 - [ ] ✅ **Done when:** a full workday of real use goes by with no bugs, glitches, or high CPU.
 
 ## Phase 15: Packaging (for your own Mac)

@@ -61,6 +61,7 @@ struct BreakView: View {
     let onLock: () -> Void
 
     private var display: BreakDisplay { model.display }
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         ZStack {
@@ -169,7 +170,9 @@ struct BreakView: View {
     /// A picture under a Mocha tint, or a Mocha gradient with a soft mauve glow at the top.
     @ViewBuilder
     private var backgroundLayer: some View {
-        if let background {
+        if reduceTransparency {
+            Mocha.base
+        } else if let background {
             Image(nsImage: background.image)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
@@ -195,6 +198,7 @@ private struct SkipColumn: View {
     let onSnooze: (_ minutes: Int) -> Void
 
     @State private var expanded = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var buttonHeight: CGFloat = 48
 
     private let spacing: CGFloat = 8
@@ -225,7 +229,7 @@ private struct SkipColumn: View {
         .fixedSize(horizontal: true, vertical: false)
         .contentShape(.rect)
         .onHover { hovering in
-            withAnimation(.spring(duration: 0.35, bounce: 0.25)) { expanded = hovering }
+            withAnimation(reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.35, bounce: 0.25)) { expanded = hovering }
         }
     }
 
