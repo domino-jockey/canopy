@@ -79,6 +79,7 @@ final class BreakOverlayController {
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
 
         takeFocus()
+        SoundPlayer.play(.breakStart, settings: scheduler.settings)
         if scheduler.settings.lockOnBreakStart { Self.lockScreen() }
         typed = ""
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
@@ -105,6 +106,7 @@ final class BreakOverlayController {
         self.model = nil
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
+        SoundPlayer.play(.breakEnd, settings: scheduler.settings)
 
         // Reverse order: wallpaper and text fade out, then the blur.
         withAnimation(.easeInOut(duration: blurInDuration)) {

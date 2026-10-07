@@ -123,6 +123,8 @@ final class AlertsController {
     private func set(_ panel: AlertPanel, _ visible: Bool) {
         guard visible else { return panel.hide() }
         if panel !== countdown { panel.moveToTop(scheduler.settings.alertPosition) }
+        // The countdown pill sits alongside the heads-up, which already made a sound.
+        if !panel.isShown && panel !== countdown { SoundPlayer.play(.reminder, settings: scheduler.settings) }
         panel.show()
     }
 

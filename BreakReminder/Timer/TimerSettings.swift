@@ -133,6 +133,13 @@ struct TimerSettings: Codable, Equatable {
     /// A break restarts both reminders' countdowns.
     var resetRemindersAfterBreak = true
 
+    /// Gong when a break starts and ends.
+    var breakSounds = true
+    /// Blip for posture/blink reminders and alert pills.
+    var reminderSounds = true
+    /// 0 to 1.
+    var soundVolume = 0.6
+
     func reminder(_ kind: WellnessKind) -> WellnessReminder {
         kind == .posture ? posture : blink
     }
@@ -195,6 +202,9 @@ extension TimerSettings {
         read(.remindersDuringSmartPause, into: &remindersDuringSmartPause)
         read(.hideRemindersFromRecordings, into: &hideRemindersFromRecordings)
         read(.resetRemindersAfterBreak, into: &resetRemindersAfterBreak)
+        read(.breakSounds, into: &breakSounds)
+        read(.reminderSounds, into: &reminderSounds)
+        read(.soundVolume, into: &soundVolume)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
         maxSnoozesPerBreak = try? container.decode(Int.self, forKey: .maxSnoozesPerBreak)
         maxSkipsPerDay = try? container.decode(Int.self, forKey: .maxSkipsPerDay)

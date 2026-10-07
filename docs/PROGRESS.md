@@ -170,8 +170,15 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - Windows ignore clicks and never take the keyboard. Shown on the screen the mouse is on (bubble) or every screen (flash).
 - Tests: 5 new (off by default, 5/10 min schedule and clash rule, only enabled ones, reset, settings save/load). **61 tests in total, all passing.**
 
+## Phase 9: Sounds
+
+- Three sounds from BreakTimer (GPL-3.0, credits in `BreakReminder/Sounds/CREDITS.md`): **gong** when a break starts and ends, **blip** for posture/blink reminders and alert pills (heads-up, Smart Pause, welcome back, overtime). The cursor countdown is silent: it appears with the heads-up, which already blipped.
+- `SoundPlayer` plays them at the chosen volume, if that group is on.
+- **Sounds** settings page (teal speaker): break sounds and reminder sounds toggles, each with a ▶, and one volume slider that plays a sample when let go.
+- Tests: 2 new (every sound loads from the app, settings save/load). **63 tests in total, all passing.**
+
 **Next steps (where we left off):**
-1. Phase 9: sounds.
+1. Phase 10: keyboard shortcuts.
 
 ---
 
@@ -204,3 +211,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `8c3dc5d` | Phase 6: alerts & nudges |
 | `5c06b76` | Heads-up redesign (LookAway layout) |
 | `02323bf` | Phase 7: Smart Pause, typing hold, welcome back |
+| `1523472` | Phase 8: wellness reminders |

@@ -1,3 +1,4 @@
+import AppKit
 import Testing
 @testable import BreakReminder
 
@@ -46,6 +47,24 @@ struct WellnessTimerTests {
         settings.posture = WellnessReminder(enabled: true, interval: 900, style: .flash, size: .small,
                                             position: GridPosition(row: 0, column: 2))
         settings.dimForReminders = false
+        settings.save(to: defaults)
+        #expect(TimerSettings.load(from: defaults) == settings)
+    }
+}
+
+@MainActor
+struct SoundSettingsTests {
+    @Test func everySoundLoads() {
+        for name in ["gong_start", "gong_end", "blip_start"] {
+            #expect(NSSound(named: name) != nil, "\(name)")
+        }
+    }
+
+    @Test func soundSettingsSurviveSaveAndLoad() {
+        let defaults = FakeClock.cleanDefaults()
+        var settings = TimerSettings()
+        settings.breakSounds = false
+        settings.soundVolume = 0.25
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
     }

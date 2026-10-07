@@ -51,6 +51,7 @@ final class WellnessController {
         let settings = scheduler.settings
         let reminder = settings.reminder(kind)
         let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.screens[0]
+        SoundPlayer.play(.reminder, settings: settings)
 
         switch reminder.style {
         case .bubble:

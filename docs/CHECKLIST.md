@@ -137,10 +137,10 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** both reminders show at the chosen spot/size/interval and don't appear in a screen recording. (Tests pass; waiting on the by-eye check.)
 
 ## Phase 9: Sounds
-- [ ] Use sounds from the open-source **BreakTimer** app (GPL-3.0: fine for personal use; sharing the app would mean publishing its source).
-- [ ] Two toggles: **break sounds** (start/end) and **reminder sounds** (posture, blink, alerts).
-- [ ] One volume slider.
-- [ ] ✅ **Done when:** sounds play at the chosen volume, and each toggle silences its group.
+- [x] Use sounds from the open-source **BreakTimer** app (GPL-3.0: fine for personal use; sharing the app would mean publishing its source). Gong pair for breaks, blip for reminders.
+- [x] Two toggles: **break sounds** (start/end) and **reminder sounds** (posture, blink, alerts).
+- [x] One volume slider.
+- [ ] ✅ **Done when:** sounds play at the chosen volume, and each toggle silences its group. (Tests pass; waiting on the by-ear check.)
 
 ## Phase 10: Keyboard shortcuts
 - [ ] Global shortcut recorder rows (the [`KeyboardShortcuts`](https://github.com/sindresorhus/KeyboardShortcuts) Swift package does this well).
