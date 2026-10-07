@@ -219,8 +219,15 @@ For what's next, see [`CHECKLIST.md`](CHECKLIST.md).
 - The old Phase 14 icon item (BreakTimer icon + LookAway gradient) was dropped: the Mocha mug replaced it.
 - **83 tests, all passing.**
 
+## Phase 15: Packaging
+
+- Release build, signed "Sign to Run Locally", installed to `/Applications/BreakReminder.app` (about 6 MB). Runs at ~0.3% CPU, ~115 MB.
+- Launch at login needs turning on from the installed copy (Settings › General), so the login item points at `/Applications` rather than `build/`.
+
 **Next steps (where we left off):**
-1. Phase 15: packaging.
+1. By-eye/by-hand checks for Phases 7–15 (each phase's ✅ line in `CHECKLIST.md`).
+2. Turn on Launch at login from `/Applications`, then reboot to finish Phase 15.
+3. Later: Themes (see `CHECKLIST.md`).
 
 ---
 
@@ -232,6 +239,14 @@ From the project root:
 xcodegen generate                                                        # recreate the Xcode project
 xcodebuild test -project BreakReminder.xcodeproj -scheme BreakReminder -derivedDataPath build   # build + run tests
 pkill -x BreakReminder; open build/Build/Products/Debug/BreakReminder.app              # (re)start the app
+```
+
+Install to `/Applications` (Release build):
+
+```sh
+xcodebuild -project BreakReminder.xcodeproj -scheme BreakReminder -configuration Release -derivedDataPath build/release build
+pkill -x BreakReminder; sleep 1; ditto build/release/Build/Products/Release/BreakReminder.app /Applications/BreakReminder.app
+open /Applications/BreakReminder.app
 ```
 
 Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
@@ -259,3 +274,4 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `fedc35a` | Phase 11: office hours, planned breaks, Clock Out |
 | `79029c7` | Phase 12: break screen customization, exercises |
 | `d2fe14e` | Phase 13: stats |
+| `86a822f` | Phase 14: polish |

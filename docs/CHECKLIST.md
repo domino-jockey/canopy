@@ -173,9 +173,10 @@ Each phase ends with a **✅ Done when** line. A phase isn't finished until that
 - [ ] ✅ **Done when:** a full workday of real use goes by with no bugs, glitches, or high CPU.
 
 ## Phase 15: Packaging (for your own Mac)
-- [ ] Archive a Release build in Xcode.
-- [ ] Sign it with your Apple ID ("Sign to Run Locally" is enough for personal use).
-- [ ] Copy to `/Applications`, turn on Launch at login.
+- [x] Build a Release copy (`xcodebuild … -configuration Release`, see PROGRESS "How to build").
+- [x] Sign it "Sign to Run Locally" (ad-hoc, no Apple ID needed; set in `project.yml`).
+- [x] Copy to `/Applications`.
+- [ ] Turn on Launch at login **from the /Applications copy** (Settings › General).
 - [ ] ✅ **Done when:** it runs from `/Applications` after a reboot.
 
 ---
