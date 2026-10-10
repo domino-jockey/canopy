@@ -17,7 +17,7 @@ struct AlertsSettingsPage: View {
                 }
             } footer: {
                 Text(scheduler.settings.alertsAsNotifications
-                     ? "The countdown next to your pointer stays a pill. If nothing shows up, allow BreakReminder in System Settings › Notifications."
+                     ? "The countdown next to your pointer stays a pill. If nothing shows up, allow Canopy in System Settings › Notifications."
                      : "Small floating pills at the top of the screen.")
             }
 

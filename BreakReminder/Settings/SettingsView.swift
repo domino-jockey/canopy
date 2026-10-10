@@ -77,7 +77,7 @@ struct SettingsView: View {
                     row(.sounds)
                     row(.shortcuts)
                 }
-                Section("BreakReminder") {
+                Section("Canopy") {
                     row(.about)
                 }
             }

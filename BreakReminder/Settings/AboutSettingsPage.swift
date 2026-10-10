@@ -13,7 +13,7 @@ struct AboutSettingsPage: View {
                     Image(nsImage: NSApp.applicationIconImage)
                         .resizable()
                         .frame(width: 96, height: 96)
-                    Text("BreakReminder").font(.title.weight(.bold))
+                    Text("Canopy").font(.title.weight(.bold))
                     Text(version).foregroundStyle(.secondary)
                     Text("A break reminder for your Mac, made for one person.")
                         .foregroundStyle(.secondary)

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import BreakReminder
+@testable import Canopy
 
 /// Drives a scheduler with fake time, one tick per second.
 @MainActor

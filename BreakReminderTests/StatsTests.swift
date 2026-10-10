@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import BreakReminder
+@testable import Canopy
 
 @MainActor
 struct StatsTests {

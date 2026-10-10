@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import BreakReminder
+@testable import Canopy
 
 @MainActor
 struct SmartPauseTests {
@@ -108,6 +108,10 @@ struct SmartPauseTests {
         #expect(SmartPauseMonitor.handle(URL(string: "breakreminder://focus-off")!))
         #expect(!SmartPauseMonitor.isFocusModeOn)
         #expect(!SmartPauseMonitor.handle(URL(string: "breakreminder://nonsense")!))
+        // The new name's links work the same way.
+        #expect(SmartPauseMonitor.handle(URL(string: "canopy://focus-on")!))
+        #expect(SmartPauseMonitor.isFocusModeOn)
+        #expect(SmartPauseMonitor.handle(URL(string: "canopy://focus-off")!))
         SmartPauseMonitor.isFocusModeOn = before
     }
 }

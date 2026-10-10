@@ -48,7 +48,7 @@ private struct WelcomeView: View {
                 .resizable()
                 .frame(width: 96, height: 96)
             VStack(spacing: 6) {
-                Text("Welcome to BreakReminder").font(.title.weight(.bold))
+                Text("Welcome to Canopy").font(.title.weight(.bold))
                 Text("Small breaks, so your eyes and back last the whole day.").foregroundStyle(.secondary)
             }
             VStack(alignment: .leading, spacing: 14) {

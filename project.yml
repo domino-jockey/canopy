@@ -24,7 +24,8 @@ targets:
       - package: KeyboardShortcuts
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jammyjellyfish.BreakReminder
+        PRODUCT_NAME: Canopy # the app's name; the code and folders are still called BreakReminder
+        PRODUCT_BUNDLE_IDENTIFIER: com.jammyjellyfish.BreakReminder # kept from before the rename, so settings and stats carry over
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSUIElement: YES # menu bar only: no Dock icon
         INFOPLIST_FILE: BreakReminder/Info.plist # extra keys, merged into the generated one
@@ -44,3 +45,4 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Canopy.app/Contents/MacOS/Canopy # the app is named Canopy, not after its target

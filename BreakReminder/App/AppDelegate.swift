@@ -50,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return .terminateNow
     }
 
-    /// `breakreminder://` links, opened by Shortcuts automations.
+    /// `canopy://` (or the older `breakreminder://`) links, opened by Shortcuts automations.
     func application(_ application: NSApplication, open urls: [URL]) {
         urls.forEach { _ = SmartPauseMonitor.handle($0) }
         tick()

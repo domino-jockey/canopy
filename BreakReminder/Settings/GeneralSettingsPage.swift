@@ -17,7 +17,7 @@ struct GeneralSettingsPage: View {
                 Toggle("Launch at login", isOn: Binding(get: { status == .enabled }, set: setLaunchAtLogin))
             } footer: {
                 if status == .requiresApproval {
-                    Text("Allow BreakReminder in System Settings › General › Login Items.")
+                    Text("Allow Canopy in System Settings › General › Login Items.")
                 } else if let error {
                     Text(error)
                 }
@@ -63,7 +63,7 @@ private struct MenuBarPreview: View {
     var body: some View {
         HStack {
             Image(systemName: "apple.logo")
-            Text("BreakReminder").fontWeight(.semibold)
+            Text("Canopy").fontWeight(.semibold)
             Spacer()
             MenuBarLabel(scheduler: scheduler)
         }

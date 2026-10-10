@@ -47,8 +47,8 @@ struct SmartPauseSettingsPage: View {
                     Text("""
                     macOS only tells apps about Focus through Shortcuts. In the Shortcuts app, open \
                     Automation and add two for each Focus you use:
-                    1. “When [Focus] is turned on” → Open URL `breakreminder://focus-on`
-                    2. “When [Focus] is turned off” → Open URL `breakreminder://focus-off`
+                    1. “When [Focus] is turned on” → Open URL `canopy://focus-on`
+                    2. “When [Focus] is turned off” → Open URL `canopy://focus-off`
                     Set each to run immediately.
                     """)
                     .foregroundStyle(.secondary)

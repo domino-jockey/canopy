@@ -104,7 +104,7 @@ enum SmartPauseMonitor {
         set { UserDefaults.standard.set(newValue, forKey: "focusModeOn") }
     }
 
-    /// Handles a `breakreminder://` link. Returns false if it isn't one we know.
+    /// Handles a `canopy://` (or older `breakreminder://`) link. Returns false if it isn't one we know.
     static func handle(_ url: URL) -> Bool {
         switch url.host {
         case "focus-on": isFocusModeOn = true

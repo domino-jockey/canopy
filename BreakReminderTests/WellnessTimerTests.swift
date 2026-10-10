@@ -1,6 +1,6 @@
 import AppKit
 import Testing
-@testable import BreakReminder
+@testable import Canopy
 
 struct WellnessTimerTests {
     private func settings(posture: Bool = true, blink: Bool = true) -> TimerSettings {

@@ -1,4 +1,4 @@
-# BreakReminder (break reminder for macOS)
+# Canopy (break reminder for macOS)
 
 A personal, Mac-only break reminder modelled on LookAway (and DeskRest). Swift + SwiftUI + AppKit, macOS 27+.
 
@@ -11,10 +11,11 @@ A personal, Mac-only break reminder modelled on LookAway (and DeskRest). Swift +
 - `resources/`: LookAway screenshots and recordings, named after what they show. Use them as the visual reference.
 
 ## Commands (from the project root)
-- `xcodegen generate --spec project.yaml`: recreate `BreakReminder.xcodeproj` from `project.yaml` (after adding files or changing settings).
+- `xcodegen`: recreate `BreakReminder.xcodeproj` from `project.yml` (after adding files or changing settings).
 - `xcodebuild test -project BreakReminder.xcodeproj -scheme BreakReminder -derivedDataPath build`: build and run all tests.
 - Install and restart the app (do this before the user checks anything; they only use the `/Applications` copy):
-  `xcodebuild -project BreakReminder.xcodeproj -scheme BreakReminder -configuration Release -derivedDataPath build/release build && pkill -x BreakReminder; sleep 1; ditto build/release/Build/Products/Release/BreakReminder.app /Applications/BreakReminder.app && open /Applications/BreakReminder.app`
+  `xcodebuild -project BreakReminder.xcodeproj -scheme BreakReminder -configuration Release -derivedDataPath build/release build && pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app /Applications/Canopy.app && open /Applications/Canopy.app`
+- The app is called **Canopy** (`Canopy.app`, process `Canopy`), but the project, target, folders and bundle ID are still `BreakReminder`.
 
 ## How we work
 - Each phase: short plan → user's go-ahead → build + tests → user checks visuals by eye → update docs → commit when the user asks.

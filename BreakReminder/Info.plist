@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- breakreminder://focus-on and focus-off, opened by Shortcuts automations -->
+	<!-- canopy://focus-on and focus-off, opened by Shortcuts automations. breakreminder:// is the name from before the rename. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -10,6 +10,7 @@
 			<string>com.jammyjellyfish.BreakReminder</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>canopy</string>
 				<string>breakreminder</string>
 			</array>
 		</dict>

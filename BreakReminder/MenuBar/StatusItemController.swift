@@ -72,7 +72,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         let settings = NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
-        menu.addItem(withTitle: "Quit BreakReminder", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: "Quit Canopy", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
     private func info(_ title: String) -> NSMenuItem {

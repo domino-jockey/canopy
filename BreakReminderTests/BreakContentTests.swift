@@ -1,6 +1,6 @@
 import AppKit
 import Testing
-@testable import BreakReminder
+@testable import Canopy
 
 @MainActor
 struct BreakContentTests {

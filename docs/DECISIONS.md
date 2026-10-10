@@ -11,7 +11,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Git identity is `domino-jockey <hayden.tus@gmail.com>`; the user hasn't said whether that's right. Ask before changing anything.
 
 ## Project setup
-- **XcodeGen**, not hand-made Xcode projects. `project.yaml` is the source of truth; `*.xcodeproj` is gitignored. Run `xcodegen generate --spec project.yaml` after adding/removing files or changing settings.
+- **XcodeGen**, not hand-made Xcode projects. `project.yml` is the source of truth; `*.xcodeproj` is gitignored. Run `xcodegen` after adding/removing files or changing settings.
 - Xcode 27's welcome-window "App" button makes an unusable draft in `~/Library/Developer/Xcode/UntitledProjects/` (multi-platform, placeholder bundle ID). Don't use it.
 - Screenshot filenames from macOS contain a **narrow no-break space** (U+202F) before "AM/PM". Typing the name fails; use globs (`Screenshot*9.02.14*`).
 - Red "Cannot find X in scope" diagnostics from SourceKit (the editor's checker) are false alarms in this project. Trust `xcodebuild`.
@@ -90,17 +90,17 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - The welcome window is shown once (`hasSeenWelcome` in UserDefaults) and **skipped under tests** (`XCTestConfigurationFilePath` is set): tests run inside the real app with the real UserDefaults, so they'd use it up otherwise. To see it again: `defaults delete com.jammyjellyfish.BreakReminder hasSeenWelcome`.
 
 ## Keyboard shortcuts
-- Swift packages go in `project.yaml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
+- Swift packages go in `project.yml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
 - `KeyboardShortcuts.Recorder` stores shortcuts in `UserDefaults` itself, so they're not part of `TimerSettings`.
 
 ## Look & theme
 - **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
 - Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.
-- **App icon** is an Icon Composer document, `BreakReminder/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yaml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
+- **App icon** is an Icon Composer document, `BreakReminder/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
   - In `icon.json`, the **first group is drawn in front**. `fill` is the background (`solid` or `linear-gradient`); each group has `translucency`, `specular`, `shadow`.
   - Preview without building: `"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" BreakReminder/AppIcon.icon --export-image --output-file preview.png --platform macOS --rendition Default --width 512 --height 512 --scale 2`
   - **SF Symbols are not allowed in app icons** (Apple's licence), so the leaf is drawn as SVG by a script. SF Symbols are fine elsewhere in the UI.
-- macOS caches app icons. After changing the icon, refresh it: `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f build/Build/Products/Debug/BreakReminder.app && touch build/Build/Products/Debug/BreakReminder.app && killall Dock`
+- macOS caches app icons. After changing the icon, refresh it: `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/Canopy.app && touch /Applications/Canopy.app && killall Dock`
 
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.
@@ -114,6 +114,10 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - **In Swift Charts, `.foregroundStyle(.secondary)` means "secondary of the chart's accent", so labels came out tinted.** Use `Color.secondary` for grey chart text and lines.
 - The selected sidebar row stays a soft grey pill, not the accent colour (the user asked for LookAway's look earlier).
 - **Two copies exist:** `build/…/Debug` (what the restart command opens) and `/Applications` (what you open yourself / Launch at login). After a change the user should see, install to `/Applications` too, or they may be looking at the old copy.
+
+## Rename to Canopy
+- Only `PRODUCT_NAME` changed; the **bundle ID stayed** `com.jammyjellyfish.BreakReminder`. Settings, stats, shortcuts, notification permission and even the **Launch at login item** follow the bundle ID, so they all carried over (login item checked with `sfltool dumpbtm`: it moved to `/Applications/Canopy.app` by itself).
+- XcodeGen names the tests' `TEST_HOST` after the target, so `project.yml` sets it to `Canopy.app` by hand.
 
 ## Settings window
 - **`navigationSplitViewColumnWidth` alone is ignored in this AppKit-hosted window** (the sidebar stayed ~145 pt and cut off labels). Adding `.frame(minWidth:idealWidth:)` on the sidebar `List` makes it stick. Checked with a screenshot.

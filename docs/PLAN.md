@@ -71,7 +71,7 @@ Order (October 2026): **bugs and features first, appearance after.** Don't get c
 3. ✅ **Bugs:** see the Bugs list in `PROBLEMS.md` (preview crash, typing crash, double flash, jumping alerts, "Untitled" title), plus the Smart Pause cooldown change.
 4. ✅ **Feature changes** (checked by the user): flash-only wellness, idle 30 s / 1 min (new "pause when away" setting), sound choices, custom exercises (title + instructions), alerts as notifications option, stats graph (stacked % skipped + snoozed) and the no-skip streak.
 5. **Appearance:** animations, break screen clock fix, new break screen layout, sidebar, position cards, menu bar icon, Preview labels, new app icon.
-6. **Rename to Canopy**, reinstall, docs.
+6. ✅ **Rename to Canopy**, reinstall, docs. Project/target/folder names still `BreakReminder`: rename them during "Organize source".
 
 ## After the redesign (your "theorized next steps")
 
