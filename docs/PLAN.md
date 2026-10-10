@@ -78,7 +78,7 @@ Order (October 2026): **bugs and features first, appearance after.** Don't get c
 1. ✅ **Organize source** into a standard layout (e.g. `App/`, `Features/<Feature>/`, `Core/` for the timer logic, `Resources/`), like other open-source Mac apps.
 2. **Optimize:** measure CPU/memory with Instruments, use native APIs where possible. Baseline (Activity Monitor): ~0.3% of a core idle, ~8% during a flash reminder, **25–50% during breaks** (the main target).
    - ✅ Breaks: 58% → ~1% (see `PROGRESS.md`).
-   - Next: measure and fix the flash reminder (~8%) and idle; check memory.
+   - ✅ Flash, idle, memory measured (October 2026): nothing worth fixing (see `PROGRESS.md`). Optimize is done.
 3. **Clean out** everything not needed: unused code, outdated docs, Xcode build artifacts. Keep the bare minimum to come back later with Claude Code.
 4. **Test everything:** a printable `docs/TEST-CHECKLIST.md` (you'll export it to PDF), grouped so related checks happen together ("while the break screen is up, also check…").
 5. **Linux friend:** a short `docs/ARCHITECTURE.md` explaining the parts, which logic is portable (scheduler, wellness timer, stats, schedule rules: plain Swift, no Mac APIs) and which parts are Mac-only and what the Linux equivalent would be. Plus a licence note (BreakTimer sounds are GPL-3.0).

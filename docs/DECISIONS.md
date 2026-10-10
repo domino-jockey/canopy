@@ -76,6 +76,8 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - **Fix: anything that moves on the break screen is a Core Animation layer**, not a SwiftUI animation. The timer (`RollingTime.swift`) is one `CATextLayer` per digit, rolled up + faded like the menu bar clock; the bar and skip ring glide via `glide()` in `BreakView.swift`, re-aimed each tick from the on-screen value, at 20 fps (`preferredFrameRateRange`; 30 → 20 made no measurable difference). Break CPU: 58% → ~1% (Canopy), WindowServer ~39% → ~18%. WindowServer numbers vary ±4 between runs.
 - The live behind-window blur is switched off (`state = .inactive`) once the wallpaper covers it, back on for the fade-out: small WindowServer saving. Marking the window opaque made no difference.
 - How to measure a break: start one via the menu with `osascript` (System Events → menu bar 2 of process Canopy → "Start break now"), then `top -l 2 -s 1 -pid …` for Canopy and WindowServer from second 3 to 18 of a 20 s break.
+- **Before optimizing, check what's on screen.** A break left up looks like "idle" in `top`; list Canopy's windows (a window at layer 1000 is the break screen). The flash can be triggered by scripting a click on Settings › Wellness Reminders › Preview (System Events).
+- Memory: `footprint Canopy` for the total, `heap Canopy -sortBySize` for what's in it, `leaks Canopy` for leaks. ~75 MB is normal for a SwiftUI app; most of it is SwiftUI's own bookkeeping.
 
 ## Smart Pause
 - Detection lives in `SmartPauseMonitor` (hardware/app checks, not testable); the rules (hold, cooldown, typing hold, welcome back) live in `BreakScheduler.tick`, which gets the detected reason as a parameter. Tests pass fake reasons.
