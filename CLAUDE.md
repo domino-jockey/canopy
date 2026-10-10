@@ -4,17 +4,19 @@ A personal, Mac-only break reminder modelled on LookAway (and DeskRest). Swift +
 
 ## Read these first
 - `docs/PROGRESS.md`: what's been built so far, phase by phase.
-- `docs/PLAN.md`: the current plan (Canopy redesign). Unticked steps are what's next.
+- `docs/PLAN.md`: design rules and what's next (unticked steps).
 - `docs/DECISIONS.md`: why things are built this way, and gotchas not to repeat.
 - `docs/FEATURES.md` §3: what we're building and what was cut.
 - `docs/PROBLEMS.md`: the user's latest feedback list.
+- `docs/ARCHITECTURE.md`: how the parts fit, what's portable vs Mac-only.
+- `docs/TEST-CHECKLIST.md`: the user's printable by-hand test of every feature. Keep it in sync when features change.
+- `docs/HOW-TO-BUILD.md`: the `make` commands, explained for the user. Keep it in sync with the `Makefile`.
 - `resources/`: LookAway screenshots and recordings, named after what they show. Use them as the visual reference.
 
 ## Commands (from the project root)
-- `xcodegen`: recreate `Canopy.xcodeproj` from `project.yml` (after adding files or changing settings).
-- `xcodebuild test -project Canopy.xcodeproj -scheme Canopy -derivedDataPath build`: build and run all tests.
-- Install and restart the app (do this before the user checks anything; they only use the `/Applications` copy):
-  `xcodebuild -project Canopy.xcodeproj -scheme Canopy -configuration Release -derivedDataPath build/release build && pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app /Applications/Canopy.app && open /Applications/Canopy.app`
+- `make test`: build and run all tests (summary only; full log in `build/test.log`).
+- `make install`: Release build, copy to `/Applications`, restart the app. Do this before the user checks anything; they only use the `/Applications` copy.
+- `make` lists the rest (`build`, `run`, `stop`, `clean`, `xcode`, `icon`, `project`). Every target runs `xcodegen` first, so new files are picked up.
 - Everything is named **Canopy** (project, target, scheme, `Canopy.app`, process `Canopy`) except the bundle ID, still `com.jammyjellyfish.BreakReminder` so settings carry over.
 
 ## Source layout

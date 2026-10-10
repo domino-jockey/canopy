@@ -15,8 +15,8 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 ## Next
 
 1. ✅ **Clean out** unused code, outdated docs and build leftovers.
-2. **Test everything:** a printable `docs/TEST-CHECKLIST.md` (the user will export it to PDF), grouped so related checks happen together ("while the break screen is up, also check…").
-3. **Linux friend:** a short `docs/ARCHITECTURE.md` explaining the parts, which logic is portable (scheduler, wellness timer, stats, schedule rules: plain Swift, no Mac APIs) and which parts are Mac-only and what the Linux equivalent would be. Plus a licence note (BreakTimer sounds are GPL-3.0).
+2. ✅ **Test everything:** a printable `docs/TEST-CHECKLIST.md` (the user will export it to PDF), grouped so related checks happen together ("while the break screen is up, also check…").
+3. ✅ **Linux friend:** a short `docs/ARCHITECTURE.md` explaining the parts, which logic is portable (scheduler, wellness timer, stats, schedule rules: plain Swift, no Mac APIs) and which parts are Mac-only and what the Linux equivalent would be. Plus a licence note (BreakTimer sounds are GPL-3.0).
 
 ## Later
 

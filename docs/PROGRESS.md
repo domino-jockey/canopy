@@ -2,7 +2,7 @@
 
 A short record of what's built. For *why* things are built this way (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md). For what's next, see [`PLAN.md`](PLAN.md). Older detail is in git history.
 
-**Current status:** the app is feature-complete (Phases 0–15), redesigned as **Canopy** (native look, leaf icon), source reorganised and optimised. Next: the rest of the "after the redesign" list in `PLAN.md` (test checklist, architecture notes).
+**Current status:** the app is feature-complete (Phases 0–15), redesigned as **Canopy** (native look, leaf icon), source reorganised and optimised. Next: the user runs `TEST-CHECKLIST.md`; then fixes from it. The app icon redo is under "Later" in `PLAN.md`.
 
 ---
 
@@ -32,28 +32,16 @@ A short record of what's built. For *why* things are built this way (and mistake
 - **Optimize:**
   - Break screen 58% → ~1% CPU (WindowServer 39% → ~18%): the timer, bar and skip ring are Core Animation layers, not SwiftUI animations; live blur turned off once covered. Earlier (Phase 14): idle ~10% → ~1% by only setting `@Observable` values when they change.
   - Measured, nothing left worth fixing: idle ~0.4%; flash reminder ~10% for one second (mostly macOS starting the sound); memory ~75–82 MB idle, ~190 MB during a break (blurred wallpapers, freed afterwards); `leaks` finds nothing of ours.
+- **Test checklist:** [`TEST-CHECKLIST.md`](TEST-CHECKLIST.md), a printable by-hand test of every feature, grouped into 12 sessions.
+- **Architecture notes:** [`ARCHITECTURE.md`](ARCHITECTURE.md): how the parts fit, which code is portable, Linux equivalents for the Mac-only parts, licences.
+- **Makefile:** `make` commands for build, run, test, install, clean, icon; explained for beginners in [`HOW-TO-BUILD.md`](HOW-TO-BUILD.md).
 - **Clean out:** removed unused code (`Accent.gradient`), the original brief (`PROMPT.md`) and the v1 history archive, and shortened these docs.
 
 ---
 
 ## How to build, test and run
 
-From the project root:
-
-```sh
-xcodegen                                                                          # recreate the Xcode project
-xcodebuild test -project Canopy.xcodeproj -scheme Canopy -derivedDataPath build  # build + run tests
-```
-
-Install to `/Applications` (Release build; the user only uses this copy):
-
-```sh
-xcodebuild -project Canopy.xcodeproj -scheme Canopy -configuration Release -derivedDataPath build/release build
-pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app /Applications/Canopy.app
-open /Applications/Canopy.app
-```
-
-Or open `Canopy.xcodeproj` in Xcode: ⌘R runs, ⌘U tests. Launch at login must be turned on from the `/Applications` copy.
+`make install`, `make test`, `make run`, `make clean` and more: see [`HOW-TO-BUILD.md`](HOW-TO-BUILD.md). Launch at login must be turned on from the `/Applications` copy.
 
 ## Commits
 
@@ -85,3 +73,4 @@ Or open `Canopy.xcodeproj` in Xcode: ⌘R runs, ⌘U tests. Launch at login must
 | `5af3f95` | Organize source into App, Core, Features, Shared, Resources     |
 | `2bde437` | Optimize break screen (58% → ~1% CPU)                           |
 | `7b6be95` | Optimize part 2: measure flash, idle, memory                    |
+| `1d8358a` | Clean out: unused code, old brief and archive, shorter docs     |
