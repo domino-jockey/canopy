@@ -58,9 +58,8 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Launch at login uses `SMAppService.mainApp`. Its state lives in macOS, so it's read back after every change instead of being saved by us. While running from `build/`, the login item points at that copy.
 - The settings window is an `NSWindow` + `NSHostingController`, not a SwiftUI `Settings` scene: it's opened from the AppKit status menu, and needs `NSApp.activate()` because the app is menu-bar-only.
 - **Stage Manager** floats windows of menu-bar-only (`.accessory`) apps over the current stage. So the app switches to `.regular` (Dock icon) while settings are open and back to `.accessory` in `windowWillClose`.
-- Slider tick labels are placed by estimate (track inset ~10 pt each side); they matched by eye.
 - Sidebar rows are plain `Button`s in a `List` (no `selection:`), with the selected row's pill drawn by `.listRowBackground`. Why: `List` selection always uses the accent colour; the user wants LookAway's soft pill. The ‹ › buttons use a small history list in `SettingsView`.
-- Controls take their colour from `.tint(Mocha.mauve)` on the detail pane. Custom views that should match use `.foregroundStyle(.tint)`, not `Color.accentColor` (`.tint` doesn't change `Color.accentColor`).
+- Controls use the system accent colour; no `.tint` override. If one is ever added, custom views that should match need `.foregroundStyle(.tint)`, not `Color.accentColor` (`.tint` doesn't change `Color.accentColor`).
 
 ## Alerts
 - Each pill is an `AlertPanel`: a borderless, non-activating `NSPanel` at `.statusBar` level on all Spaces. It never takes the keyboard. `FirstClickHostingView` (`acceptsFirstMouse` → true) makes the first click on an unfocused pill press its button.
@@ -99,9 +98,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Swift packages go in `project.yml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
 - `KeyboardShortcuts.Recorder` stores shortcuts in `UserDefaults` itself, so they're not part of `TimerSettings`.
 
-## Look & theme
-- **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
-- Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.
+## App icon
 - **App icon** is an Icon Composer document, `Canopy/Resources/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
   - In `icon.json`, the **first group is drawn in front**. `fill` is the background (`solid` or `linear-gradient`); each group has `translucency`, `specular`, `shadow`.
   - Preview without building: `"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" Canopy/Resources/AppIcon.icon --export-image --output-file preview.png --platform macOS --rendition Default --width 512 --height 512 --scale 2`
@@ -110,7 +107,6 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.
-- Visual style: Catppuccin Mocha (catppuccin.com/palette, MIT licence). LookAway is still the reference for layout, not colours.
 - Stretchly's sounds (from freesound.org): crystal glass is **CC BY 3.0 (credit required)**, wind chime and tic-toc CC0. "reverie" was left out: no licence listed. Credits live in `Sounds/CREDITS.md` and the About page.
 - Sounds are stored as AAC `.m4a` (`afconvert -f m4af -d aac -b 128000`), ~10× smaller than WAV. `NSSound(named:)` finds them without the extension.
 

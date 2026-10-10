@@ -1,14 +1,6 @@
 import AppKit
 import SwiftUI
 
-/// The app follows the system accent colour everywhere (or its own green when the system accent is Multicolor).
-/// Numbers use SF Mono: `.font(.body.monospaced())`.
-enum Accent {
-    /// The accent colour, a little lighter at the top left.
-    static let gradient = LinearGradient(colors: [Color.accentColor.mix(with: .white, by: 0.25), .accentColor],
-                                         startPoint: .topLeading, endPoint: .bottomTrailing)
-}
-
 /// Finder shows the fixed green icon (`AppIcon.icon`). Inside the app (Dock, About, Welcome, the flash reminder)
 /// the icon is redrawn with the leaf in the accent colour, and again whenever the accent colour changes.
 @MainActor

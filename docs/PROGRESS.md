@@ -1,273 +1,38 @@
 # Progress So Far
 
-A plain-language record of what has been built, phase by phase. Update this at the end of every phase.
+A short record of what's built. For *why* things are built this way (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md). For what's next, see [`PLAN.md`](PLAN.md). Older detail is in git history.
 
-**File paths below are from when each phase was written.** The source has since moved: `BreakReminder/<Folder>/X.swift` is now under `Canopy/Core/` (plain logic), `Canopy/Features/<Feature>/`, `Canopy/Shared/` or `Canopy/Resources/`, and `BreakReminderTests/` is `CanopyTests/`. See `CLAUDE.md` → Source layout.
-For *why* things are built the way they are (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md).
-For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0–15 plan, is done and deleted; it's in git history.)
-
-**Current status:** Phases 0–15 done. Canopy redesign (`PLAN.md`): steps 1–6 done. Source reorganised. Next: the rest of the "after the redesign" list in `PLAN.md` (optimize CPU next).
+**Current status:** the app is feature-complete (Phases 0–15), redesigned as **Canopy** (native look, leaf icon), source reorganised and optimised. Next: the rest of the "after the redesign" list in `PLAN.md` (test checklist, architecture notes).
 
 ---
 
-## Planning (before any code)
+## What the app does (where the code is)
 
-- Studied LookAway (screenshots in `resources/`, plus lookaway.com) and DeskRest (deskrest.com only, no screenshots yet).
-- [`FEATURES.md`](FEATURES.md): what each app does (§1, §2) and what we're building (§3). §3.2 lists everything we deliberately cut or simplified, with reasons.
-- [`CHECKLIST.md`](CHECKLIST.md): the build plan, split into phases. Each phase ends with a "✅ Done when" test.
-- [`PROMPT.md`](PROMPT.md): the original project brief.
-- Big decisions: Mac-only, native (Swift + SwiftUI + AppKit), macOS 27+, LookAway is the main reference.
+- **Scheduler** (`Core/BreakScheduler.swift`, `Core/TimerSettings.swift`): a state machine (stopped / working / on break / paused) with **no clock of its own**. `AppDelegate` calls `tick(now:idleSeconds:)` once a second, so tests can fake "20 minutes later". Counts active screen time only; a gap of more than 10 s between ticks means the Mac slept. Settings are saved in `UserDefaults`; settings saved by an older version keep their values.
+- **Break rules:** Casual / Balanced (Skip unlocks halfway) / Hardcore. Snooze limit per break, daily skip limit, Skip next break, double-Esc action, End Break early, hold until End Break, lock on break start. Typing **"emergency"** skips any break.
+- **Menu bar** (`Features/MenuBar/`): leaf + rolling `19:42` countdown (`NSStatusItem` with a SwiftUI label; `MenuBarExtra` can't animate its label). Live Status, timer style `19:42` / `20m`.
+- **Break screen** (`Features/BreakScreen/`): one window per display, above everything. Live blur fades in, then the blurred wallpaper (or a picture / gradient) and the text. Big rolling timer, thin accent progress bar, message; glass Skip / snooze stack / End Break / Lock buttons at the bottom. Takes the keyboard back if another app comes forward; ⌘Q is refused during a break. Displays plugged in mid-break get covered.
+- **Messages & exercises** (`Core/BreakMessages.swift`): built-in exercises for short and long breaks, plus your own (title + instructions).
+- **Alerts & nudges** (`Features/Alerts/`): heads-up before a break (Start now / +1/+5/+15 min), pointer countdown, overtime nudge, Smart Pause and welcome back pills. Can be shown as macOS notifications instead (except the pointer countdown).
+- **Smart Pause** (`Features/SmartPause/`): holds the timer when the mic/camera is in use, a focus app is in front, or a macOS Focus is on (via Shortcuts automations calling `canopy://focus-on` / `focus-off`; the old `breakreminder://` links still work). Typing hold, cooldown, "pause when away" (30 s / 1 / 2 min), welcome back.
+- **Wellness reminders** (`Features/Wellness/`, `Core/WellnessTimer.swift`): posture and blink as a short screen flash. Due within a minute of each other → one flash.
+- **Sounds** (`Shared/SoundPlayer.swift`, `Core/SoundChoice.swift`): 8 choices each for break start, break end and reminders (`.m4a`, from BreakTimer GPL-3.0 and Stretchly; credits in `Resources/Sounds/CREDITS.md` and About).
+- **Keyboard shortcuts** (`Features/Shortcuts/`): Pause/resume, Start break now, Snooze 5 min, via the KeyboardShortcuts package (MIT).
+- **Schedule** (`Core/DaySchedule.swift`, `Features/ClockOut/`): office hours per weekday, planned breaks (e.g. Lunch 12:30, 45 min), Clock Out screen.
+- **Stats** (`Core/StatsLog.swift`): taken / skipped / snoozed per day; 7-day chart of % skipped + snoozed; streak = days in a row with no skip or snooze.
+- **Settings** (`Features/Settings/`): `NavigationSplitView` like System Settings, sidebar icons coloured by group, one page per feature, Preview buttons. **Welcome** window on first launch (`Features/Onboarding/`). **About** page with credits.
+- **Icon** (`design/make-icon.swift`): two green glass leaves on black (Icon Composer file in `Resources/AppIcon.icon`, menu bar leaf in `Assets.xcassets/MenuBarIcon`). Inside the app it's redrawn in the accent colour (`Shared/Accent.swift`). The user thinks it's "off"; to revisit later (ask what's off first).
 
-## Phase 0: Project setup
+## History
 
-**What it is:** an empty app that builds and runs.
-
-- The Xcode project is **generated by XcodeGen** from `project.yml` (a short text recipe). The generated `BreakReminder.xcodeproj` is not saved in git; run `xcodegen` to recreate it. (Xcode 27's "New Project → App" button skips the options page and makes an unusable draft, which is why we switched.)
-- The app is **menu-bar-only**: no Dock icon (`LSUIElement`), set in `project.yml`.
-- Signed "to run locally", so no Apple developer account is needed.
-- Git repository at the project root, with a `.gitignore` for build output.
-
-## Phase 1: Timer engine ("the brain")
-
-**What it is:** the logic that decides when breaks happen. No visuals.
-
-- `BreakReminder/Timer/BreakScheduler.swift`: a *state machine*: it's always in exactly one state: **stopped**, **working**, **on break** (short or long), or **paused**.
-- It has **no clock of its own**. The app calls `tick(now:idleSeconds:)` once a second with the time and how long since the last mouse/keyboard input. Tests call it with fake times, so "20 minutes later" takes a millisecond.
-- Counts **active screen time only**:
-  - No input for **2 min** → work time stops counting.
-  - No input for **5 min** → counts as a break taken; the cycle restarts.
-  - **Sleep** needs no special code: a gap of more than 10 s between ticks is treated as time away. Screen lock works the same way, because idle time keeps growing while locked (confirmed on the real Mac).
-- Defaults: break every **20 min**, short break **20 s**, every **4th** break is a **3 min** long break.
-- Actions: start, stop, pause/resume, start break now, skip next break, snooze +1/+5/+15 min.
-- `BreakReminder/Timer/TimerSettings.swift`: the numbers and rules, saved with `UserDefaults` (Apple's built-in settings storage).
-- Tests: `BreakReminderTests/BreakSchedulerTests.swift`. They caught a real bug: every pause/resume silently lost a second.
-
-## Phase 2: Menu bar
-
-**What it is:** the countdown in the menu bar, with a dropdown menu.
-
-- `BreakReminder/MenuBar/StatusItemController.swift`: the menu bar item. It uses AppKit's `NSStatusItem` with a SwiftUI label inside, because SwiftUI's easy `MenuBarExtra` can't animate its label.
-- `BreakReminder/MenuBar/MenuBarLabel.swift`: icon + `19:42`, with the **rolling digits** animation from the reference recording, and fixed-width digits so it doesn't jiggle.
-- `BreakReminder/App/AppDelegate.swift`: starts everything at launch and runs the 1-second tick. The timer runs in "common" mode so it keeps going while a menu is open.
-- `BreakReminder/Timer/TimeFormat.swift`: formats `m:ss`.
-- Menu: next break time, Pause/Resume, Start break now, Snooze ▸ 1/5/15 min, Skip next break, Quit.
-- All 8 manual checks passed, including the 6-minute screen-lock test.
-
-## Phase 3: Break screen
-
-**What it is:** the full-screen, blurred break overlay. The signature look.
-
-- `BreakReminder/Break/BreakOverlayController.swift`: opens one window per display, above everything (including full-screen apps and all Spaces), whenever the scheduler goes "on break".
-- **Two-stage blur, no permissions needed:**
-  1. A live blur of whatever is on screen fades in (0.4 s), using `NSVisualEffectView`, the same frosted effect as Control Center.
-  2. Your blurred wallpaper and the text fade in on top (0.6 s). Ending a break reverses it.
-- `BreakReminder/Break/WallpaperBlur.swift`: shrinks the wallpaper to 480 px, blurs it heavily and darkens it slightly. Fast even for huge wallpapers; falls back to a gradient if it can't be read.
-- `BreakReminder/Break/BreakView.swift`: the layout from LookAway: clock at top, big title, subtitle, divider, rolling countdown, Liquid Glass buttons, footer hints.
-- `BreakReminder/Break/BreakMessages.swift`: 5 short-break and 3 long-break messages, picked at random.
-- **Lock Screen** button: uses Apple's hidden "lock now" function (same as ⌃⌘Q). Your Mac only asks for a password 5 min after the display turns off, so simply turning the display off wasn't enough.
-- **Keyboard focus:** the break windows are Spotlight-style panels. They take the keyboard back whenever another app comes forward (e.g. after unlocking), so the buttons stay active and Esc works.
-- Fixed: the countdown sometimes froze then jumped 2 s. Cause: rounding up while tick timing wobbled around whole seconds. Now rounds to the nearest second.
-
-## Phase 4: Break rules
-
-**What it is:** how strict breaks are.
-
-- Enforcement modes: **Casual** (skip anytime), **Balanced** (Skip unlocks **halfway through the break**, with a filling ring), **Hardcore** (no skipping, no "Skip next break", no snoozing a break that's on screen).
-- **Max 2 snoozes per break**, then snoozing disappears until that break is taken.
-- **Daily skip limit: 3.** Counts on-screen skips and "Skip next break". Saved to disk (survives restarts), resets at midnight. When used up, the Skip button says "No skips left".
-- **Snooze stack** (like LookAway's `extended_snooze_options.png`): `+1 min` and `+5 min` pills tucked behind Skip, peeking out 8 pt each; hovering anywhere over the column makes them float up (8 pt gaps), labels only show when open. Built as a real layout so the pills are clickable (the first version drew them outside the button and clicks never arrived).
-- **Emergency skip: type "emergency"** on the break screen, any mode, ignores the daily limit. The letters typed so far light up in the footer. On Hardcore breaks (or with no skips left) the footer mentions it.
-- Double-Esc (skip / snooze / nothing). Holding Esc doesn't count as a double-tap.
-- End Break early (last 25%), hold the break until End Break is pressed, lock the Mac when a break starts: default off, can be tried once the settings window exists (Phase 5).
-- Menu bar simplified: no break-time label or menu items, since the break screen covers it.
-- The break screen swallows all typing (no beeps, nothing reaches the app behind).
-- Tests: `BreakReminderTests/BreakRulesTests.swift`. **32 tests in total, all passing.**
-- The user's feedback list for this phase: [`PROBLEMS.md`](PROBLEMS.md).
-
-- All by-eye checks passed (snooze stack, +1 min, half-time Skip ring, typing "emergency", footer + daily limit).
-
-## Cleanup (between Phase 4 and 5)
-
-- App renamed **Glance → BreakReminder** (folders, project, bundle ID `com.jammyjellyfish.BreakReminder`). The new bundle ID means fresh settings storage, so the daily skip count started over.
-- The old v1 project (`~/Projects/breakreminder`, a Swift Package, 5 commits) was deleted. Its git history is kept in `docs/archive/breakreminder-v1-history.zip`. To look at it: unzip it into an empty folder, then run `git log` / `git checkout .` there.
-- This folder moved from `~/Projects/breakreminder-v2` to `~/Projects/breakreminder`.
-
-- DeskRest settings screenshots added: `resources/deskrest-settings-screenshots/`, named after the page they show. The flash reminder in action is `resources/deskrest-flash-reminder.mov`.
-
-## Phase 5: Settings window
-
-**What it is:** a System Settings-style window, opened from **Settings…** in the menu bar menu.
-
-- `BreakReminder/Settings/SettingsWindowController.swift`: an AppKit window holding the SwiftUI settings. It brings the app forward when opened, since a menu-bar-only app isn't normally active.
-- `BreakReminder/Settings/SettingsView.swift`: the sidebar with LookAway-style gradient icons and the coral accent colour. Only pages with real settings are listed; each later phase adds its own.
-- **General** (`GeneralSettingsPage.swift`): Launch at login. macOS keeps this list itself, so it's read from the system, not saved by us.
-- **Screen Breaks** (`ScreenBreaksSettingsPage.swift`):
-  - Sliders (DeskRest style, `StopSlider.swift`) for break interval (10–90 min), break length (10 s–3 min) and long break length (1–10 min). Big number on top; the numbers under each stop can be clicked.
-  - "Every Nth break is long" stepper.
-  - The 3 enforcement picture cards (Casual / Balanced / Hardcore).
-  - Skips per day and snoozes per break (None / a number / No limit).
-  - More: double-Esc action, End Break early, hold until End Break, lock on break start.
-- **Changes apply right away** and are saved (`BreakScheduler.apply`). A new break interval restarts the countdown; a new break length applies from the next break.
-- **Safe loading:** settings saved by an older version keep their values when new settings are added, instead of all resetting.
-- Tests: 4 new (old saved data, "No limit" round trip, apply restarts countdown, break length waits for next break). **36 tests in total, all passing.** All 9 by-eye checks passed.
-
-### Fixes after Phase 5 (user feedback)
-- **⌘Q during a break** no longer quits the app (it made the break vanish). Quitting is refused while a break is on screen; logging out and shutting down still work. `AppDelegate.applicationShouldTerminate`.
-- **Break screen fade-out** no longer changes while fading (Skip turned back into the waiting ring, the timer and footer changed). The break screen now shows a copy of the scheduler's values (`BreakDisplay`), refreshed every second during the break and frozen when it ends.
-- **"Break's over"** (hold until End Break) now animates in: text cross-fades, End Break fades in as Skip fades out, everything glides into place.
-- **Stage Manager:** the settings window now gets its own stage. While it's open, the app shows a Dock icon (acts as a normal app); closing the window removes it.
-- All checks passed by eye. 36 tests passing.
-
-## Look & feel (after Phase 5)
-
-**What it is:** the app's own look, from the feedback in [`PROBLEMS.md`](PROBLEMS.md). Tried along the way and dropped: following the system accent colour, a "minimal mono" grey look, and LookAway's purple-pink gradients.
-
-- **Catppuccin Mocha everywhere.** All colours come from one file, `BreakReminder/Theme/Mocha.swift` (the official palette: base, mantle, crust, surface0–2, text, subtext, and accents like mauve, pink, peach, green, red).
-  - **Settings window:** always dark. Sidebar *mantle*, page *base*, text *text*. Toggles, sliders and the big slider numbers are *mauve*.
-  - **Sidebar:** each page has a pastel Mocha square with a dark symbol (General mauve, Screen Breaks green). The selected page gets a soft *surface0* pill, like LookAway (not the accent colour).
-  - **Enforcement cards (our own design):** each card is a tiny break screen: a mauve `0:20` and a small Skip button showing the mode (Casual green ⏭, Balanced peach filling ring, Hardcore red ⊘). Mauve border when selected.
-  - **Break screen:** the blurred wallpaper shows faintly under a strong Mocha *base* tint. Mauve countdown and skip ring, Mocha-tinted glass buttons, "emergency" letters light up peach.
-- **Settings window chrome:** one slim bar with working ‹ › back/forward buttons and the page title, like System Settings. No sidebar-collapse button.
-- **General → Menu bar** (brought back from the cut list): a fake menu bar strip showing the live menu bar item, **Live Status** on/off (off = icon only), **Display** (icon and text / text only), **Timer style** (`19:42` / `20m`).
-- **App icon** (`BreakReminder/AppIcon.icon`, made in Apple's Icon Composer format): a tea mug with a tea-bag tag, filled with a mauve → pink → peach gradient, on a solid Mocha *base* background. Liquid Glass: the mug and the tag are separate glass layers.
-- **Menu bar icon:** the same mug and tag shapes, one colour, no glass (`Assets.xcassets/MenuBarIcon`). macOS colours it to match the menu bar. Dimmed while paused.
-- Tests: 2 new (Live Status settings survive save/load, `20m` format). **38 tests in total, all passing.** All checked by eye.
-
-## Phase 6: Alerts & nudges
-
-**What it is:** small floating pills that warn you before a break and nudge you when you dodge breaks. Code in `BreakReminder/Alerts/`.
-
-- **Heads-up** (`HeadsUpAlert`): appears N seconds before a break (default 10) and stays until it starts, counting down. A friendly line, plus **Start this break now · +1m · +5m · +15m** (the + buttons use the normal snooze, greyed out when no snoozes are left).
-- **Cursor countdown** (`CountdownAlert`): "Short break in 5" follows the mouse for the last N seconds (default 5). Clicks go straight through it. Shows alongside the heads-up (user's choice).
-- **Overtime nudge** (`OvertimeAlert`): "⚡ 45 minutes without a break". The scheduler counts screen time since the last break actually *taken* (`timeSinceBreak`); skips, snoozes and emergency skips don't reset it. Once that passes the break interval, the nudge shows, then again every 15 minutes. Click to dismiss. Paused time counts too (option to show the nudge while paused); 5 min away resets it.
-- **Look:** Mocha-tinted Liquid Glass pills with a pastel icon square, like the sidebar. They float above other apps on every Space, never take the keyboard, and appear on the screen the mouse is on.
-- **Alerts / Nudges settings page** (new sidebar section "Behavior & Feedback", peach): position cards (top left / center / right), and each pill's on/off and timing. Each section has a **Preview** button that shows its pill for 5 s with sample values.
-- **Moved / held back:** smart-pause alerts go to Phase 7 (Smart Pause doesn't exist yet). Progressive blur is left out for now; plain glass instead.
-- Tests: 6 new (alert settings save/load, taken break resets overtime, skip and snooze start overtime, paused time counts, long idle resets). **44 tests in total, all passing.** All checked by eye.
-
-### Heads-up redesign (after Phase 6, from `PROBLEMS.md`)
-- Laid out like LookAway's (`lookaway-website-screenshots/*9.06.52*`): a round **clock badge** (mauve → pink → peach, like the app icon) on the left, a bold `00:03` above the friendly line, and the buttons on their own row underneath.
-- "Start this break now" is a softly filled pill; `+1m · +5m · +15m` are outline-only pills (dimmed when no snoozes are left). Bigger padding, rounder corners and a thin border on the card.
-- New `TimeFormat.paddedClock` (`00:03`), used only by the heads-up. 1 new test.
-
-## Phase 7: Idle detection & Smart Pause
-
-**What it is:** the timer holds itself during calls, focus apps and Focus, waits for you to stop typing, and greets you after you've been away. Code in `BreakReminder/SmartPause/` and `BreakScheduler`.
-
-- **Smart Pause** (`SmartPauseMonitor`, asked every tick): microphone or camera in use by any app (no permission needed), a picked **deep focus app** in front, or a **macOS Focus**. While held, the countdown stops (overtime still counts), the menu bar icon dims and the menu says "Smart Pause · …". After it ends, a **cooldown** (default 1 min) passes before counting again.
-- **macOS Focus** works through Shortcuts: macOS only tells apps with a paid developer certificate whether Focus is on. The Smart Pause page explains the two automations (`breakreminder://focus-on` / `focus-off`).
-- **Hold off while typing/dragging:** a due break waits for a 2 s pause in key presses or drags, at most 30 s.
-- **Welcome back** pill after being away long enough to reset the cycle (or waking from sleep): "That counted as a break. Next one in 20:00".
-- **Smart pause alerts:** "Paused for your call" / "Paused while Xcode is open" / "Paused for your Focus", then "Timer resumed". Toggle + Preview on the Alerts page.
-- **Smart Pause settings page** (blue pause icon): typing hold, the three triggers, focus app list (Add App… / remove), cooldown, "count as a break when away for", welcome back.
-- Tests: 11 new (smart pause holds the countdown, cooldown, no cooldown, overtime during smart pause, typing hold, 30 s cap, typing hold off, welcome back counts once, waking from sleep, settings save/load, Focus links). **56 tests in total, all passing.**
-
-## Phase 8: Wellness reminders
-
-**What it is:** posture and blink reminders between breaks. Code in `BreakReminder/Wellness/`.
-
-- **Two styles**, picked per reminder: LookAway's **bubble** (a glossy mauve → pink → peach circle that springs in; posture has an arrow nudging up, blink has eyes blinking) at a chosen spot on a 3×3 grid, or DeskRest's **screen flash** (every display darkens for ~1 s with the app icon and "Watch your posture" / "Remember to blink").
-- Counts **screen time** only (`WellnessTimer`): working, not idle, not on a break; not during Smart Pause unless allowed. Posture every 10 min, blink every 5 min by default. If both are due at once, posture shows and blink starts over.
-- Both start **off**; turn them on in the new **Wellness Reminders** page (pink heart): enabled, show every, style, size, position grid, ▶ try it. Common: dim the screen for bubbles, keep during Smart Pause, hide from screen recordings, restart after a break.
-- Windows ignore clicks and never take the keyboard. Shown on the screen the mouse is on (bubble) or every screen (flash).
-- Tests: 5 new (off by default, 5/10 min schedule and clash rule, only enabled ones, reset, settings save/load). **61 tests in total, all passing.**
-
-## Phase 9: Sounds
-
-- Three sounds from BreakTimer (GPL-3.0, credits in `BreakReminder/Sounds/CREDITS.md`): **gong** when a break starts and ends, **blip** for posture/blink reminders and alert pills (heads-up, Smart Pause, welcome back, overtime). The cursor countdown is silent: it appears with the heads-up, which already blipped.
-- `SoundPlayer` plays them at the chosen volume, if that group is on.
-- **Sounds** settings page (teal speaker): break sounds and reminder sounds toggles, each with a ▶, and one volume slider that plays a sample when let go.
-- Tests: 2 new (every sound loads from the app, settings save/load). **63 tests in total, all passing.**
-
-## Phase 10: Keyboard shortcuts
-
-- Three global shortcuts with the **KeyboardShortcuts** package (Sindre Sorhus, MIT; added in `project.yml` under `packages:`): **Pause or resume**, **Start break now**, **Snooze 5 minutes**. They start empty; record them on the new **Keyboard Shortcuts** page (lavender ⌘). The package saves them itself and warns about clashes with system shortcuts.
-- The menu bar menu shows the recorded shortcut next to Pause/Resume and Start break now.
-- No new tests (shortcuts need real key presses). **63 tests in total, all passing.**
-
-## Phase 11: Scheduling
-
-**What it is:** clock-time rules, on a new **Schedule** page (sapphire calendar). Code in `BreakReminder/Schedule/`.
-
-- **Office hours:** per weekday on/off with from–to times (weekdays 9–5 by default; the whole feature starts off). Outside them the timer sleeps: no countdown, no breaks, no reminders, no overtime. The menu bar shows just the dimmed icon and the menu says "Outside office hours".
-- **Planned breaks:** name, time, length (e.g. Lunch 12:30, 45 min), every day. The break screen shows the name as its title. They don't count towards the regular cycle (the long-break counter). Missed while the Mac was asleep → skipped.
-- **Clock Out:** at the set time (default 6 PM, off by default) every display shows "Time to clock out" with your message. **Done for today** stops the timer; **Keep working** closes it. Preview button on the page.
-- The menu has a new **Start** item while stopped.
-- Tests: 7 new (office hours rule, timer sleeps off hours, planned break on time, doesn't move the cycle, skipped while asleep, Clock Out fires once, settings save/load). **70 tests in total, all passing.**
-
-## Phase 12: Break screen customization & exercises
-
-- New **Break Screen** page (flamingo paintbrush), under Screen Breaks.
-- **Background:** blurred wallpaper (as before), a **picture** you choose (lightly blurred, lighter tint), or a Mocha **gradient** with a soft mauve glow at the top.
-- **Show the time at the top** toggle.
-- **Exercises** (on by default): 7 quick ones for short breaks (palming, eye circles, near and far, neck tilt, shoulder rolls, chin tucks, wrist stretch), 4 for long breaks (stand and reach, chest opener, lunge stretch, walk and water). The break screen shows the exercise's symbol above its title. Each can be turned off; if all of a kind are off, the old messages come back.
-- **My messages:** your own one-line messages, mixed in on every break.
-- Tests: 7 new (exercises by default, messages when off, turned-off exercises, all off falls back, own messages, every symbol exists, settings save/load). **77 tests in total, all passing.**
-
-## Phase 13: Stats
-
-- `StatsLog` (in `BreakReminder/Stats/`): per day, breaks **taken** (finished, or ended with End Break), **skipped** (skip, Skip next break, emergency) and **snoozed**. The scheduler records each one and saves it; days older than 120 are dropped.
-- **Stats** page (yellow chart icon): tiles for today's taken / skipped / snoozed and the day **streak** 🔥; a bar chart of breaks taken over the last 7 days, with the daily goal as a dashed line and a hover card showing that day's skips and snoozes; a **Daily goal** stepper (default 8).
-- Streak = days in a row with at least the goal. Today only joins once it reaches the goal, so the streak doesn't drop to 0 every morning.
-- Tests: 6 new (scheduler records the three events, survives restart, 7 days oldest first, streak, gap breaks streak, old days dropped). **83 tests in total, all passing.**
-
-## Phase 14: Polish
-
-- **Displays changing mid-break:** plugging a screen in or out swaps the break windows for ones covering the current screens (already shown, same message).
-- **Accessibility:** "Reduce transparency" → alert pills and the break screen use solid Mocha instead of glass/blur. "Reduce motion" → wellness bubbles don't bounce, nudge or blink; the snooze stack slides without a spring.
-- **Welcome window** on first launch (app icon, three things to know, Open Settings / Get Started). It doesn't show while tests run (tests run inside the app).
-- **About** page (grey ⓘ, own "BreakReminder" sidebar section): icon, version, credits with links.
-- **CPU fix:** idle CPU was ~10%. Cause: the alert pills' shared values were set every second, and with `@Observable` every set redraws whatever watches it, even hidden pill windows. Now values are only set when they change, and the countdown only when a pill showing it could be up. Now ~1% CPU, ~115 MB memory (Debug build).
-- The old Phase 14 icon item (BreakTimer icon + LookAway gradient) was dropped: the Mocha mug replaced it.
-- **83 tests, all passing.**
-
-## Phase 15: Packaging
-
-- Release build, signed "Sign to Run Locally", installed to `/Applications/BreakReminder.app` (about 6 MB). Runs at ~0.3% CPU, ~115 MB.
-- Launch at login needs turning on from the installed copy (Settings › General), so the login item points at `/Applications` rather than `build/`.
-
-**Next steps (where we left off):**
-1. By-eye/by-hand checks for Phases 7–15 (each phase's ✅ line in `CHECKLIST.md`).
-2. Turn on Launch at login from `/Applications`, then reboot to finish Phase 15.
-3. Later: Themes (see `CHECKLIST.md`).
-
-## Canopy redesign (plan in `PLAN.md`)
-
-- **Icon:** one big leaf in the style of `leaf.fill` (our own drawing), Liquid Glass, no shadow, on Icon Composer's dark background. Made by `design/make-icons.mjs`, which writes the Icon Composer file (`design/icon-mockups/Canopy.icon`, copied to `BreakReminder/AppIcon.icon`) and the menu bar leaf (`MenuBarIcon/menubar-leaf.svg`). Finder shows a green leaf; inside the app the icon is redrawn with the leaf in the accent colour (`Theme/Accent.swift`, `AccentIcon`), and again when the accent colour changes. (Earlier tries, dropped: a glass fern on a grid (hard to see), then a narrow leaf on graphite.)
-- **Colours:** `Theme/Mocha.swift` is gone. Everything uses system colours and follows light/dark mode and the **system accent colour**: tints, the menu bar leaf, sidebar icons (white symbols on squares from light accent at the top to full accent at the bottom), the heads-up clock badge, the break screen glow. The app's own AccentColor (green) only shows when the system accent is Multicolor.
-  - Settings window: no forced dark or custom backgrounds. The selected row keeps the soft grey pill.
-  - The three duration sliders (`StopSlider`) are now menus (`DurationPicker`): "20 minutes ⌄".
-  - Alert pills: plain Liquid Glass, round badges in system colours, numbers in SF Mono. Break screen and Clock Out: black/blurred background, white text, accent countdown, SF Mono times.
-  - **83 tests, all passing.** Installed to `/Applications`. Waiting on the by-eye check.
-- **Step 3, bugs** (checked by the user):
-  - Three crashes (countdown Preview, typing just before a break, a break starting) and pills jumping sideways were one bug: SwiftUI resized the alert windows while we moved them. The pill's SwiftUI view now sits in a plain container (`AlertPanel`). See `DECISIONS.md` → Floating windows.
-  - Blink and posture due within a minute of each other now show as one flash.
-  - Settings opens titled "General" instead of "Untitled".
-  - Smart Pause cooldown no longer freezes the countdown; it only makes sure no break comes within the cooldown after Smart Pause ends.
-  - **87 tests, all passing.** Not yet installed to `/Applications`.
-- **Step 4, feature changes:**
-  - **Wellness reminders are flash-only.** Bubble style and its settings (size, position, dim) removed; old saved settings still load. The "Try it" button is now "Preview" like the other pages.
-  - **"Stop counting when I'm away for"** (Smart Pause › Stepping away): 30 s, 1 min or 2 min (was fixed at 2 min).
-  - **Sound choices:** break start, break end and reminder each get a menu of 8 sounds (gong, blip, bloop, ping, sci-fi from BreakTimer; crystal glass, wind chime, tic-toc from Stretchly), played when picked, with ▶. Sounds are AAC `.m4a` now: 400 KB instead of 5.5 MB of WAV. Credits in `Sounds/CREDITS.md` and About.
-  - **Own exercises:** "My exercises and messages" (Break Screen page) have a title and optional instructions. Old title-only messages still load.
-  - **Alerts as notifications** (Alerts › Show alerts as): heads-up, overtime, Smart Pause and welcome back become macOS notifications (`AlertNotifier`); the heads-up has Start Break Now / Snooze buttons. The countdown near the pointer stays a pill. Permission is asked the first time one is posted.
-  - **Stats:** the 7-day chart shows % skipped + % snoozed as stacked bars (0–100%). Streak = days in a row without a skip or snooze; unused days are passed over. The daily goal setting is gone.
-  - **93 tests, all passing.** Installed to `/Applications`.
-- **Step 5, appearance (part 1, waiting on the by-eye check):**
-  - **Menu bar leaf:** plain black/white (template image), no accent colour.
-  - **Sidebar:** 240 pt wide (was stuck at ~145 and cut off labels; see `DECISIONS.md` → Settings window), window 900 wide. Icons have one colour per group, light gradient at the top: grey (General, About), teal (Screen Breaks, Break Screen, Wellness), purple (Schedule, Smart Pause, Stats), red (Alerts, Sounds), orange (Keyboard Shortcuts, so its white symbol stands out). Wellness moved up next to the other teal pages.
-  - **Alert position cards** show your desktop picture (black if it can't be read) instead of an accent tint.
-  - **Break screen:** timer, bar and message centred on the screen (buttons stay at the bottom, in their own layer): a thin accent bar of time passed, then the message. No exercise icon, no clock (the "Show the time" setting is gone).
-  - **Heads-up clock badge:** plain system greys instead of the accent colour (the user disliked it red). **Pointer countdown text:** primary colour (white in dark mode) instead of the accent.
-  - **Motion:** top pills (heads-up, Smart Pause, welcome back, overtime) slide down from the menu bar with a small overshoot and slide back up when they go; the pointer countdown fades. Clock Out's text rises in. Reduce Motion → fade only.
-  - **New app icon:** two green glass leaves on black (front leaf solid with a curved vein cut out, darker back leaf peeking out), our own drawing by `design/make-icon.swift`. Same shapes in the menu bar. Preview: `design/icon-preview.png`. **User: "the icon is off"; to revisit later** (not now).
-- **Step 6, rename to Canopy:** `PRODUCT_NAME: Canopy` in `project.yml`, so the app is `Canopy.app` and every user-visible "BreakReminder" says Canopy. The **bundle ID stays** `com.jammyjellyfish.BreakReminder`, so settings, stats, shortcuts and notification permission carry over. Links: `canopy://focus-on/off` (shown on the Smart Pause page), and the old `breakreminder://` ones still work. Project, target and folders keep the old name until the source is reorganised. Tests use `@testable import Canopy`; `project.yml` sets the tests' `TEST_HOST` to `Canopy.app`. Also: `project.yaml` is now `project.yml`, so plain `xcodegen` works. Old `/Applications/BreakReminder.app` deleted; Launch at login moved to Canopy by itself.
-- **Organize source:** files moved (with `git mv`, so history is kept) into `Canopy/App`, `Canopy/Core` (Foundation-only logic), `Canopy/Features/<Feature>`, `Canopy/Shared`, `Canopy/Resources`; tests in `CanopyTests/`. Project, target and scheme are `Canopy`. `SoundChoice` moved out of `SoundPlayer` into `Core/`. The `PRODUCT_NAME` and `TEST_HOST` workarounds are gone.
-- **Optimize, part 1: break screen** (checked by the user). CPU during a break 58% → ~1% (WindowServer 39% → ~18%). The timer is a Core Animation fade-roll (`BreakScreen/RollingTime.swift`: digits rise and fade like the menu bar clock, 0.25 s, no bounce, plain fade with Reduce Motion), the bar and skip ring glide continuously at 20 fps via Core Animation, and the live blur turns off once the wallpaper covers it. Tried and dropped: `.numericText` + `.drawingGroup()` (~18%), a cached blur-roll (fine, but the user preferred the fade). Details in `DECISIONS.md` → Performance.
-- **Optimize, part 2: flash, idle, memory** (measured only, no code changes; nothing left worth fixing):
-  - **Idle:** ~0.4% of a core (the old ~0.3% baseline).
-  - **Flash reminder:** ~10% for about one second, then gone (it lasts ~2 s). Most of that is macOS starting the sound (`SoundPlayer.play`), not the flash itself. Only ~0.1 s of CPU per reminder. WindowServer swings 6–27% with nothing from Canopy, so its share of the flash is lost in that noise.
-  - **Memory:** ~75–82 MB idle, ~190 MB during a break (blurred wallpaper per screen), back down afterwards. Closing Settings doesn't lower it (macOS keeps freed memory for the app). `leaks` finds only ~20 KB, all inside Apple's App Intents connection, not ours.
+- **Planning:** studied LookAway and DeskRest (`resources/`). [`FEATURES.md`](FEATURES.md) §3 is what we build and what was cut.
+- **Phases 0–15** (October 2026): XcodeGen project, scheduler, menu bar, break screen, break rules, settings window, Catppuccin Mocha look, alerts, Smart Pause, wellness, sounds, shortcuts, schedule, break screen customisation, stats, polish, Release build. Named Glance, then BreakReminder.
+- **Canopy redesign** (`PLAN.md` steps 1–6): system colours and accent everywhere (Mocha removed), native settings window, bug fixes (alert windows resized while moving caused three crashes; see `DECISIONS.md` → Floating windows), flash-only wellness, sound choices, own exercises, notifications option, new stats, motion, new break screen layout, leaf icon, rename to **Canopy**. The bundle ID stays `com.jammyjellyfish.BreakReminder` so settings and stats carry over.
+- **Organize source** into `Canopy/App`, `Core` (Foundation only), `Features/<Feature>`, `Shared`, `Resources`; tests in `CanopyTests/`.
+- **Optimize:**
+  - Break screen 58% → ~1% CPU (WindowServer 39% → ~18%): the timer, bar and skip ring are Core Animation layers, not SwiftUI animations; live blur turned off once covered. Earlier (Phase 14): idle ~10% → ~1% by only setting `@Observable` values when they change.
+  - Measured, nothing left worth fixing: idle ~0.4%; flash reminder ~10% for one second (mostly macOS starting the sound); memory ~75–82 MB idle, ~190 MB during a break (blurred wallpapers, freed afterwards); `leaks` finds nothing of ours.
+- **Clean out:** removed unused code (`Accent.gradient`), the original brief (`PROMPT.md`) and the v1 history archive, and shortened these docs.
 
 ---
 
@@ -276,12 +41,11 @@ For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0
 From the project root:
 
 ```sh
-xcodegen                                                      # recreate the Xcode project
-xcodebuild test -project Canopy.xcodeproj -scheme Canopy -derivedDataPath build   # build + run tests
-pkill -x Canopy; open build/Build/Products/Debug/Canopy.app                            # (re)start the test build
+xcodegen                                                                          # recreate the Xcode project
+xcodebuild test -project Canopy.xcodeproj -scheme Canopy -derivedDataPath build  # build + run tests
 ```
 
-Install to `/Applications` (Release build):
+Install to `/Applications` (Release build; the user only uses this copy):
 
 ```sh
 xcodebuild -project Canopy.xcodeproj -scheme Canopy -configuration Release -derivedDataPath build/release build
@@ -289,31 +53,35 @@ pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app 
 open /Applications/Canopy.app
 ```
 
-Or open `Canopy.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
+Or open `Canopy.xcodeproj` in Xcode: ⌘R runs, ⌘U tests. Launch at login must be turned on from the `/Applications` copy.
 
 ## Commits
 
-| Commit | What |
-|---|---|
-| `9b28dde` | Project setup + planning docs |
-| `f47af9a` | Phase 1: scheduler + tests |
-| `60eae15` | Phase 2: menu bar countdown |
-| `01587bf` | Phase 3: break screen |
-| `d3fb44a` | Phase 4: break rules + docs moved into `docs/` |
-| `ed7dd05` | Cleanup: rename to BreakReminder, archive v1 history |
-| `97f5f91` | Docs: tick cleanup, log rename commit |
-| `467926b` | Phase 5: settings window |
-| `063d6ad` | Fixes after Phase 5: ⌘Q during a break, frozen fade-out, Stage Manager |
-| `48804da` | Look & feel: Catppuccin Mocha, mug icon, Live Status |
-| `8c3dc5d` | Phase 6: alerts & nudges |
-| `5c06b76` | Heads-up redesign (LookAway layout) |
-| `02323bf` | Phase 7: Smart Pause, typing hold, welcome back |
-| `1523472` | Phase 8: wellness reminders |
-| `44645e5` | Phase 9: sounds |
-| `dcdd0c7` | Phase 10: keyboard shortcuts |
-| `fedc35a` | Phase 11: office hours, planned breaks, Clock Out |
-| `79029c7` | Phase 12: break screen customization, exercises |
-| `d2fe14e` | Phase 13: stats |
-| `86a822f` | Phase 14: polish |
-| `a996349` | Phase 15: Release build for `/Applications` |
-| `4aae3fe` | Canopy steps 1–3: native look, leaf icon, bug fixes |
+| Commit    | What                                                            |
+|-----------|-----------------------------------------------------------------|
+| `9b28dde` | Project setup + planning docs                                   |
+| `f47af9a` | Phase 1: scheduler + tests                                      |
+| `60eae15` | Phase 2: menu bar countdown                                     |
+| `01587bf` | Phase 3: break screen                                           |
+| `d3fb44a` | Phase 4: break rules + docs moved into `docs/`                  |
+| `ed7dd05` | Cleanup: rename to BreakReminder, archive v1 history            |
+| `467926b` | Phase 5: settings window                                        |
+| `063d6ad` | Fixes after Phase 5: ⌘Q during a break, frozen fade-out         |
+| `48804da` | Look & feel: Catppuccin Mocha, mug icon, Live Status            |
+| `8c3dc5d` | Phase 6: alerts & nudges                                        |
+| `5c06b76` | Heads-up redesign (LookAway layout)                             |
+| `02323bf` | Phase 7: Smart Pause, typing hold, welcome back                 |
+| `1523472` | Phase 8: wellness reminders                                     |
+| `44645e5` | Phase 9: sounds                                                 |
+| `dcdd0c7` | Phase 10: keyboard shortcuts                                    |
+| `fedc35a` | Phase 11: office hours, planned breaks, Clock Out               |
+| `79029c7` | Phase 12: break screen customization, exercises                 |
+| `d2fe14e` | Phase 13: stats                                                 |
+| `86a822f` | Phase 14: polish                                                |
+| `a996349` | Phase 15: Release build for `/Applications`                     |
+| `4aae3fe` | Canopy steps 1–3: native look, leaf icon, bug fixes             |
+| `632210c` | Canopy steps 4–5: features and appearance                       |
+| `f27206e` | Rename the app to Canopy (step 6)                               |
+| `5af3f95` | Organize source into App, Core, Features, Shared, Resources     |
+| `2bde437` | Optimize break screen (58% → ~1% CPU)                           |
+| `7b6be95` | Optimize part 2: measure flash, idle, memory                    |

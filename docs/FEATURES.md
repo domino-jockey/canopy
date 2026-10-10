@@ -198,13 +198,13 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 16 | Hold off breaks while typing or dragging | LookAway | |
 | 17 | Smart pause: meetings/calls (mic/camera), deep focus apps, macOS Focus mode | Both | Add Zoom, OBS, games etc. as deep focus apps. No video detection. |
 | 18 | Idle detection + timer reset + "welcome back" heads-up | Both | |
-| 19 | Posture & blink reminders: interval, size, position, sound, dim screen. **Two styles to try:** LookAway bubble and DeskRest flash (screen darkens briefly, icon appears, "Watch your posture" at the bottom, fades back) | Both | DeskRest reference: `deskrest-settings-screenshots/flash_reminder*.png`, `deskrest-flash-reminder.mov` |
+| 19 | Posture & blink reminders as a DeskRest-style screen flash (screen darkens briefly, icon and "Watch your posture" appear, fades back). The LookAway bubble was tried and dropped | Both | DeskRest reference: `deskrest-settings-screenshots/flash_reminder*.png`, `deskrest-flash-reminder.mov` |
 | 20 | Office / working hours | Both | |
 | 21 | Planned breaks at fixed times | LookAway | |
 | 22 | Clock Out (end-of-day stop) | DeskRest | |
 | 23 | Stats: breaks taken/skipped today, weekly chart, streak | Both | |
-| 24 | Sounds: one volume, toggles for break sounds and reminder sounds | Both | Sounds from BreakTimer (GPL-3.0) |
-| 27 | Visual style: Catppuccin Mocha throughout; tea-mug app icon (Liquid Glass) | Ours | Themes (other palettes + preset icons) planned for later |
+| 24 | Sounds: one volume, toggles and a choice of 8 sounds for break start, break end and reminders | Both | Sounds from BreakTimer (GPL-3.0) and Stretchly |
+| 27 | Visual style: native macOS (system colours, accent colour, Liquid Glass); leaf app icon | Ours | Replaced the earlier Catppuccin Mocha look and its planned Themes |
 | 25 | Global shortcuts: Pause/Resume, Start break now, Snooze 5 min | Both | |
 | 26 | Launch at login | Both | |
 
