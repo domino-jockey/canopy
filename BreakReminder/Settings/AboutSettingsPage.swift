@@ -16,7 +16,7 @@ struct AboutSettingsPage: View {
                     Text("BreakReminder").font(.title.weight(.bold))
                     Text(version).foregroundStyle(.secondary)
                     Text("A break reminder for your Mac, made for one person.")
-                        .foregroundStyle(Mocha.subtext0)
+                        .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -25,7 +25,6 @@ struct AboutSettingsPage: View {
             Section("Credits") {
                 credit("Sounds", "BreakTimer by Tom Watson (GPL-3.0)", "https://github.com/tom-james-watson/breaktimer-app")
                 credit("Keyboard shortcuts", "KeyboardShortcuts by Sindre Sorhus (MIT)", "https://github.com/sindresorhus/KeyboardShortcuts")
-                credit("Colours", "Catppuccin Mocha (MIT)", "https://catppuccin.com/palette")
                 credit("Inspired by", "LookAway and DeskRest", "https://lookaway.com")
             }
         }

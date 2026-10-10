@@ -108,7 +108,7 @@ private struct FocusAppRow: View {
             Button("Remove", systemImage: "minus.circle.fill", action: remove)
                 .labelStyle(.iconOnly)
                 .buttonStyle(.plain)
-                .foregroundStyle(Mocha.overlay1)
+                .foregroundStyle(.secondary)
         }
         .padding(.leading, 20)
     }

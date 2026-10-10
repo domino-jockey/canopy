@@ -7,11 +7,11 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - **Plan first** for anything non-trivial, wait for a go-ahead. **Never commit unless asked.**
 - Visual things (animations, windows, menu bar) can't be checked from the terminal: Terminal has no Screen Recording permission, so `screencapture` fails. Give the user a numbered check list and let them verify.
 - **But views can be rendered to PNGs from a throwaway test** (no permission needed): SwiftUI-only views with `ImageRenderer`; Forms and other AppKit-backed views by putting an `NSHostingView` in an off-screen borderless `NSWindow` and using `cacheDisplay(in:to:)`. Liquid Glass buttons and toggle tints don't draw this way, but layout, text and charts do. Good for catching overlaps before the user looks. Don't commit the test.
-- Keep `docs/` up to date (PROGRESS, CHECKLIST, this file) so work survives conversation compaction.
+- Keep `docs/` up to date (PROGRESS, PLAN, PROBLEMS, this file) so work survives conversation compaction.
 - Git identity is `domino-jockey <hayden.tus@gmail.com>`; the user hasn't said whether that's right. Ask before changing anything.
 
 ## Project setup
-- **XcodeGen**, not hand-made Xcode projects. `project.yml` is the source of truth; `*.xcodeproj` is gitignored. Run `xcodegen generate` after adding/removing files or changing settings.
+- **XcodeGen**, not hand-made Xcode projects. `project.yaml` is the source of truth; `*.xcodeproj` is gitignored. Run `xcodegen generate --spec project.yaml` after adding/removing files or changing settings.
 - Xcode 27's welcome-window "App" button makes an unusable draft in `~/Library/Developer/Xcode/UntitledProjects/` (multi-platform, placeholder bundle ID). Don't use it.
 - Screenshot filenames from macOS contain a **narrow no-break space** (U+202F) before "AM/PM". Typing the name fails; use globs (`Screenshot*9.02.14*`).
 - Red "Cannot find X in scope" diagnostics from SourceKit (the editor's checker) are false alarms in this project. Trust `xcodebuild`.
@@ -29,7 +29,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - The status item doesn't size itself to the SwiftUI label: call `refreshWidth()` after changes.
 - The 1 s `Timer` is added in `.common` run-loop mode so it keeps firing while a menu is open.
 - The break screen covers the menu bar, so the menu bar doesn't need any break-time behaviour.
-- The menu bar icon is an SVG in `Assets.xcassets/MenuBarIcon` with **template** rendering, so macOS colours it white/black to match the menu bar. It reuses the app icon's mug coordinates exactly: **change `menubar-mug.svg` together with `AppIcon.icon/Assets/mug.svg` + `tag.svg`.**
+- The menu bar icon is an SVG in `Assets.xcassets/MenuBarIcon` (template image), drawn in the accent colour by `MenuBarLabel`. It's the app icon's leaf, made by `design/make-icons.mjs` and cropped to the leaf so it fills the menu bar height. **Change the icon and the glyph together** by editing and re-running the script.
 - Live Status settings (`showLiveStatus`, `menuBarDisplay`, `timerStyle`) live in `TimerSettings`, so `MenuBarLabel` (which already watches the scheduler) updates by itself. The General page's preview strip is just another `MenuBarLabel`.
 
 ## Break screen
@@ -90,18 +90,30 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - The welcome window is shown once (`hasSeenWelcome` in UserDefaults) and **skipped under tests** (`XCTestConfigurationFilePath` is set): tests run inside the real app with the real UserDefaults, so they'd use it up otherwise. To see it again: `defaults delete com.jammyjellyfish.BreakReminder hasSeenWelcome`.
 
 ## Keyboard shortcuts
-- Swift packages go in `project.yml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
+- Swift packages go in `project.yaml` under `packages:` plus `dependencies: - package: Name` on the target. Xcode downloads them into `build/SourcePackages/` (gitignored with `build/`).
 - `KeyboardShortcuts.Recorder` stores shortcuts in `UserDefaults` itself, so they're not part of `TimerSettings`.
 
 ## Look & theme
 - **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
 - Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.
-- **App icon** is an Icon Composer document, `BreakReminder/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
+- **App icon** is an Icon Composer document, `BreakReminder/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yaml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
   - In `icon.json`, the **first group is drawn in front**. `fill` is the background (`solid` or `linear-gradient`); each group has `translucency`, `specular`, `shadow`.
   - Preview without building: `"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" BreakReminder/AppIcon.icon --export-image --output-file preview.png --platform macOS --rendition Default --width 512 --height 512 --scale 2`
-  - **SF Symbols are not allowed in app icons** (Apple's licence), so the mug is hand-drawn SVG. SF Symbols are fine elsewhere in the UI.
+  - **SF Symbols are not allowed in app icons** (Apple's licence), so the leaf is drawn as SVG by a script. SF Symbols are fine elsewhere in the UI.
 - macOS caches app icons. After changing the icon, refresh it: `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f build/Build/Products/Debug/BreakReminder.app && touch build/Build/Products/Debug/BreakReminder.app && killall Dock`
 
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.
 - Visual style: Catppuccin Mocha (catppuccin.com/palette, MIT licence). LookAway is still the reference for layout, not colours.
+
+## Canopy look
+- Colours: system colours and the accent colour everywhere. No palette file, no brand colours.
+- **macOS can't tint an app's own icon to the accent colour.** Finder keeps the fixed (green) icon; `AccentIcon` sets `NSApp.applicationIconImage` to a flat redraw with the leaf in `controlAccentColor`, and redraws on `NSColor.systemColorsDidChangeNotification`. That covers the Dock, About, Welcome and the flash reminder.
+- **In Swift Charts, `.foregroundStyle(.secondary)` means "secondary of the chart's accent", so labels came out tinted.** Use `Color.secondary` for grey chart text and lines.
+- The selected sidebar row stays a soft grey pill, not the accent colour (the user asked for LookAway's look earlier).
+- **Two copies exist:** `build/…/Debug` (what the restart command opens) and `/Applications` (what you open yourself / Launch at login). After a change the user should see, install to `/Applications` too, or they may be looking at the old copy.
+
+## Floating windows
+- **Never let SwiftUI resize a window we move or size ourselves.** `NSHostingView` resizes its window to fit by default. The alert pills (moved 60×/s for the countdown) then fought our `setFrame` calls: pills jumped sideways, and AppKit got stuck in a layout loop and crashed ("more Update Constraints passes than views"). Fix in `AlertPanel`: the hosting view sits inside a plain container view, so it reports its size (`fittingSize`, after `layoutSubtreeIfNeeded()` so it reflects changes made just now) but can't resize the window. (`sizingOptions = []` alone made `fittingSize` near zero: pills too small for their text.) Crash reports are in `~/Library/Logs/DiagnosticReports/BreakReminder-*.ips`.
+- Wellness reminders due within a minute of each other show as one flash (`WellnessTimer.mergeWindow`); their counts drift apart when intervals change.
+- Smart Pause cooldown = "no break within N of Smart Pause ending": on end, `workRemaining` is raised to at least the cooldown. The countdown never freezes for it.

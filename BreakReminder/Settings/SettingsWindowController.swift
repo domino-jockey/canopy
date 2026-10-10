@@ -13,9 +13,10 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
                                    previewClockOut: previewClockOut)
         ))
         super.init()
+        // SwiftUI only passes the page title on when the page changes, so set the first one here.
+        window.title = SettingsPage.general.title
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
         window.toolbarStyle = .unified // one slim bar with ‹ › and the title, like System Settings
-        window.backgroundColor = NSColor(Mocha.base) // the title bar area
         window.setContentSize(NSSize(width: 820, height: 640))
         window.isReleasedWhenClosed = false
         window.delegate = self

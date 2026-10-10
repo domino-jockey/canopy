@@ -14,15 +14,24 @@ struct SmartPauseTests {
         #expect(!clock.scheduler.isCountingDown)
     }
 
-    @Test func cooldownAfterSmartPauseEnds() {
+    @Test func cooldownKeepsBreakAwayAfterSmartPauseEnds() {
+        let clock = FakeClock()
+        clock.run(seconds: 20 * 60 - 10)
+        clock.run(seconds: 5, smartPause: .meeting) // ends with 10 s left
+        clock.run(seconds: 1)
+        #expect(clock.scheduler.workRemaining == 59) // pushed back to the 1 minute cooldown, and counting
+        #expect(!clock.scheduler.isSmartPaused)
+        clock.run(seconds: 58)
+        #expect(clock.scheduler.state == .working)
+        clock.run(seconds: 2)
+        #expect(clock.scheduler.isOnBreak)
+    }
+
+    @Test func cooldownDoesNothingWhenBreakIsFarAway() {
         let clock = FakeClock()
         clock.run(seconds: 5, smartPause: .focusApp(name: "Xcode"))
         clock.run(seconds: 60)
-        #expect(clock.scheduler.workRemaining == 20 * 60) // still in the 1 minute cooldown
-        #expect(clock.scheduler.isSmartPaused)
-        clock.run(seconds: 10)
-        #expect(clock.scheduler.workRemaining == 20 * 60 - 10)
-        #expect(!clock.scheduler.isSmartPaused)
+        #expect(clock.scheduler.workRemaining == 20 * 60 - 60) // countdown didn't stop
     }
 
     @Test func noCooldownWhenSetToNone() {

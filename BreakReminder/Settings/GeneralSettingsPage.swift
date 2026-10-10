@@ -69,6 +69,6 @@ private struct MenuBarPreview: View {
         }
         .padding(.horizontal, 12)
         .frame(height: 30)
-        .background(Mocha.mantle)
+        .background(.bar)
     }
 }

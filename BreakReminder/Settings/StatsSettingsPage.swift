@@ -35,11 +35,11 @@ struct StatsSettingsPage: View {
                             y: .value("Breaks taken", day.stats.taken),
                             width: .ratio(0.55)
                         )
-                        .foregroundStyle(Mocha.mauve.opacity(hovered == nil || hovered == day.date ? 1 : 0.5))
+                        .foregroundStyle(.tint.opacity(hovered == nil || hovered == day.date ? 1 : 0.5))
                         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 4, topTrailingRadius: 4))
                     }
                     RuleMark(y: .value("Goal", goal))
-                        .foregroundStyle(Mocha.overlay0)
+                        .foregroundStyle(Color.secondary)
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     if let hovered, let day = week.first(where: { $0.date == hovered }) {
                         RuleMark(x: .value("Day", hovered, unit: .day))
@@ -52,13 +52,13 @@ struct StatsSettingsPage: View {
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .day)) { _ in
                         AxisValueLabel(format: .dateTime.weekday(.abbreviated), centered: true)
-                            .foregroundStyle(Mocha.subtext0)
+                            .foregroundStyle(Color.secondary)
                     }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading) { _ in
-                        AxisGridLine().foregroundStyle(Mocha.surface0)
-                        AxisValueLabel().foregroundStyle(Mocha.subtext0)
+                        AxisGridLine()
+                        AxisValueLabel().font(.caption.monospaced())
                     }
                 }
                 .chartXSelection(value: Binding(
@@ -94,16 +94,16 @@ private struct StatTile: View {
     var body: some View {
         VStack(spacing: 2) {
             HStack(spacing: 4) {
-                if let symbol { Image(systemName: symbol).font(.title3).foregroundStyle(Mocha.peach) }
+                if let symbol { Image(systemName: symbol).font(.title3).foregroundStyle(.orange) }
                 Text("\(value)")
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .font(.system(size: 30, weight: .bold, design: .monospaced))
                     .contentTransition(.numericText())
             }
-            Text(label).font(.caption).foregroundStyle(Mocha.subtext0)
+            Text(label).font(.caption).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
-        .background(Mocha.mantle, in: RoundedRectangle(cornerRadius: 10))
+        .background(.quinary, in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -117,9 +117,9 @@ private struct HoverCard: View {
             Text(date.formatted(.dateTime.weekday(.wide).month().day())).font(.caption.weight(.semibold))
             Text("\(stats.taken) taken · \(stats.skipped) skipped · \(stats.snoozed) snoozed")
                 .font(.caption)
-                .foregroundStyle(Mocha.subtext1)
+                .foregroundStyle(.secondary)
         }
         .padding(8)
-        .background(Mocha.surface0, in: RoundedRectangle(cornerRadius: 8))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
 }

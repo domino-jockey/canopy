@@ -1,0 +1,58 @@
+import AppKit
+import SwiftUI
+
+/// The app follows the system accent colour everywhere (or its own green when the system accent is Multicolor).
+/// Numbers use SF Mono: `.font(.body.monospaced())`.
+enum Accent {
+    /// The accent colour, a little lighter at the top left.
+    static let gradient = LinearGradient(colors: [Color.accentColor.mix(with: .white, by: 0.25), .accentColor],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing)
+
+    /// A step from a light accent (0) to the full accent colour (1), for rows of icons.
+    static func step(_ fraction: Double) -> Color {
+        Color.accentColor.mix(with: .white, by: 0.4 * (1 - fraction))
+    }
+}
+
+/// Finder shows the fixed green icon (`AppIcon.icon`). Inside the app (Dock, About, Welcome, the flash reminder)
+/// the icon is redrawn with the leaf in the accent colour, and again whenever the accent colour changes.
+@MainActor
+enum AccentIcon {
+    private static var observer: NSObjectProtocol?
+
+    static func start() {
+        update()
+        observer = NotificationCenter.default.addObserver(
+            forName: NSColor.systemColorsDidChangeNotification, object: nil, queue: .main
+        ) { _ in
+            MainActor.assumeIsolated { update() }
+        }
+    }
+
+    private static func update() {
+        let renderer = ImageRenderer(content: IconView(accent: Color(nsColor: .controlAccentColor)))
+        renderer.scale = 2
+        NSApp.applicationIconImage = renderer.nsImage
+    }
+}
+
+/// The app icon, flat: Icon Composer's dark background with the menu bar leaf on it.
+/// Sized like macOS icons: the square fills about 80% of the image.
+private struct IconView: View {
+    let accent: Color
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 92, style: .continuous)
+            .fill(LinearGradient(colors: [Color(white: 0.133), Color(white: 0.067)], startPoint: .top, endPoint: .bottom))
+            .overlay(RoundedRectangle(cornerRadius: 92, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 2))
+            .overlay {
+                Image("MenuBarIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(accent)
+                    .padding(64)
+            }
+            .frame(width: 412, height: 412)
+            .padding(50)
+    }
+}

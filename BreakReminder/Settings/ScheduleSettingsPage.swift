@@ -42,7 +42,7 @@ struct ScheduleSettingsPage: View {
                         }
                         .labelStyle(.iconOnly)
                         .buttonStyle(.plain)
-                        .foregroundStyle(Mocha.overlay1)
+                        .foregroundStyle(.secondary)
                     }
                 }
                 Button("Add Planned Break", systemImage: "plus") {

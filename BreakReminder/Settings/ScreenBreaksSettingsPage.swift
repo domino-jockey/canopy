@@ -10,21 +10,23 @@ struct ScreenBreaksSettingsPage: View {
 
     var body: some View {
         Form {
-            Section("General") {
-                LabeledContent("Show a break after") {
-                    Text("of focused screen time").foregroundStyle(.secondary)
-                }
-                StopSlider(value: settings.workInterval, stops: [10, 15, 20, 25, 30, 45, 60, 90], unit: .minutes)
-                LabeledContent("Break duration") {}
-                StopSlider(value: settings.shortBreakDuration, stops: [10, 15, 20, 30, 45, 60, 90, 120, 180], unit: .seconds)
+            Section {
+                DurationPicker(title: "Show a break after", value: settings.workInterval,
+                               options: [10, 15, 20, 25, 30, 45, 60, 90].map { $0 * 60 })
+                DurationPicker(title: "Break duration", value: settings.shortBreakDuration,
+                               options: [10, 15, 20, 30, 45, 60, 90, 120, 180])
+            } header: {
+                Text("General")
+            } footer: {
+                Text("Only focused screen time counts towards the next break.")
             }
 
             Section("Long breaks") {
                 Stepper(value: settings.longBreakEvery, in: 2...10) {
                     LabeledContent("Long break", value: "Every \(ordinal(scheduler.settings.longBreakEvery)) break")
                 }
-                LabeledContent("Long break duration") {}
-                StopSlider(value: settings.longBreakDuration, stops: [1, 2, 3, 4, 5, 10], unit: .minutes)
+                DurationPicker(title: "Long break duration", value: settings.longBreakDuration,
+                               options: [1, 2, 3, 4, 5, 10].map { $0 * 60 })
             }
 
             Section("Break enforcement") {
@@ -105,9 +107,9 @@ private struct EnforcementCard: View {
 
     private var color: Color {
         switch mode {
-        case .casual: Mocha.green
-        case .balanced: Mocha.peach
-        case .hardcore: Mocha.red
+        case .casual: .green
+        case .balanced: .orange
+        case .hardcore: .red
         }
     }
 
@@ -117,23 +119,24 @@ private struct EnforcementCard: View {
                 // A tiny break screen showing how its Skip button behaves in this mode.
                 VStack(spacing: 6) {
                     Text("0:20")
-                        .font(.system(size: 20, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Mocha.mauve)
+                        .font(.system(size: 20, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(.tint)
                     HStack(spacing: 5) {
                         skipIcon
                         Text("Skip")
                     }
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(mode == .hardcore ? Mocha.overlay0 : Mocha.text)
+                    .foregroundStyle(mode == .hardcore ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.primary))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Mocha.surface0, in: Capsule())
+                    .background(.quaternary, in: Capsule())
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 80)
-                .background(Mocha.crust)
+                .background(Color.black)
+                .environment(\.colorScheme, .dark) // a tiny break screen, which is always dark
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Mocha.surface0))
+                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.quaternary))
                 .padding(3)
                 .overlay {
                     RoundedRectangle(cornerRadius: 13)
@@ -156,7 +159,7 @@ private struct EnforcementCard: View {
         case .balanced:
             // A ring partway through filling, like the real Balanced Skip button.
             ZStack {
-                Circle().stroke(Mocha.surface2, lineWidth: 1.5)
+                Circle().stroke(.tertiary, lineWidth: 1.5)
                 Circle()
                     .trim(from: 0, to: 0.6)
                     .stroke(color, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))

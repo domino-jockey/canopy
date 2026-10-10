@@ -56,7 +56,7 @@ final class WellnessController {
         switch reminder.style {
         case .bubble:
             if settings.dimForReminders {
-                windows += NSScreen.screens.map { makeWindow(frame: $0.frame, content: Mocha.crust.opacity(0.3)) }
+                windows += NSScreen.screens.map { makeWindow(frame: $0.frame, content: Color.black.opacity(0.3)) }
             }
             let size = reminder.size.diameter + 40 // room for the shadow and the bounce
             windows.append(makeWindow(frame: bubbleFrame(size: size, at: reminder.position, on: screen),

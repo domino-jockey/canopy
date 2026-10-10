@@ -86,16 +86,16 @@ private struct ClockOutView: View {
 
     var body: some View {
         ZStack {
-            Mocha.base.opacity(0.85).ignoresSafeArea()
+            Color.black.opacity(0.75).ignoresSafeArea()
             VStack(spacing: 20) {
                 Image(systemName: "moon.stars.fill")
                     .font(.system(size: 64))
-                    .foregroundStyle(Mocha.lavender)
+                    .foregroundStyle(.tint)
                 Text("Time to clock out")
                     .font(.system(size: 64, weight: .bold))
                 Text(message)
                     .font(.title2)
-                    .foregroundStyle(Mocha.subtext1)
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 700)
                 HStack(spacing: 12) {
@@ -103,14 +103,13 @@ private struct ClockOutView: View {
                     Button(action: onKeepWorking) { Label("Keep working", systemImage: "arrow.uturn.backward") }
                 }
                 .buttonStyle(.glass)
-                .tint(Mocha.surface0)
                 .controlSize(.extraLarge)
                 .padding(.top, 28)
                 Text("Done for today stops the break timer. Start it again from the menu bar.")
                     .font(.callout)
-                    .foregroundStyle(Mocha.overlay1)
+                    .foregroundStyle(.tertiary)
             }
-            .foregroundStyle(Mocha.text)
+            .foregroundStyle(.white)
         }
         .environment(\.colorScheme, .dark)
     }

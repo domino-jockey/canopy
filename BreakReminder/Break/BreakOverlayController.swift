@@ -180,7 +180,7 @@ final class BreakOverlayController {
         return window
     }
 
-    /// The picture behind the break screen's text. Nil means the Mocha gradient.
+    /// The picture behind the break screen's text. Nil means the plain dark background.
     private func background(for screen: NSScreen) -> BreakView.Background? {
         let settings = scheduler.settings
         switch settings.breakBackground {

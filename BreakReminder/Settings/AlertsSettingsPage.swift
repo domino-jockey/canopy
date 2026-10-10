@@ -107,18 +107,18 @@ private struct PositionCard: View {
         Button(action: select) {
             VStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Capsule().fill(Mocha.text).frame(width: 18, height: 3)
-                    Capsule().fill(Mocha.overlay0).frame(width: 30, height: 2)
+                    Capsule().fill(.primary).frame(width: 18, height: 3)
+                    Capsule().fill(.tertiary).frame(width: 30, height: 2)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 7)
-                .background(Mocha.surface1, in: RoundedRectangle(cornerRadius: 6))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
                 .padding(8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
                 .frame(height: 80)
-                .background(Mocha.crust)
+                .background(.tint.opacity(0.25))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Mocha.surface0))
+                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.quaternary))
                 .padding(3)
                 .overlay {
                     RoundedRectangle(cornerRadius: 13)

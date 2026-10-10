@@ -24,14 +24,13 @@ struct HeadsUpAlert: View {
                 ClockBadge()
                 VStack(alignment: .leading, spacing: 2) {
                     Text(TimeFormat.paddedClock(model.secondsToBreak))
-                        .font(.title2.weight(.bold))
-                        .monospacedDigit()
+                        .font(.title2.monospaced().weight(.bold))
                         .contentTransition(.numericText(countsDown: true))
                         .animation(.default, value: model.secondsToBreak)
                     Text(model.breakKind == .long
                          ? "A long break is coming. Time to stretch."
                          : "Almost time. Your eyes will appreciate this.")
-                        .foregroundStyle(Mocha.subtext0)
+                        .foregroundStyle(.secondary)
                 }
             }
             HStack(spacing: 8) {
@@ -46,29 +45,24 @@ struct HeadsUpAlert: View {
         }
         .font(.body)
         .padding(16)
-        .modifier(AlertBackground(cornerRadius: 26, tint: 0.75))
-        .overlay(RoundedRectangle(cornerRadius: 26).strokeBorder(Mocha.surface1.opacity(0.8)))
-        .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
-        .foregroundStyle(Mocha.text)
-        .environment(\.colorScheme, .dark)
+        .modifier(AlertBackground(cornerRadius: 26))
     }
 }
 
-/// A round clock face in the app icon's mauve → pink → peach gradient: tick marks and one hand.
+/// A round clock face in the accent colour: tick marks and one hand.
 private struct ClockBadge: View {
     var body: some View {
         ZStack {
-            Circle().fill(LinearGradient(colors: [Mocha.mauve, Mocha.pink, Mocha.peach],
-                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+            Circle().fill(Accent.gradient)
             ForEach(0..<12) { hour in
                 Capsule()
-                    .fill(Mocha.crust.opacity(0.35))
+                    .fill(.white.opacity(0.6))
                     .frame(width: 1.5, height: 4)
                     .offset(y: -16)
                     .rotationEffect(.degrees(Double(hour) * 30))
             }
             Capsule()
-                .fill(Mocha.crust.opacity(0.8))
+                .fill(.white)
                 .frame(width: 2.5, height: 12)
                 .offset(y: -4)
         }
@@ -76,7 +70,7 @@ private struct ClockBadge: View {
     }
 }
 
-/// LookAway's heads-up buttons: a softly filled pill for the main action, outline-only pills for snoozes.
+/// Heads-up buttons: a softly filled pill for the main action, outline-only pills for snoozes.
 private struct HeadsUpButtonStyle: ButtonStyle {
     let filled: Bool
     @Environment(\.isEnabled) private var isEnabled
@@ -85,8 +79,8 @@ private struct HeadsUpButtonStyle: ButtonStyle {
         configuration.label
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .background(filled ? Mocha.surface0 : .clear, in: Capsule())
-            .overlay(Capsule().strokeBorder(filled ? .clear : Mocha.surface1))
+            .background(filled ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear), in: Capsule())
+            .overlay(Capsule().strokeBorder(filled ? AnyShapeStyle(.clear) : AnyShapeStyle(.tertiary)))
             .contentShape(Capsule())
             .opacity(isEnabled ? (configuration.isPressed ? 0.6 : 1) : 0.4)
     }
@@ -99,11 +93,10 @@ struct CountdownAlert: View {
     var body: some View {
         let seconds = max(0, Int(model.secondsToBreak.rounded()))
         HStack(spacing: 8) {
-            AlertIcon(symbol: "leaf.fill", color: Mocha.green)
-            Text("\(model.breakKind == .long ? "Long" : "Short") break in \(seconds)")
+            AlertIcon(symbol: "leaf.fill", color: .green)
+            Text("\(model.breakKind == .long ? "Long" : "Short") break in \(Text("\(seconds)").monospaced())")
                 .font(.headline)
-                .foregroundStyle(Mocha.mauve)
-                .monospacedDigit()
+                .foregroundStyle(.tint)
                 .contentTransition(.numericText(countsDown: true))
                 .animation(.default, value: seconds)
         }
@@ -119,13 +112,13 @@ struct OvertimeAlert: View {
     var body: some View {
         Button(action: onDismiss) {
             HStack(spacing: 10) {
-                AlertIcon(symbol: "bolt.fill", color: Mocha.peach)
+                AlertIcon(symbol: "bolt.fill", color: .orange)
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(model.minutesWithoutBreak == 1 ? "1 minute" : "\(model.minutesWithoutBreak) minutes")
+                    Text("\(Text("\(model.minutesWithoutBreak)").monospaced()) \(model.minutesWithoutBreak == 1 ? "minute" : "minutes")")
                         .font(.headline)
-                        .foregroundStyle(Mocha.peach)
+                        .foregroundStyle(.orange)
                     Text("without a break")
-                        .foregroundStyle(Mocha.subtext0)
+                        .foregroundStyle(.secondary)
                 }
             }
             .alertPill()
@@ -150,7 +143,7 @@ struct SmartPauseAlert: View {
     var body: some View {
         HStack(spacing: 10) {
             AlertIcon(symbol: model.smartPause == nil ? "play.fill" : "pause.fill",
-                      color: model.smartPause == nil ? Mocha.green : Mocha.blue)
+                      color: model.smartPause == nil ? .green : .blue)
             Text(title).font(.headline)
         }
         .alertPill()
@@ -163,18 +156,18 @@ struct WelcomeBackAlert: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            AlertIcon(symbol: "hand.wave.fill", color: Mocha.yellow)
+            AlertIcon(symbol: "hand.wave.fill", color: .yellow)
             VStack(alignment: .leading, spacing: 0) {
                 Text("Welcome back").font(.headline)
-                Text("That counted as a break. Next one in \(TimeFormat.clock(model.secondsToBreak)).")
-                    .foregroundStyle(Mocha.subtext0)
+                Text("That counted as a break. Next one in \(Text(TimeFormat.clock(model.secondsToBreak)).monospaced()).")
+                    .foregroundStyle(.secondary)
             }
         }
         .alertPill()
     }
 }
 
-/// Dark symbol on a pastel square, like the settings sidebar.
+/// White symbol on a small circle in a system colour.
 private struct AlertIcon: View {
     let symbol: String
     let color: Color
@@ -182,35 +175,31 @@ private struct AlertIcon: View {
     var body: some View {
         Image(systemName: symbol)
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(Mocha.crust)
+            .foregroundStyle(.white)
             .frame(width: 26, height: 26)
-            .background(color, in: RoundedRectangle(cornerRadius: 7))
+            .background(color, in: Circle())
     }
 }
 
-/// Mocha-tinted Liquid Glass, or solid Mocha when "Reduce transparency" is on.
+/// Plain Liquid Glass, or the solid window colour when "Reduce transparency" is on.
 private struct AlertBackground: ViewModifier {
     let cornerRadius: CGFloat
-    let tint: Double
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     func body(content: Content) -> some View {
         if reduceTransparency {
-            content.background(Mocha.base, in: .rect(cornerRadius: cornerRadius))
+            content.background(Color(nsColor: .windowBackgroundColor), in: .rect(cornerRadius: cornerRadius))
         } else {
-            content.glassEffect(.regular.tint(Mocha.base.opacity(tint)), in: .rect(cornerRadius: cornerRadius))
+            content.glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
         }
     }
 }
 
 private extension View {
-    /// Mocha-tinted Liquid Glass pill.
+    /// Liquid Glass pill.
     func alertPill() -> some View {
         padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .modifier(AlertBackground(cornerRadius: 18, tint: 0.6))
-            .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
-            .foregroundStyle(Mocha.text)
-            .environment(\.colorScheme, .dark)
+            .modifier(AlertBackground(cornerRadius: 18))
     }
 }

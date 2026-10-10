@@ -6,6 +6,7 @@ import SwiftUI
 @MainActor
 final class AlertPanel {
     private let window: NSPanel
+    private let hostingView: NSView
     private(set) var isShown = false
 
     /// Gap between the pill and the screen edge or the mouse pointer.
@@ -25,7 +26,15 @@ final class AlertPanel {
         window.isReleasedWhenClosed = false
         window.ignoresMouseEvents = clickThrough
         window.alphaValue = 0
-        window.contentView = FirstClickHostingView(rootView: content.padding(Self.shadowRoom))
+        // We size and place the window ourselves (`moveToTop`, `moveNearCursor`). If the SwiftUI view were the
+        // window's content view, it would also resize the window whenever the text changes width, fighting
+        // those moves: the pill jumps sideways, and AppKit gets stuck in a layout loop and crashes the app.
+        // Inside a plain container it still reports its size (`fittingSize`) but can't resize the window.
+        hostingView = FirstClickHostingView(rootView: content.padding(Self.shadowRoom))
+        hostingView.autoresizingMask = [.width, .height]
+        let container = NSView()
+        container.addSubview(hostingView)
+        window.contentView = container
     }
 
     func show() {
@@ -69,7 +78,10 @@ final class AlertPanel {
         window.setFrame(NSRect(origin: origin, size: size), display: true)
     }
 
-    private var fittingSize: NSSize { window.contentView!.fittingSize }
+    var fittingSize: NSSize {
+        hostingView.layoutSubtreeIfNeeded() // apply model changes made just now, before measuring
+        return hostingView.fittingSize
+    }
 
     private static var mouseScreen: NSScreen {
         NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.screens[0]

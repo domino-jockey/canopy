@@ -32,7 +32,7 @@ enum BreakBackground: String, Codable {
     case wallpaper
     /// A picture the user picked.
     case image
-    /// A Mocha gradient.
+    /// Near-black with a soft accent-coloured glow.
     case gradient
 }
 

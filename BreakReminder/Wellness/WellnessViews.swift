@@ -21,7 +21,7 @@ extension ReminderSize {
     }
 }
 
-/// LookAway-style glossy bubble in the app icon's gradient, with a little animation:
+/// Glossy bubble in the accent colour, with a little animation:
 /// an arrow nudging upwards (posture) or eyes blinking (blink).
 struct WellnessBubble: View {
     let kind: WellnessKind
@@ -31,8 +31,7 @@ struct WellnessBubble: View {
 
     var body: some View {
         ZStack {
-            Circle().fill(LinearGradient(colors: [Mocha.mauve, Mocha.pink, Mocha.peach],
-                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+            Circle().fill(Accent.gradient)
             // Gloss: a soft highlight across the top half.
             Ellipse()
                 .fill(LinearGradient(colors: [.white.opacity(0.5), .clear], startPoint: .top, endPoint: .bottom))
@@ -55,7 +54,7 @@ struct WellnessBubble: View {
         PhaseAnimator(reduceMotion ? [false] : [false, true]) { up in
             Image(systemName: "chevron.up")
                 .font(.system(size: diameter * 0.36, weight: .black))
-                .foregroundStyle(Mocha.crust)
+                .foregroundStyle(.white)
                 .offset(y: up ? -diameter * 0.08 : diameter * 0.06)
         } animation: { _ in .easeInOut(duration: 0.6) }
     }
@@ -65,7 +64,7 @@ struct WellnessBubble: View {
             HStack(spacing: diameter * 0.2) {
                 ForEach(0..<2, id: \.self) { _ in
                     Capsule()
-                        .fill(Mocha.crust)
+                        .fill(.white)
                         .frame(width: diameter * 0.1, height: open ? diameter * 0.18 : diameter * 0.03)
                 }
             }
@@ -79,14 +78,14 @@ struct WellnessFlash: View {
 
     var body: some View {
         ZStack {
-            Mocha.crust.opacity(0.6)
+            Color.black.opacity(0.6)
             VStack(spacing: 28) {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable()
                     .frame(width: 180, height: 180)
                 Text(kind.message)
                     .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(Mocha.text)
+                    .foregroundStyle(.white)
             }
         }
         .ignoresSafeArea()

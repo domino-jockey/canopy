@@ -23,7 +23,6 @@ final class WelcomeWindowController: NSObject, NSWindowDelegate {
         )))
         window.styleMask = [.titled, .closable, .fullSizeContentView]
         window.titlebarAppearsTransparent = true
-        window.backgroundColor = NSColor(Mocha.base)
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.center()
@@ -50,14 +49,14 @@ private struct WelcomeView: View {
                 .frame(width: 96, height: 96)
             VStack(spacing: 6) {
                 Text("Welcome to BreakReminder").font(.title.weight(.bold))
-                Text("Small breaks, so your eyes and back last the whole day.").foregroundStyle(Mocha.subtext0)
+                Text("Small breaks, so your eyes and back last the whole day.").foregroundStyle(.secondary)
             }
             VStack(alignment: .leading, spacing: 14) {
-                row("leaf.fill", Mocha.green, "A 20-second break every 20 minutes",
+                row("leaf.fill", .green, "A 20-second break every 20 minutes",
                     "Every 4th one is a longer break to stand up and stretch.")
-                row("menubar.rectangle", Mocha.mauve, "Lives in the menu bar",
-                    "The mug shows the time to your next break. Click it to pause, snooze or open Settings.")
-                row("pause.fill", Mocha.blue, "Gets out of the way",
+                row("menubar.rectangle", .accentColor, "Lives in the menu bar",
+                    "The leaf shows the time to your next break. Click it to pause, snooze or open Settings.")
+                row("pause.fill", .blue, "Gets out of the way",
                     "Pauses during calls and while you're away, and waits for you to stop typing.")
             }
             .frame(maxWidth: 420, alignment: .leading)
@@ -69,25 +68,22 @@ private struct WelcomeView: View {
             .controlSize(.large)
             Text("No permissions needed. Turn on Launch at login in Settings › General.")
                 .font(.caption)
-                .foregroundStyle(Mocha.overlay1)
+                .foregroundStyle(.secondary)
         }
         .padding(40)
         .frame(width: 540)
-        .foregroundStyle(Mocha.text)
-        .tint(Mocha.mauve)
-        .preferredColorScheme(.dark)
     }
 
     private func row(_ symbol: String, _ color: Color, _ title: String, _ detail: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: symbol)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Mocha.crust)
+                .foregroundStyle(.white)
                 .frame(width: 28, height: 28)
-                .background(color, in: RoundedRectangle(cornerRadius: 7))
+                .background(color, in: Circle())
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline)
-                Text(detail).foregroundStyle(Mocha.subtext0).fixedSize(horizontal: false, vertical: true)
+                Text(detail).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
         }
     }

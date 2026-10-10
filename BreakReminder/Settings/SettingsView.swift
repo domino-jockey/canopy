@@ -1,6 +1,7 @@
 import SwiftUI
 
-enum SettingsPage: Hashable {
+/// In sidebar order.
+enum SettingsPage: Hashable, CaseIterable {
     case general, screenBreaks, breakScreen, schedule, smartPause, wellness, stats, alerts, sounds, shortcuts, about
 
     var title: String {
@@ -35,21 +36,10 @@ enum SettingsPage: Hashable {
         }
     }
 
-    /// Each page has its own Mocha accent. Later pages: blue, pink, yellow…
+    /// Each icon is a step deeper in the accent colour, top to bottom of the sidebar.
     var color: Color {
-        switch self {
-        case .general: Mocha.mauve
-        case .screenBreaks: Mocha.green
-        case .breakScreen: Mocha.flamingo
-        case .schedule: Mocha.sapphire
-        case .smartPause: Mocha.blue
-        case .wellness: Mocha.pink
-        case .stats: Mocha.yellow
-        case .alerts: Mocha.peach
-        case .sounds: Mocha.teal
-        case .shortcuts: Mocha.lavender
-        case .about: Mocha.overlay2
-        }
+        let all = Self.allCases
+        return Accent.step(Double(all.firstIndex(of: self)!) / Double(all.count - 1))
     }
 }
 
@@ -86,8 +76,6 @@ struct SettingsView: View {
                     row(.about)
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(Mocha.mantle)
             .navigationSplitViewColumnWidth(220)
             .toolbar(removing: .sidebarToggle)
         } detail: {
@@ -107,10 +95,7 @@ struct SettingsView: View {
                 }
             }
             .formStyle(.grouped)
-            .scrollContentBackground(.hidden)
-            .background(Mocha.base)
             .toggleStyle(.switch)
-            .tint(Mocha.mauve)
             .navigationTitle(page.title)
             .toolbar {
                 ToolbarItemGroup(placement: .navigation) {
@@ -121,8 +106,6 @@ struct SettingsView: View {
                 }
             }
         }
-        .foregroundStyle(Mocha.text)
-        .preferredColorScheme(.dark)
     }
 
     private func open(_ newPage: SettingsPage) {
@@ -145,13 +128,13 @@ struct SettingsView: View {
         .buttonStyle(.plain)
         .listRowBackground(
             RoundedRectangle(cornerRadius: 8)
-                .fill(rowPage == page ? Mocha.surface0 : .clear)
+                .fill(rowPage == page ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
                 .padding(.horizontal, 10)
         )
     }
 }
 
-/// Dark symbol on a small pastel square, Catppuccin style.
+/// White symbol on a small gradient square, lighter at the top left (like openlookaway).
 private struct SidebarIcon: View {
     let symbol: String
     let color: Color
@@ -159,8 +142,12 @@ private struct SidebarIcon: View {
     var body: some View {
         Image(systemName: symbol)
             .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(Mocha.crust)
+            .foregroundStyle(.white)
             .frame(width: 22, height: 22)
-            .background(color, in: RoundedRectangle(cornerRadius: 6))
+            .background(
+                LinearGradient(colors: [color.mix(with: .white, by: 0.2), color],
+                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                in: RoundedRectangle(cornerRadius: 6)
+            )
     }
 }

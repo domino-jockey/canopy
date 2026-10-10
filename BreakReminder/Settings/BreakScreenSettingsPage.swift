@@ -50,7 +50,7 @@ struct BreakScreenSettingsPage: View {
                         }
                         .labelStyle(.iconOnly)
                         .buttonStyle(.plain)
-                        .foregroundStyle(Mocha.overlay1)
+                        .foregroundStyle(.secondary)
                     }
                 }
                 Button("Add Message", systemImage: "plus") {

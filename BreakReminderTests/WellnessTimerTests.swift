@@ -28,6 +28,16 @@ struct WellnessTimerTests {
         #expect(shown.map(\.1) == [.blink, .posture, .blink, .posture])
     }
 
+    @Test func reminderDueSoonShowsWithTheOther() {
+        var timer = WellnessTimer()
+        _ = run(&timer, seconds: 30, settings: settings(posture: false))
+        // Blink is now 30 s ahead of posture. Blink's second flash (570 s) is 30 s before posture's,
+        // so posture counts as shown with it instead of flashing again at 600 s.
+        let shown = run(&timer, seconds: 10 * 60, settings: settings())
+        #expect(shown.map(\.1) == [.blink, .blink])
+        #expect(shown.map(\.0) == [270, 570])
+    }
+
     @Test func onlyEnabledReminderShows() {
         var timer = WellnessTimer()
         let shown = run(&timer, seconds: 10 * 60, settings: settings(blink: false))

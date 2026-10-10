@@ -79,8 +79,7 @@ private struct PositionGrid: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
         .background(
-            LinearGradient(colors: [Mocha.mauve, Mocha.pink, Mocha.peach], startPoint: .topLeading, endPoint: .bottomTrailing)
-                .opacity(0.55),
+            .tint.opacity(0.25),
             in: RoundedRectangle(cornerRadius: 12)
         )
     }
@@ -88,8 +87,8 @@ private struct PositionGrid: View {
     private func dot(_ position: GridPosition) -> some View {
         let selected = position == selection
         return Circle()
-            .fill(selected ? Mocha.crust : Mocha.crust.opacity(0.25))
-            .overlay(Circle().fill(Mocha.mauve).padding(5).opacity(selected ? 1 : 0))
+            .fill(selected ? AnyShapeStyle(.primary) : AnyShapeStyle(.quaternary))
+            .overlay(Circle().fill(.tint).padding(5).opacity(selected ? 1 : 0))
             .frame(width: 18, height: 18)
             .contentShape(Circle())
             .onTapGesture { selection = position }

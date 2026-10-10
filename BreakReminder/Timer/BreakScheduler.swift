@@ -42,8 +42,6 @@ final class BreakScheduler {
 
     /// What Smart Pause detected on the last tick. Nil when nothing is holding the timer.
     private(set) var smartPauseReason: SmartPauseReason?
-    /// After Smart Pause ends, the timer waits until this time before counting again.
-    private(set) var smartPauseCooldownEnds: Date?
     /// Goes up by one each time the user comes back after being away long enough to reset the cycle.
     /// The alerts controller watches it to show "Welcome back".
     private(set) var returnsFromIdle = 0
@@ -143,13 +141,9 @@ final class BreakScheduler {
         return Int((timeSinceBreak - settings.workInterval) / Self.overtimeRepeat)
     }
 
-    /// Smart Pause is holding the timer: something was detected, or the cooldown after it hasn't passed.
+    /// Smart Pause is holding the timer.
     var isSmartPaused: Bool {
-        isSmartPaused(at: lastTick ?? .now)
-    }
-
-    private func isSmartPaused(at time: Date) -> Bool {
-        smartPauseReason != nil || smartPauseCooldownEnds.map { time < $0 } == true
+        smartPauseReason != nil
     }
 
     /// The work countdown is running: working, and not held by Smart Pause.
@@ -188,8 +182,9 @@ final class BreakScheduler {
         // Time spent asleep counts as time away, the same as being idle.
         let awaySeconds = max(idleSeconds, elapsed > maxTickGap ? elapsed : 0)
 
-        if smartPause == nil && smartPauseReason != nil {
-            smartPauseCooldownEnds = now + settings.smartPauseCooldown
+        // Cooldown: no break within this long of Smart Pause ending. The countdown keeps going.
+        if smartPause == nil && smartPauseReason != nil && state == .working {
+            workRemaining = max(workRemaining, settings.smartPauseCooldown)
         }
         // Only set when different: every set redraws whatever is watching.
         if smartPauseReason != smartPause { smartPauseReason = smartPause }
@@ -213,7 +208,7 @@ final class BreakScheduler {
                 }
                 timeSinceBreak += elapsed
                 // Smart Pause holds the countdown, like pausing does.
-                guard !isSmartPaused(at: now) else { break }
+                guard !isSmartPaused else { break }
                 workRemaining -= elapsed
                 if workRemaining <= 0 { breakDue(elapsed: elapsed, typingIdleSeconds: typingIdleSeconds) }
             }
