@@ -253,7 +253,7 @@ For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0
   - **93 tests, all passing.** Installed to `/Applications`.
 - **Step 5, appearance (part 1, waiting on the by-eye check):**
   - **Menu bar leaf:** plain black/white (template image), no accent colour.
-  - **Sidebar:** a fixed 300 pt wide (window 900 wide). Icons have one colour per group, light gradient at the top: grey (General, About), teal (Screen Breaks, Break Screen, Wellness), purple (Schedule, Smart Pause, Stats), red (Alerts, Sounds), orange (Keyboard Shortcuts, so its white symbol stands out). Wellness moved up next to the other teal pages.
+  - **Sidebar:** 240 pt wide (was stuck at ~145 and cut off labels; see `DECISIONS.md` → Settings window), window 900 wide. Icons have one colour per group, light gradient at the top: grey (General, About), teal (Screen Breaks, Break Screen, Wellness), purple (Schedule, Smart Pause, Stats), red (Alerts, Sounds), orange (Keyboard Shortcuts, so its white symbol stands out). Wellness moved up next to the other teal pages.
   - **Alert position cards** show your desktop picture (black if it can't be read) instead of an accent tint.
   - **Break screen:** timer, bar and message centred on the screen (buttons stay at the bottom, in their own layer): a thin accent bar of time passed, then the message. No exercise icon, no clock (the "Show the time" setting is gone).
   - **Heads-up clock badge:** plain system greys instead of the accent colour (the user disliked it red). **Pointer countdown text:** primary colour (white in dark mode) instead of the accent.

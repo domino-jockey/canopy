@@ -81,7 +81,9 @@ struct SettingsView: View {
                     row(.about)
                 }
             }
-            .navigationSplitViewColumnWidth(300)
+            // In this AppKit-hosted window the column width alone is ignored; the frame makes it stick.
+            .frame(minWidth: 240, idealWidth: 240)
+            .navigationSplitViewColumnWidth(240)
             .toolbar(removing: .sidebarToggle)
         } detail: {
             Group {

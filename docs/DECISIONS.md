@@ -116,7 +116,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - **Two copies exist:** `build/…/Debug` (what the restart command opens) and `/Applications` (what you open yourself / Launch at login). After a change the user should see, install to `/Applications` too, or they may be looking at the old copy.
 
 ## Settings window
-- **`navigationSplitViewColumnWidth(min:ideal:)` didn't change the sidebar width**; a fixed `navigationSplitViewColumnWidth(300)` does.
+- **`navigationSplitViewColumnWidth` alone is ignored in this AppKit-hosted window** (the sidebar stayed ~145 pt and cut off labels). Adding `.frame(minWidth:idealWidth:)` on the sidebar `List` makes it stick. Checked with a screenshot.
 
 ## Floating windows
 - **Never let SwiftUI resize a window we move or size ourselves.** `NSHostingView` resizes its window to fit by default. The alert pills (moved 60×/s for the countdown) then fought our `setFrame` calls: pills jumped sideways, and AppKit got stuck in a layout loop and crashed ("more Update Constraints passes than views"). Fix in `AlertPanel`: the hosting view sits inside a plain container view, so it reports its size (`fittingSize`, after `layoutSubtreeIfNeeded()` so it reflects changes made just now) but can't resize the window. (`sizingOptions = []` alone made `fittingSize` near zero: pills too small for their text.) Crash reports are in `~/Library/Logs/DiagnosticReports/BreakReminder-*.ips`.
