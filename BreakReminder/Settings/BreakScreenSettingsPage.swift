@@ -25,7 +25,6 @@ struct BreakScreenSettingsPage: View {
                         }
                     }
                 }
-                Toggle("Show the time at the top", isOn: settings.showClockOnBreak)
             }
 
             Section {
@@ -43,8 +42,12 @@ struct BreakScreenSettingsPage: View {
             Section {
                 ForEach(scheduler.settings.customMessages.indices, id: \.self) { index in
                     HStack {
-                        TextField("Message", text: settings.customMessages[index], prompt: Text("Drink some water"))
-                            .labelsHidden()
+                        VStack {
+                            TextField("Title", text: settings.customMessages[index].title, prompt: Text("Drink some water"))
+                            TextField("Instructions", text: settings.customMessages[index].subtitle,
+                                      prompt: Text("Instructions (optional)"))
+                        }
+                        .labelsHidden()
                         Button("Remove", systemImage: "minus.circle.fill") {
                             settings.wrappedValue.customMessages.remove(at: index)
                         }
@@ -53,13 +56,13 @@ struct BreakScreenSettingsPage: View {
                         .foregroundStyle(.secondary)
                     }
                 }
-                Button("Add Message", systemImage: "plus") {
-                    settings.wrappedValue.customMessages.append("")
+                Button("Add Exercise or Message", systemImage: "plus") {
+                    settings.wrappedValue.customMessages.append(BreakMessage(title: "", subtitle: ""))
                 }
             } header: {
-                Text("My messages")
+                Text("My exercises and messages")
             } footer: {
-                Text("Mixed in with the exercises (or the built-in messages) on every break.")
+                Text("Mixed in with the exercises (or the built-in messages) on every break. Instructions show below the title.")
             }
         }
     }

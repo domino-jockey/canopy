@@ -71,6 +71,15 @@ struct BreakSchedulerTests {
         #expect(clock.scheduler.workRemaining == 600)
     }
 
+    @Test func shorterIdlePauseStopsCountingSooner() {
+        var settings = TimerSettings()
+        settings.idlePauseAfter = 30
+        let clock = FakeClock(settings: settings)
+        clock.run(seconds: 600)
+        clock.run(seconds: 60, idle: 40)
+        #expect(clock.scheduler.workRemaining == 600)
+    }
+
     @Test func longIdleResetsCycle() {
         let clock = FakeClock()
         clock.run(seconds: 600)

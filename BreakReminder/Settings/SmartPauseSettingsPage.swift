@@ -59,6 +59,11 @@ struct SmartPauseSettingsPage: View {
             }
 
             Section {
+                Picker("Stop counting when I'm away for", selection: settings.idlePauseAfter) {
+                    Text("30 seconds").tag(TimeInterval(30))
+                    Text("1 minute").tag(TimeInterval(60))
+                    Text("2 minutes").tag(TimeInterval(2 * 60))
+                }
                 Picker("Count as a break when I'm away for", selection: settings.idleResetAfter) {
                     Text("3 minutes").tag(TimeInterval(3 * 60))
                     Text("5 minutes").tag(TimeInterval(5 * 60))
@@ -69,7 +74,7 @@ struct SmartPauseSettingsPage: View {
             } header: {
                 Text("Stepping away")
             } footer: {
-                Text("After 2 minutes without input the timer stops counting. Away longer than this, and the cycle starts fresh.")
+                Text("With no mouse or keyboard input, the timer stops counting after the first time, and starts a fresh cycle after the second.")
             }
         }
     }

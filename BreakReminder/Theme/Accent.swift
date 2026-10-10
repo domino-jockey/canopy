@@ -7,11 +7,6 @@ enum Accent {
     /// The accent colour, a little lighter at the top left.
     static let gradient = LinearGradient(colors: [Color.accentColor.mix(with: .white, by: 0.25), .accentColor],
                                          startPoint: .topLeading, endPoint: .bottomTrailing)
-
-    /// A step from a light accent (0) to the full accent colour (1), for rows of icons.
-    static func step(_ fraction: Double) -> Color {
-        Color.accentColor.mix(with: .white, by: 0.4 * (1 - fraction))
-    }
 }
 
 /// Finder shows the fixed green icon (`AppIcon.icon`). Inside the app (Dock, About, Welcome, the flash reminder)

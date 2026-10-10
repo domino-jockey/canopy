@@ -13,8 +13,8 @@ A personal, Mac-only break reminder modelled on LookAway (and DeskRest). Swift +
 ## Commands (from the project root)
 - `xcodegen generate --spec project.yaml`: recreate `BreakReminder.xcodeproj` from `project.yaml` (after adding files or changing settings).
 - `xcodebuild test -project BreakReminder.xcodeproj -scheme BreakReminder -derivedDataPath build`: build and run all tests.
-- `pkill -x BreakReminder; open build/Build/Products/Debug/BreakReminder.app`: restart the app.
-- Install to `/Applications`: see "How to build" in `docs/PROGRESS.md` (Release build + `ditto`).
+- Install and restart the app (do this before the user checks anything; they only use the `/Applications` copy):
+  `xcodebuild -project BreakReminder.xcodeproj -scheme BreakReminder -configuration Release -derivedDataPath build/release build && pkill -x BreakReminder; sleep 1; ditto build/release/Build/Products/Release/BreakReminder.app /Applications/BreakReminder.app && open /Applications/BreakReminder.app`
 
 ## How we work
 - Each phase: short plan → user's go-ahead → build + tests → user checks visuals by eye → update docs → commit when the user asks.

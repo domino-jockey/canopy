@@ -13,6 +13,10 @@ final class AlertPanel {
     private let margin: CGFloat = 12
     /// Clear space around the pill so its shadow isn't cut off.
     private static let shadowRoom: CGFloat = 16
+    /// How far top pills slide in from.
+    private static let slideDistance: CGFloat = 14
+    /// Where a top pill sits. Nil for the pill that follows the pointer.
+    private var topFrame: NSRect?
 
     /// `clickThrough` lets clicks pass to whatever is underneath.
     init(clickThrough: Bool, content: some View) {
@@ -40,15 +44,27 @@ final class AlertPanel {
     func show() {
         guard !isShown else { return }
         isShown = true
+        // Top pills slide down from the menu bar with a little overshoot; the countdown by the pointer just fades.
+        let slideTo = Self.reduceMotion ? nil : topFrame
+        if let slideTo { window.setFrame(slideTo.offsetBy(dx: 0, dy: Self.slideDistance), display: false) }
         window.orderFrontRegardless()
-        NSAnimationContext.runAnimationGroup { $0.duration = 0.25; window.animator().alphaValue = 1 }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = slideTo == nil ? 0.25 : 0.45
+            if let slideTo {
+                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.2, 1.3, 0.4, 1)
+                window.animator().setFrame(slideTo, display: true)
+            }
+            window.animator().alphaValue = 1
+        }
     }
 
     func hide() {
         guard isShown else { return }
         isShown = false
+        let slideFrom = Self.reduceMotion ? nil : topFrame
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.25
+            if let slideFrom { window.animator().setFrame(slideFrom.offsetBy(dx: 0, dy: Self.slideDistance), display: true) }
             window.animator().alphaValue = 0
         } completionHandler: { [weak self] in
             MainActor.assumeIsolated {
@@ -67,11 +83,16 @@ final class AlertPanel {
         case .topCenter: area.midX - size.width / 2
         case .topRight: area.maxX - size.width
         }
-        window.setFrame(NSRect(origin: NSPoint(x: x, y: area.maxY - size.height), size: size), display: true)
+        let frame = NSRect(origin: NSPoint(x: x, y: area.maxY - size.height), size: size)
+        // Called every tick: leave the window (and a slide in progress) alone unless the spot changed.
+        guard frame != topFrame else { return }
+        topFrame = frame
+        window.setFrame(frame, display: true)
     }
 
     /// Just below and to the right of the mouse pointer.
     func moveNearCursor() {
+        topFrame = nil
         let size = fittingSize
         let mouse = NSEvent.mouseLocation
         let origin = NSPoint(x: mouse.x + margin - Self.shadowRoom, y: mouse.y - margin - 12 - size.height + Self.shadowRoom)
@@ -82,6 +103,8 @@ final class AlertPanel {
         hostingView.layoutSubtreeIfNeeded() // apply model changes made just now, before measuring
         return hostingView.fittingSize
     }
+
+    private static var reduceMotion: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
 
     private static var mouseScreen: NSScreen {
         NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.screens[0]

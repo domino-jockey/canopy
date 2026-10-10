@@ -13,6 +13,9 @@ final class AlertsController {
     private let countdown: AlertPanel
     private let smartPause: AlertPanel
     private let welcomeBack: AlertPanel
+    private let notifier: AlertNotifier
+    /// Alerts currently posted as notifications (when that setting is on).
+    private var notified: Set<AlertKind> = []
     private lazy var overtime = AlertPanel(clickThrough: false, content: OvertimeAlert(model: model) { [unowned self] in
         overtimeOpen = false
         update()
@@ -44,6 +47,7 @@ final class AlertsController {
         countdown = AlertPanel(clickThrough: true, content: CountdownAlert(model: model))
         smartPause = AlertPanel(clickThrough: true, content: SmartPauseAlert(model: model))
         welcomeBack = AlertPanel(clickThrough: true, content: WelcomeBackAlert(model: model))
+        notifier = AlertNotifier(scheduler: scheduler)
     }
 
     /// Shows one pill for a few seconds with sample values, from the settings page.
@@ -81,25 +85,26 @@ final class AlertsController {
         }
 
         // Heads-up and countdown: from N seconds before the break until it starts.
-        set(headsUp, previewing == .headsUp || settings.showHeadsUp && working && left <= settings.headsUpSeconds)
-        set(countdown, previewing == .countdown || settings.showCountdown && working && left <= settings.countdownSeconds)
+        set(headsUp, .headsUp, previewing == .headsUp || settings.showHeadsUp && working && left <= settings.headsUpSeconds)
+        set(countdown, .countdown, previewing == .countdown || settings.showCountdown && working && left <= settings.countdownSeconds)
 
         // Overtime: opens at each new 15-minute step, closes when clicked or a break starts.
         let step = scheduler.overtimeStep
         if step != lastOvertimeStep {
             lastOvertimeStep = step
             overtimeOpen = step != nil
+            notified.remove(.overtime) // each step gets a new notification
         }
         if scheduler.isOnBreak { overtimeOpen = false }
         let overtimeAllowed = settings.showOvertimeNudge && (working || paused && settings.overtimeWhenPaused)
 
         // Short-lived pills: Smart Pause starting/ending, and welcome back.
         let flashing = previewing ?? (headsUp.isShown ? nil : flash?.kind)
-        set(smartPause, flashing == .smartPause)
-        set(welcomeBack, flashing == .welcomeBack)
+        set(smartPause, .smartPause, flashing == .smartPause)
+        set(welcomeBack, .welcomeBack, flashing == .welcomeBack)
 
         // All the top pills share one spot. Heads-up first, then the short-lived ones, then overtime.
-        set(overtime, previewing == .overtime
+        set(overtime, .overtime, previewing == .overtime
             || overtimeOpen && overtimeAllowed && !headsUp.isShown && !smartPause.isShown && !welcomeBack.isShown)
 
         followCursor(countdown.isShown)
@@ -128,7 +133,19 @@ final class AlertsController {
         }
     }
 
-    private func set(_ panel: AlertPanel, _ visible: Bool) {
+    private func set(_ panel: AlertPanel, _ kind: AlertKind, _ visible: Bool) {
+        // As a notification instead: post it once when it would appear, take it away when it would go.
+        if scheduler.settings.alertsAsNotifications && panel !== countdown {
+            panel.hide()
+            if visible && notified.insert(kind).inserted {
+                SoundPlayer.play(.reminder, settings: scheduler.settings)
+                notifier.post(kind, model: model)
+            } else if !visible && notified.remove(kind) != nil {
+                notifier.remove(kind)
+            }
+            return
+        }
+        if notified.remove(kind) != nil { notifier.remove(kind) }
         guard visible else { return panel.hide() }
         if panel !== countdown { panel.moveToTop(scheduler.settings.alertPosition) }
         // The countdown pill sits alongside the heads-up, which already made a sound.

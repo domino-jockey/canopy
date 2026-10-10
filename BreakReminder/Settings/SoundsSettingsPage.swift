@@ -10,10 +10,20 @@ struct SoundsSettingsPage: View {
     var body: some View {
         Form {
             Section {
-                soundRow("Break sounds", isOn: settings.breakSounds, sample: .breakStart)
-                soundRow("Reminder and alert sounds", isOn: settings.reminderSounds, sample: .reminder)
+                Toggle("Break sounds", isOn: settings.breakSounds)
+                Group {
+                    soundPicker("Break starts", settings.breakStartSound, play: .breakStart)
+                    soundPicker("Break ends", settings.breakEndSound, play: .breakEnd)
+                }
+                .disabled(!scheduler.settings.breakSounds)
+            }
+
+            Section {
+                Toggle("Reminder and alert sounds", isOn: settings.reminderSounds)
+                soundPicker("Sound", settings.reminderSound, play: .reminder)
+                    .disabled(!scheduler.settings.reminderSounds)
             } footer: {
-                Text("Break sounds: a gong when a break starts and ends. Reminder sounds: a blip for posture and blink reminders and alert pills. Sounds from BreakTimer.")
+                Text("For posture and blink reminders and alert pills. Sounds from BreakTimer and Stretchly.")
             }
 
             Section("Volume") {
@@ -29,13 +39,16 @@ struct SoundsSettingsPage: View {
         }
     }
 
-    private func soundRow(_ title: String, isOn: Binding<Bool>, sample: SoundPlayer.Sound) -> some View {
+    /// A menu of sounds that plays the one you pick, like System Settings' alert sound, plus ▶ to hear it again.
+    private func soundPicker(_ title: String, _ selection: Binding<SoundChoice>, play sound: SoundPlayer.Sound) -> some View {
         HStack {
-            Toggle(title, isOn: isOn)
-            Button("Play", systemImage: "play.circle") { SoundPlayer.play(sample, settings: scheduler.settings) }
+            Picker(title, selection: selection) {
+                ForEach(SoundChoice.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+            .onChange(of: selection.wrappedValue) { SoundPlayer.play(sound, settings: scheduler.settings) }
+            Button("Play", systemImage: "play.circle") { SoundPlayer.play(sound, settings: scheduler.settings) }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.plain)
-                .disabled(!isOn.wrappedValue)
         }
     }
 }

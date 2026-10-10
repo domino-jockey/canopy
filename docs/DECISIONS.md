@@ -29,7 +29,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - The status item doesn't size itself to the SwiftUI label: call `refreshWidth()` after changes.
 - The 1 s `Timer` is added in `.common` run-loop mode so it keeps firing while a menu is open.
 - The break screen covers the menu bar, so the menu bar doesn't need any break-time behaviour.
-- The menu bar icon is an SVG in `Assets.xcassets/MenuBarIcon` (template image), drawn in the accent colour by `MenuBarLabel`. It's the app icon's leaf, made by `design/make-icons.mjs` and cropped to the leaf so it fills the menu bar height. **Change the icon and the glyph together** by editing and re-running the script.
+- The menu bar icon is an SVG in `Assets.xcassets/MenuBarIcon` (template image), plain black/white like other menu bar icons. It's the app icon's two leaves in one colour (back leaf trimmed with a gap where the front one covers it), made by `design/make-icon.swift` and cropped so it fills the menu bar height. Icon Composer takes the SVG layers directly (no PNG needed); a see-through front layer shows the back leaf's edge, so the front leaf's translucency is off. **Change the icon and the glyph together** by editing and re-running the script.
 - Live Status settings (`showLiveStatus`, `menuBarDisplay`, `timerStyle`) live in `TimerSettings`, so `MenuBarLabel` (which already watches the scheduler) updates by itself. The General page's preview strip is just another `MenuBarLabel`.
 
 ## Break screen
@@ -105,6 +105,8 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.
 - Visual style: Catppuccin Mocha (catppuccin.com/palette, MIT licence). LookAway is still the reference for layout, not colours.
+- Stretchly's sounds (from freesound.org): crystal glass is **CC BY 3.0 (credit required)**, wind chime and tic-toc CC0. "reverie" was left out: no licence listed. Credits live in `Sounds/CREDITS.md` and the About page.
+- Sounds are stored as AAC `.m4a` (`afconvert -f m4af -d aac -b 128000`), ~10× smaller than WAV. `NSSound(named:)` finds them without the extension.
 
 ## Canopy look
 - Colours: system colours and the accent colour everywhere. No palette file, no brand colours.
@@ -112,6 +114,9 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - **In Swift Charts, `.foregroundStyle(.secondary)` means "secondary of the chart's accent", so labels came out tinted.** Use `Color.secondary` for grey chart text and lines.
 - The selected sidebar row stays a soft grey pill, not the accent colour (the user asked for LookAway's look earlier).
 - **Two copies exist:** `build/…/Debug` (what the restart command opens) and `/Applications` (what you open yourself / Launch at login). After a change the user should see, install to `/Applications` too, or they may be looking at the old copy.
+
+## Settings window
+- **`navigationSplitViewColumnWidth(min:ideal:)` didn't change the sidebar width**; a fixed `navigationSplitViewColumnWidth(300)` does.
 
 ## Floating windows
 - **Never let SwiftUI resize a window we move or size ourselves.** `NSHostingView` resizes its window to fit by default. The alert pills (moved 60×/s for the countdown) then fought our `setFrame` calls: pills jumped sideways, and AppKit got stuck in a layout loop and crashed ("more Update Constraints passes than views"). Fix in `AlertPanel`: the hosting view sits inside a plain container view, so it reports its size (`fittingSize`, after `layoutSubtreeIfNeeded()` so it reflects changes made just now) but can't resize the window. (`sizingOptions = []` alone made `fittingSize` near zero: pills too small for their text.) Crash reports are in `~/Library/Logs/DiagnosticReports/BreakReminder-*.ips`.

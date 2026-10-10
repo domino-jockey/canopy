@@ -165,7 +165,6 @@ final class BreakOverlayController {
             model: model,
             message: message,
             background: background(for: screen),
-            showClock: scheduler.settings.showClockOnBreak,
             onSkip: { [weak self] in self?.scheduler.skipBreak() },
             onEndEarly: { [weak self] in self?.scheduler.endBreakEarly() },
             onSnooze: { [weak self] in self?.scheduler.snooze(minutes: $0) },

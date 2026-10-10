@@ -4,7 +4,7 @@ A plain-language record of what has been built, phase by phase. Update this at t
 For *why* things are built the way they are (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md).
 For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0–15 plan, is done and deleted; it's in git history.)
 
-**Current status:** Phases 0–15 done. Canopy redesign (`PLAN.md`): steps 1–3 done. Next: step 4 (feature changes).
+**Current status:** Phases 0–15 done. Canopy redesign (`PLAN.md`): steps 1–4 done. Next: step 5 (appearance).
 
 ---
 
@@ -243,6 +243,22 @@ For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0
   - Settings opens titled "General" instead of "Untitled".
   - Smart Pause cooldown no longer freezes the countdown; it only makes sure no break comes within the cooldown after Smart Pause ends.
   - **87 tests, all passing.** Not yet installed to `/Applications`.
+- **Step 4, feature changes:**
+  - **Wellness reminders are flash-only.** Bubble style and its settings (size, position, dim) removed; old saved settings still load. The "Try it" button is now "Preview" like the other pages.
+  - **"Stop counting when I'm away for"** (Smart Pause › Stepping away): 30 s, 1 min or 2 min (was fixed at 2 min).
+  - **Sound choices:** break start, break end and reminder each get a menu of 8 sounds (gong, blip, bloop, ping, sci-fi from BreakTimer; crystal glass, wind chime, tic-toc from Stretchly), played when picked, with ▶. Sounds are AAC `.m4a` now: 400 KB instead of 5.5 MB of WAV. Credits in `Sounds/CREDITS.md` and About.
+  - **Own exercises:** "My exercises and messages" (Break Screen page) have a title and optional instructions. Old title-only messages still load.
+  - **Alerts as notifications** (Alerts › Show alerts as): heads-up, overtime, Smart Pause and welcome back become macOS notifications (`AlertNotifier`); the heads-up has Start Break Now / Snooze buttons. The countdown near the pointer stays a pill. Permission is asked the first time one is posted.
+  - **Stats:** the 7-day chart shows % skipped + % snoozed as stacked bars (0–100%). Streak = days in a row without a skip or snooze; unused days are passed over. The daily goal setting is gone.
+  - **93 tests, all passing.** Installed to `/Applications`.
+- **Step 5, appearance (part 1, waiting on the by-eye check):**
+  - **Menu bar leaf:** plain black/white (template image), no accent colour.
+  - **Sidebar:** a fixed 300 pt wide (window 900 wide). Icons have one colour per group, light gradient at the top: grey (General, About), teal (Screen Breaks, Break Screen, Wellness), purple (Schedule, Smart Pause, Stats), red (Alerts, Sounds), orange (Keyboard Shortcuts, so its white symbol stands out). Wellness moved up next to the other teal pages.
+  - **Alert position cards** show your desktop picture (black if it can't be read) instead of an accent tint.
+  - **Break screen:** timer, bar and message centred on the screen (buttons stay at the bottom, in their own layer): a thin accent bar of time passed, then the message. No exercise icon, no clock (the "Show the time" setting is gone).
+  - **Heads-up clock badge:** plain system greys instead of the accent colour (the user disliked it red). **Pointer countdown text:** primary colour (white in dark mode) instead of the accent.
+  - **Motion:** top pills (heads-up, Smart Pause, welcome back, overtime) slide down from the menu bar with a small overshoot and slide back up when they go; the pointer countdown fades. Clock Out's text rises in. Reduce Motion → fade only.
+  - **New app icon:** two green glass leaves on black (front leaf solid with a curved vein cut out, darker back leaf peeking out), our own drawing by `design/make-icon.swift`. Same shapes in the menu bar. Preview: `design/icon-preview.png`. **User: "the icon is off"; to revisit later** (not now).
 
 ---
 
@@ -290,3 +306,5 @@ Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 | `79029c7` | Phase 12: break screen customization, exercises |
 | `d2fe14e` | Phase 13: stats |
 | `86a822f` | Phase 14: polish |
+| `a996349` | Phase 15: Release build for `/Applications` |
+| `4aae3fe` | Canopy steps 1–3: native look, leaf icon, bug fixes |

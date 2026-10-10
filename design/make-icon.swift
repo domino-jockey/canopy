@@ -1,35 +1,54 @@
-// Draws the Canopy icon: the leaf.fill SF Symbol as a glass layer on Icon Composer's dark background.
+// Draws the app icon: two leaves (a big front leaf with a curved vein cut out, a smaller one behind it),
+// each its own Liquid Glass layer, on Icon Composer's dark background. Our own drawing (SF Symbols aren't
+// allowed in app icons). Also writes the menu bar glyph from the same shapes.
 // Usage, from the project root: swift design/make-icon.swift
-// Writes design/icon-mockups/Canopy.icon and copies it to BreakReminder/AppIcon.icon.
-// Note: Apple's SF Symbols licence doesn't allow symbols in app icons. Fine on this Mac; replace it before sharing the app.
-import AppKit
+// Writes design/icon-mockups/Canopy.icon, copies it to BreakReminder/AppIcon.icon, and writes
+// BreakReminder/Assets.xcassets/MenuBarIcon.imageset/menubar-leaf.svg. Then renders design/icon-preview.png.
+import Foundation
 
-let size = 1024
-let dir = "design/icon-mockups/Canopy.icon"
+// Shapes on a 1024 canvas. Leaves grow from a shared base at the bottom left.
+let front = "M215,830 C150,560 310,250 715,190 C780,520 570,810 215,830 Z"
+// The vein: a thin crescent from near the base towards the tip (cut out of the front leaf).
+let vein = "M255,780 C400,640 520,470 655,265 C545,490 420,660 255,780 Z"
+let back = "M255,840 C450,610 650,530 830,570 C760,770 530,870 255,840 Z"
+
+func svg(_ body: String) -> String {
+    """
+    <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    \(body)
+    </svg>
+    """
+}
+
+func gradient(_ id: String, _ top: String, _ bottom: String) -> String {
+    """
+    <defs><linearGradient id="\(id)" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="\(top)"/><stop offset="1" stop-color="\(bottom)"/></linearGradient></defs>
+    """
+}
+
 let fm = FileManager.default
+let dir = "design/icon-mockups/Canopy.icon"
 try? fm.removeItem(atPath: "design/icon-mockups")
 try! fm.createDirectory(atPath: dir + "/Assets", withIntermediateDirectories: true)
 
-// The symbol, about 60% of the icon wide, centred.
-let symbol = NSImage(systemSymbolName: "leaf.fill", accessibilityDescription: nil)!
-    .withSymbolConfiguration(.init(pointSize: 470, weight: .regular))!
-let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: size, pixelsHigh: size, bitsPerSample: 8,
-                           samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
-                           bytesPerRow: 0, bitsPerPixel: 0)!
-NSGraphicsContext.saveGraphicsState()
-let context = NSGraphicsContext(bitmapImageRep: rep)!
-NSGraphicsContext.current = context
-let s = symbol.size
-symbol.draw(in: NSRect(x: (CGFloat(size) - s.width) / 2, y: (CGFloat(size) - s.height) / 2, width: s.width, height: s.height))
-// Fill the symbol's shape with green, lighter at the top right (fixed colour for Finder;
-// inside the app the leaf follows the accent colour, see AccentIcon).
-context.compositingOperation = .sourceIn
-NSGradient(starting: NSColor(srgbRed: 0.18, green: 0.72, blue: 0.31, alpha: 1),
-           ending: NSColor(srgbRed: 0.36, green: 0.88, blue: 0.48, alpha: 1))!
-    .draw(in: NSRect(x: 0, y: 0, width: size, height: size), angle: 45)
-NSGraphicsContext.restoreGraphicsState()
-try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: dir + "/Assets/leaf.png"))
+try! svg(gradient("g", "#4ED36F", "#139A3C") + "<path fill=\"url(#g)\" fill-rule=\"evenodd\" d=\"\(front) \(vein)\"/>")
+    .write(toFile: dir + "/Assets/front-leaf.svg", atomically: true, encoding: .utf8)
+try! svg(gradient("g", "#2FA654", "#0B6A2A") + "<path fill=\"url(#g)\" d=\"\(back)\"/>")
+    .write(toFile: dir + "/Assets/back-leaf.svg", atomically: true, encoding: .utf8)
 
+// The first group is drawn in front.
+func group(_ name: String, _ image: String, seeThrough: Bool) -> String {
+    """
+        {
+          "layers" : [ { "glass" : true, "image-name" : "\(image)", "name" : "\(name)" } ],
+          "name" : "\(name)",
+          "shadow" : { "kind" : "none", "opacity" : 0 },
+          "specular" : true,
+          "translucency" : { "enabled" : \(seeThrough), "value" : 0.3 }
+        }
+    """
+}
 let json = """
 {
   "fill" : {
@@ -39,35 +58,36 @@ let json = """
     ]
   },
   "groups" : [
-    {
-      "layers" : [
-        {
-          "glass" : true,
-          "image-name" : "leaf.png",
-          "name" : "leaf"
-        }
-      ],
-      "name" : "Leaf",
-      "shadow" : {
-        "kind" : "none",
-        "opacity" : 0
-      },
-      "specular" : true,
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.3
-      }
-    }
+\(group("Front leaf", "front-leaf.svg", seeThrough: false)),
+\(group("Back leaf", "back-leaf.svg", seeThrough: true))
   ],
-  "supported-platforms" : {
-    "squares" : [
-      "macOS"
-    ]
-  }
+  "supported-platforms" : { "squares" : [ "macOS" ] }
 }
 
 """
 try! json.write(toFile: dir + "/icon.json", atomically: true, encoding: .utf8)
 try? fm.removeItem(atPath: "BreakReminder/AppIcon.icon")
 try! fm.copyItem(atPath: dir, toPath: "BreakReminder/AppIcon.icon")
-print("wrote", dir, "and BreakReminder/AppIcon.icon")
+
+// Menu bar glyph: both leaves in one colour (a template image, so macOS colours it). The back leaf is
+// trimmed where the front one covers it, with a small gap so the two read as separate leaves.
+let menuBar = """
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="130 160 740 700">
+  <!-- The app icon's leaves in one colour. Made by design/make-icon.swift. -->
+  <defs><mask id="m"><rect x="0" y="0" width="1024" height="1024" fill="#fff"/>
+    <path d="\(front)" fill="#000" stroke="#000" stroke-width="44"/></mask></defs>
+  <path d="\(back)" fill="#000" mask="url(#m)"/>
+  <path d="\(front) \(vein)" fill="#000" fill-rule="evenodd"/>
+</svg>
+
+"""
+try! menuBar.write(toFile: "BreakReminder/Assets.xcassets/MenuBarIcon.imageset/menubar-leaf.svg", atomically: true, encoding: .utf8)
+
+// Preview, rendered by Icon Composer's command-line tool.
+let preview = Process()
+preview.executableURL = URL(fileURLWithPath: "/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool")
+preview.arguments = [dir, "--export-image", "--output-file", "design/icon-preview.png", "--platform", "macOS",
+                     "--rendition", "Default", "--width", "512", "--height", "512", "--scale", "2"]
+try! preview.run()
+preview.waitUntilExit()
+print("wrote", dir, "BreakReminder/AppIcon.icon, the menu bar SVG and design/icon-preview.png")

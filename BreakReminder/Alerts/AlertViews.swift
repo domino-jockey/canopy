@@ -49,20 +49,20 @@ struct HeadsUpAlert: View {
     }
 }
 
-/// A round clock face in the accent colour: tick marks and one hand.
+/// A round clock face in plain system greys: tick marks and one hand.
 private struct ClockBadge: View {
     var body: some View {
         ZStack {
-            Circle().fill(Accent.gradient)
+            Circle().fill(.quaternary)
             ForEach(0..<12) { hour in
                 Capsule()
-                    .fill(.white.opacity(0.6))
+                    .fill(.secondary)
                     .frame(width: 1.5, height: 4)
                     .offset(y: -16)
                     .rotationEffect(.degrees(Double(hour) * 30))
             }
             Capsule()
-                .fill(.white)
+                .fill(.primary)
                 .frame(width: 2.5, height: 12)
                 .offset(y: -4)
         }
@@ -96,7 +96,7 @@ struct CountdownAlert: View {
             AlertIcon(symbol: "leaf.fill", color: .green)
             Text("\(model.breakKind == .long ? "Long" : "Short") break in \(Text("\(seconds)").monospaced())")
                 .font(.headline)
-                .foregroundStyle(.tint)
+                .foregroundStyle(.primary) // white in dark mode, black in light
                 .contentTransition(.numericText(countsDown: true))
                 .animation(.default, value: seconds)
         }
@@ -131,8 +131,8 @@ struct OvertimeAlert: View {
 struct SmartPauseAlert: View {
     let model: AlertModel
 
-    private var title: String {
-        switch model.smartPause {
+    static func title(for reason: SmartPauseReason?) -> String {
+        switch reason {
         case .meeting: "Paused for your call"
         case .focusApp(let name): "Paused while \(name) is open"
         case .focusMode: "Paused for your Focus"
@@ -144,7 +144,7 @@ struct SmartPauseAlert: View {
         HStack(spacing: 10) {
             AlertIcon(symbol: model.smartPause == nil ? "play.fill" : "pause.fill",
                       color: model.smartPause == nil ? .green : .blue)
-            Text(title).font(.headline)
+            Text(Self.title(for: model.smartPause)).font(.headline)
         }
         .alertPill()
     }

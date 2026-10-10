@@ -5,6 +5,18 @@ struct DayStats: Codable, Equatable {
     var taken = 0
     var skipped = 0
     var snoozed = 0
+
+    /// Shares of the day's break decisions (taken + skipped + snoozed), 0 to 100. 0 on a day without any.
+    var percentSkipped: Double { percent(skipped) }
+    var percentSnoozed: Double { percent(snoozed) }
+
+    /// Took breaks, and didn't skip or snooze any.
+    var isClean: Bool { taken > 0 && skipped == 0 && snoozed == 0 }
+    var isEmpty: Bool { taken == 0 && skipped == 0 && snoozed == 0 }
+
+    private func percent(_ count: Int) -> Double {
+        isEmpty ? 0 : Double(count) / Double(taken + skipped + snoozed) * 100
+    }
 }
 
 /// A small daily log of breaks taken, skipped and snoozed, saved on disk.
@@ -44,16 +56,16 @@ struct StatsLog: Codable, Equatable {
         }
     }
 
-    /// Days in a row with at least `goal` breaks taken. Today counts once it reaches the goal;
-    /// until then the streak runs up to yesterday, so it doesn't drop to 0 every morning.
-    func streak(goal: Int, today: Date) -> Int {
+    /// Days in a row without a skip or snooze (and at least one break taken). A skip or snooze, today
+    /// included, ends it. Days without any breaks (Mac not used) are passed over: they don't end it or add to it.
+    func streak(today: Date) -> Int {
         let calendar = Calendar.current
-        var date = calendar.startOfDay(for: today)
-        if day(date).taken < goal { date = calendar.date(byAdding: .day, value: -1, to: date)! }
         var count = 0
-        while day(date).taken >= goal {
+        for back in 0..<Self.keepDays {
+            let stats = day(calendar.date(byAdding: .day, value: -back, to: today)!)
+            if stats.isEmpty { continue }
+            guard stats.isClean else { break }
             count += 1
-            date = calendar.date(byAdding: .day, value: -1, to: date)!
         }
         return count
     }

@@ -4,6 +4,8 @@ import SwiftUI
 /// while the break is on, and stops when the break ends, so nothing changes while the screen fades out.
 struct BreakDisplay: Equatable {
     var remaining: TimeInterval
+    /// How much of the break has passed, 0 to 1.
+    var progress: Double
     var isWaitingForEndBreak: Bool
     var canEndEarly: Bool
     var canSkip: Bool
@@ -17,6 +19,7 @@ struct BreakDisplay: Equatable {
 
     @MainActor init(_ scheduler: BreakScheduler) {
         remaining = scheduler.breakRemaining
+        progress = scheduler.breakDuration > 0 ? scheduler.breakElapsed / scheduler.breakDuration : 1
         isWaitingForEndBreak = scheduler.isWaitingForEndBreak
         canEndEarly = scheduler.canEndEarly
         canSkip = scheduler.canSkip
@@ -54,7 +57,6 @@ struct BreakView: View {
     let model: OverlayModel
     let message: BreakMessage
     let background: Background?
-    let showClock: Bool
     let onSkip: () -> Void
     let onEndEarly: () -> Void
     let onSnooze: (_ minutes: Int) -> Void
@@ -68,42 +70,30 @@ struct BreakView: View {
             backgroundLayer
                 .ignoresSafeArea()
 
+            // Big timer, a thin bar of time passed, then the message, centred on the screen.
             VStack(spacing: 0) {
-                TimelineView(.everyMinute) { context in
-                    Label(context.date.formatted(date: .omitted, time: .shortened), systemImage: "clock")
-                        .font(.title3.monospaced().weight(.semibold))
-                }
-                .padding(.top, 48)
-                .opacity(showClock ? 1 : 0)
-
-                Spacer()
-
-                if let symbol = message.symbol, !display.isWaitingForEndBreak {
-                    Image(systemName: symbol)
-                        .font(.system(size: 56))
-                        .foregroundStyle(.tint)
-                        .padding(.bottom, 24)
-                }
-
+                Text(time)
+                    .font(.system(size: 120, weight: .semibold, design: .monospaced))
+                    .contentTransition(.numericText(countsDown: true))
+                    .animation(.default, value: time)
+                BreakProgressBar(progress: display.progress)
+                    .padding(.top, 20)
+                    .padding(.bottom, 40)
                 Text(display.isWaitingForEndBreak ? "Break's over" : message.title)
-                    .font(.system(size: 64, weight: .bold))
+                    .font(.system(size: 40, weight: .bold))
                     .contentTransition(.opacity)
                 Text(display.isWaitingForEndBreak ? "Press End Break when you're ready" : message.subtitle)
                     .font(.title2)
+                    .foregroundStyle(.secondary)
                     .contentTransition(.opacity)
-                    .padding(.top, 16)
-                Capsule()
-                    .fill(.white.opacity(0.3))
-                    .frame(width: 120, height: 2)
-                    .padding(.vertical, 40)
-                Text(time)
-                    .font(.system(size: 56, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(.tint)
-                    .contentTransition(.numericText(countsDown: true))
-                    .animation(.default, value: time)
+                    .padding(.top, 12)
+            }
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.white)
 
+            // Buttons along the bottom, apart from the centred block.
+            VStack(spacing: 0) {
                 Spacer()
-
                 buttons
                 footer
                     .padding(.top, 16)
@@ -249,6 +239,24 @@ private struct SkipColumn: View {
             .frame(maxWidth: .infinity)
         }
         .disabled(!display.canSkip)
+    }
+}
+
+/// A thin line that fills with the accent colour as the break passes.
+private struct BreakProgressBar: View {
+    let progress: Double
+
+    var body: some View {
+        Capsule()
+            .fill(.white.opacity(0.2))
+            .frame(width: 420, height: 4)
+            .overlay(alignment: .leading) {
+                Capsule()
+                    .fill(.tint)
+                    .frame(width: 420 * min(1, max(0, progress)))
+            }
+            // Ticks arrive once a second; animating over that second makes the fill smooth.
+            .animation(.linear(duration: 1), value: progress)
     }
 }
 

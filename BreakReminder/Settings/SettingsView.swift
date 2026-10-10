@@ -2,7 +2,7 @@ import SwiftUI
 
 /// In sidebar order.
 enum SettingsPage: Hashable, CaseIterable {
-    case general, screenBreaks, breakScreen, schedule, smartPause, wellness, stats, alerts, sounds, shortcuts, about
+    case general, screenBreaks, breakScreen, wellness, schedule, smartPause, stats, alerts, sounds, shortcuts, about
 
     var title: String {
         switch self {
@@ -36,10 +36,15 @@ enum SettingsPage: Hashable, CaseIterable {
         }
     }
 
-    /// Each icon is a step deeper in the accent colour, top to bottom of the sidebar.
+    /// Fixed colours like System Settings: one colour per group of similar pages.
     var color: Color {
-        let all = Self.allCases
-        return Accent.step(Double(all.firstIndex(of: self)!) / Double(all.count - 1))
+        switch self {
+        case .general, .about: .gray
+        case .screenBreaks, .breakScreen, .wellness: .teal
+        case .schedule, .smartPause, .stats: .purple
+        case .alerts, .sounds: .red
+        case .shortcuts: .orange
+        }
     }
 }
 
@@ -62,9 +67,9 @@ struct SettingsView: View {
                 Section("Focus & Wellbeing") {
                     row(.screenBreaks)
                     row(.breakScreen)
+                    row(.wellness)
                     row(.schedule)
                     row(.smartPause)
-                    row(.wellness)
                     row(.stats)
                 }
                 Section("Behavior & Feedback") {
@@ -76,7 +81,7 @@ struct SettingsView: View {
                     row(.about)
                 }
             }
-            .navigationSplitViewColumnWidth(220)
+            .navigationSplitViewColumnWidth(300)
             .toolbar(removing: .sidebarToggle)
         } detail: {
             Group {
@@ -145,8 +150,7 @@ private struct SidebarIcon: View {
             .foregroundStyle(.white)
             .frame(width: 22, height: 22)
             .background(
-                LinearGradient(colors: [color.mix(with: .white, by: 0.2), color],
-                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                LinearGradient(colors: [color.mix(with: .white, by: 0.25), color], startPoint: .top, endPoint: .bottom),
                 in: RoundedRectangle(cornerRadius: 6)
             )
     }

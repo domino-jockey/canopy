@@ -30,9 +30,10 @@ struct BreakContentTests {
 
     @Test func ownMessagesAreMixedIn() {
         var settings = TimerSettings()
-        settings.customMessages = ["Drink some water", ""]
+        settings.customMessages = [BreakMessage(title: "Wall push-ups", subtitle: "Ten against the wall"),
+                                   BreakMessage(title: "", subtitle: "")]
         let pool = BreakMessages.pool(for: .short, settings: settings)
-        #expect(pool.last == BreakMessage(title: "Drink some water", subtitle: ""))
+        #expect(pool.last == BreakMessage(title: "Wall push-ups", subtitle: "Ten against the wall"))
         #expect(pool.count == BreakMessages.shortExercises.count + 1) // the empty one is ignored
     }
 
@@ -47,10 +48,16 @@ struct BreakContentTests {
         var settings = TimerSettings()
         settings.breakBackground = .image
         settings.backgroundImagePath = "/tmp/x.jpg"
-        settings.showClockOnBreak = false
         settings.disabledExercises = ["Palming"]
-        settings.customMessages = ["Hi"]
+        settings.customMessages = [BreakMessage(title: "Hi", subtitle: "There")]
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    /// Older versions saved own messages as plain titles.
+    @Test func oldMessagesStillLoad() {
+        let defaults = FakeClock.cleanDefaults()
+        defaults.set(Data(#"{"customMessages":["Drink some water"]}"#.utf8), forKey: "timerSettings")
+        #expect(TimerSettings.load(from: defaults).customMessages == [BreakMessage(title: "Drink some water", subtitle: "")])
     }
 }

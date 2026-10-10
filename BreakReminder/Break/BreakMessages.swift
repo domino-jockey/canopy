@@ -48,9 +48,7 @@ enum BreakMessages {
         let exercises = (kind == .long ? longExercises : shortExercises)
             .filter { !settings.disabledExercises.contains($0.title) }
         let builtIn = settings.showExercises && !exercises.isEmpty ? exercises : (kind == .long ? long : short)
-        let own = settings.customMessages
-            .filter { !$0.isEmpty }
-            .map { BreakMessage(title: $0, subtitle: "") }
+        let own = settings.customMessages.filter { !$0.title.isEmpty }
         return builtIn + own
     }
 

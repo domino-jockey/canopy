@@ -8,13 +8,10 @@ final class WellnessController {
     private var timer = WellnessTimer()
     private var lastTick: Date?
     private var lastCompletedBreaks = 0
-    /// Windows of the reminder on screen (the bubble plus dimming, or the flash on every display).
+    /// Windows of the flash on screen, one per display.
     private var windows: [NSWindow] = []
 
-    private let bubbleLength: TimeInterval = 4
     private let flashLength: TimeInterval = 1.2
-    /// Space between a bubble and the screen edge.
-    private let margin: CGFloat = 40
 
     init(scheduler: BreakScheduler) {
         self.scheduler = scheduler
@@ -48,24 +45,9 @@ final class WellnessController {
 
     private func show(_ kind: WellnessKind) {
         guard windows.isEmpty else { return }
-        let settings = scheduler.settings
-        let reminder = settings.reminder(kind)
-        let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.screens[0]
-        SoundPlayer.play(.reminder, settings: settings)
-
-        switch reminder.style {
-        case .bubble:
-            if settings.dimForReminders {
-                windows += NSScreen.screens.map { makeWindow(frame: $0.frame, content: Color.black.opacity(0.3)) }
-            }
-            let size = reminder.size.diameter + 40 // room for the shadow and the bounce
-            windows.append(makeWindow(frame: bubbleFrame(size: size, at: reminder.position, on: screen),
-                                      content: WellnessBubble(kind: kind, diameter: reminder.size.diameter)))
-            present(for: bubbleLength)
-        case .flash:
-            windows = NSScreen.screens.map { makeWindow(frame: $0.frame, content: WellnessFlash(kind: kind)) }
-            present(for: flashLength)
-        }
+        SoundPlayer.play(.reminder, settings: scheduler.settings)
+        windows = NSScreen.screens.map { makeWindow(frame: $0.frame, content: WellnessFlash(kind: kind)) }
+        present(for: flashLength)
     }
 
     /// Fades the windows in, keeps them up for `duration`, then fades them out.
@@ -87,14 +69,6 @@ final class WellnessController {
                 }
             }
         }
-    }
-
-    private func bubbleFrame(size: CGFloat, at position: GridPosition, on screen: NSScreen) -> NSRect {
-        let area = screen.visibleFrame.insetBy(dx: margin, dy: margin)
-        let x = area.minX + (area.width - size) * CGFloat(position.column) / 2
-        // Row 0 is the top, but screen coordinates count up from the bottom.
-        let y = area.maxY - size - (area.height - size) * CGFloat(position.row) / 2
-        return NSRect(x: x, y: y, width: size, height: size)
     }
 
     /// A see-through, click-through window above other apps on every Space.

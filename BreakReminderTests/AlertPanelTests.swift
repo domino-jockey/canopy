@@ -22,4 +22,22 @@ struct AlertPanelTests {
         model.minutesWithoutBreak = 12345
         #expect(panel.fittingSize.width > before)
     }
+
+    @Test func notificationTexts() {
+        let model = AlertModel()
+        model.secondsToBreak = 30
+        #expect(AlertNotifier.text(for: .headsUp, model: model).title == "Short break in 30 seconds")
+        model.minutesWithoutBreak = 45
+        #expect(AlertNotifier.text(for: .overtime, model: model).title == "45 minutes without a break")
+        model.smartPause = .meeting
+        #expect(AlertNotifier.text(for: .smartPause, model: model).title == "Paused for your call")
+    }
+
+    @Test func notificationSettingSurvivesSaveAndLoad() {
+        let defaults = FakeClock.cleanDefaults()
+        var settings = TimerSettings()
+        settings.alertsAsNotifications = true
+        settings.save(to: defaults)
+        #expect(TimerSettings.load(from: defaults) == settings)
+    }
 }

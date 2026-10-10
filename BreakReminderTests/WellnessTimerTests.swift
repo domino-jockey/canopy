@@ -54,19 +54,28 @@ struct WellnessTimerTests {
     @MainActor @Test func wellnessSettingsSurviveSaveAndLoad() {
         let defaults = FakeClock.cleanDefaults()
         var settings = TimerSettings()
-        settings.posture = WellnessReminder(enabled: true, interval: 900, style: .flash, size: .small,
-                                            position: GridPosition(row: 0, column: 2))
-        settings.dimForReminders = false
+        settings.posture = WellnessReminder(enabled: true, interval: 900)
+        settings.remindersDuringSmartPause = true
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    /// Settings saved before the bubble style was removed still load.
+    @MainActor @Test func oldBubbleSettingsStillLoad() {
+        let defaults = FakeClock.cleanDefaults()
+        let old = #"{"posture":{"enabled":true,"interval":900,"style":"bubble","size":"large","position":{"row":1,"column":1}},"dimForReminders":true}"#
+        defaults.set(Data(old.utf8), forKey: "timerSettings")
+        #expect(TimerSettings.load(from: defaults).posture == WellnessReminder(enabled: true, interval: 900))
     }
 }
 
 @MainActor
 struct SoundSettingsTests {
     @Test func everySoundLoads() {
-        for name in ["gong_start", "gong_end", "blip_start"] {
-            #expect(NSSound(named: name) != nil, "\(name)")
+        for choice in SoundChoice.allCases {
+            for end in [false, true] {
+                #expect(NSSound(named: choice.fileName(end: end)) != nil, "\(choice.fileName(end: end))")
+            }
         }
     }
 
@@ -75,6 +84,9 @@ struct SoundSettingsTests {
         var settings = TimerSettings()
         settings.breakSounds = false
         settings.soundVolume = 0.25
+        settings.breakStartSound = .windChime
+        settings.breakEndSound = .ping
+        settings.reminderSound = .ticToc
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
     }

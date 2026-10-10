@@ -83,6 +83,8 @@ private struct ClockOutView: View {
     let message: String
     let onDone: () -> Void
     let onKeepWorking: () -> Void
+    @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -110,6 +112,9 @@ private struct ClockOutView: View {
                     .foregroundStyle(.tertiary)
             }
             .foregroundStyle(.white)
+            // Rises into place as the screen fades in. "Reduce motion": no rise, just the fade.
+            .offset(y: appeared || reduceMotion ? 0 : 24)
+            .onAppear { withAnimation(.spring(duration: 0.7, bounce: 0.2)) { appeared = true } }
         }
         .environment(\.colorScheme, .dark)
     }

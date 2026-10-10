@@ -25,11 +25,13 @@ Updated with the "Not handled" list in `PROBLEMS.md` (October 2026).
 - **History:** round 1 was a glass fern on a grid (Horizon floor picked). Then changed: ferns are hard to see.
 - **Now:** one big leaf in the style of the `leaf.fill` symbol (Screen Breaks' sidebar icon) but our own drawing, since SF Symbols aren't allowed in app icons: wide rounded blade, curved vein cut out, curved stem. Liquid Glass, no shadow, on Icon Composer's dark background (near-black, a touch lighter at the top). No grid.
 - **Colour:** Finder/Launchpad show a fixed green leaf (macOS can't tint an app's icon to the accent colour). Inside the app (Dock while Settings is open, About, Welcome, flash reminder) the icon is redrawn with the leaf in your accent colour, and redrawn when the accent changes. The menu bar leaf is the same shape, in the accent colour.
-- Made by `design/make-icons.mjs` (writes `design/icon-mockups/Canopy.icon`, `BreakReminder/AppIcon.icon` and the menu bar SVG).
+- Made by `design/make-icon.swift` (writes `design/icon-mockups/Canopy.icon`, `BreakReminder/AppIcon.icon`, the menu bar SVG and `design/icon-preview.png`).
 
 ## Stats graph (replaces daily progress)
 
-Daily progress (Day dots) was **dropped** (October 2026). Instead, the bars on the existing 7-day graph show **% of breaks skipped + snoozed** each day, instead of breaks taken.
+Daily progress (Day dots) was **dropped** (October 2026). Instead, the bars on the existing 7-day graph show **% skipped + % snoozed** each day as a **stacked bar** (two colours), out of all break decisions that day (taken + skipped + snoozed).
+
+**Streak:** days in a row with **no skips and no snoozes**. Days with no breaks at all (Mac not used) neither break nor extend it. The daily break goal setting goes away.
 
 ## Other changes from PROBLEMS.md
 
@@ -39,7 +41,7 @@ Daily progress (Day dots) was **dropped** (October 2026). Instead, the bars on t
 - **Break screen clock** touching the top edge with a picture background: fix layout so the clock respects the safe area / menu bar on every background.
 - **New break screen layout:** big timer at the middle-top, a **thin** progress bar (accent colour, time passed) in the middle, the message right below it. No icon (not even for exercises), no current time. Skip buttons etc. below stay the same.
 - **Smart Pause cooldown:** today it freezes the countdown for the cooldown time after every Smart Pause. Change it so the countdown keeps running and only a break that comes due within the cooldown waits until it's over.
-- **Alerts/nudges:** bigger so the text fits; setting to show them as normal macOS notifications instead. Position cards in settings: no accent tint, just wallpaper / black.
+- **Alerts/nudges:** setting to show them as normal macOS notifications instead (heads-up gets Start now / Snooze buttons; the cursor countdown stays a pill). Making them bigger isn't needed anymore: the sizing fix made the text fit. Position cards in settings: no accent tint, just wallpaper / black.
 - **Menu bar icon:** plain black/white (template image), not coloured.
 - **Preview buttons:** every one says "Preview" (wellness reminders didn't).
 - **Idle detection:** add **30 seconds** and **1 minute** to the "pause when away" options (currently 2 min).
@@ -64,10 +66,10 @@ Order (October 2026): **bugs and features first, appearance after.** Don't get c
    - Our own drawing of **two leaves**, inspired by the user's screenshot (`resources/icon-references/two-leaves-screenshot.png`) (big front leaf with a curved vein cut out, smaller leaf behind). Drawn in code, no SVG needed.
    - Style like the macOS 27 icons the user downloaded (Obsidian, Steam, YouTube, Surfshark in `~/Downloads`): near-black background, one big coloured glass shape filling ~70–80%.
    - Two layers (back leaf, front leaf) so each gets its own glass. Preview image first, user checks.
-   - Open question: green leaves on black (suggested) or white on green.
+   - Chosen: green leaves on black. First version made in step 5 (`design/icon-preview.png`); the user says it's off and will come back to it later. Ask what's off before changing it.
 2. ✅ **Native foundation:** system accent colour everywhere, Mocha removed (pills, break screen and Clock Out got plain glass and system colours here too), settings window, gradient sidebar icons, duration menus. Waiting on the by-eye check.
 3. ✅ **Bugs:** see the Bugs list in `PROBLEMS.md` (preview crash, typing crash, double flash, jumping alerts, "Untitled" title), plus the Smart Pause cooldown change.
-4. **Feature changes:** flash-only wellness, idle 30 s / 1 min, sound choices, custom exercises, bigger alerts + notification option, stats graph (% skipped + snoozed).
+4. ✅ **Feature changes** (checked by the user): flash-only wellness, idle 30 s / 1 min (new "pause when away" setting), sound choices, custom exercises (title + instructions), alerts as notifications option, stats graph (stacked % skipped + snoozed) and the no-skip streak.
 5. **Appearance:** animations, break screen clock fix, new break screen layout, sidebar, position cards, menu bar icon, Preview labels, new app icon.
 6. **Rename to Canopy**, reinstall, docs.
 

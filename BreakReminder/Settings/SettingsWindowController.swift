@@ -17,7 +17,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         window.title = SettingsPage.general.title
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
         window.toolbarStyle = .unified // one slim bar with ‹ › and the title, like System Settings
-        window.setContentSize(NSSize(width: 820, height: 640))
+        window.setContentSize(NSSize(width: 900, height: 640))
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.center()

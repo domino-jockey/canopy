@@ -10,6 +10,17 @@ struct AlertsSettingsPage: View {
 
     var body: some View {
         Form {
+            Section {
+                Picker("Show alerts as", selection: settings.alertsAsNotifications) {
+                    Text("Pills").tag(false)
+                    Text("Notifications").tag(true)
+                }
+            } footer: {
+                Text(scheduler.settings.alertsAsNotifications
+                     ? "The countdown next to your pointer stays a pill. If nothing shows up, allow BreakReminder in System Settings › Notifications."
+                     : "Small floating pills at the top of the screen.")
+            }
+
             Section("Position") {
                 HStack(alignment: .top, spacing: 16) {
                     ForEach([AlertPosition.topLeft, .topCenter, .topRight], id: \.self) { position in
@@ -20,6 +31,7 @@ struct AlertsSettingsPage: View {
                 }
                 .padding(.vertical, 6)
             }
+            .disabled(scheduler.settings.alertsAsNotifications)
 
             Section {
                 Toggle("Show a reminder before a break appears", isOn: settings.showHeadsUp)
@@ -103,6 +115,16 @@ private struct PositionCard: View {
         }
     }
 
+    /// The main screen's desktop picture, read once, or black if it can't be read.
+    private static let wallpaper: some View = Group {
+        if let url = NSScreen.main.flatMap({ NSWorkspace.shared.desktopImageURL(for: $0) }),
+           let image = NSImage(contentsOf: url) {
+            Image(nsImage: image).resizable().scaledToFill()
+        } else {
+            Color.black
+        }
+    }
+
     var body: some View {
         Button(action: select) {
             VStack(spacing: 8) {
@@ -116,7 +138,7 @@ private struct PositionCard: View {
                 .padding(8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
                 .frame(height: 80)
-                .background(.tint.opacity(0.25))
+                .background { Self.wallpaper }
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.quaternary))
                 .padding(3)

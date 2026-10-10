@@ -38,24 +38,29 @@ struct StatsTests {
         #expect(week.last!.date == Calendar.current.startOfDay(for: wednesday))
     }
 
-    @Test func streakCountsDaysAtGoal() {
+    @Test func streakCountsDaysWithoutSkipsOrSnoozes() {
         var log = StatsLog()
-        for offset in [-3, -2, -1] {
-            for _ in 0..<2 { log.record(.taken, on: day(offset)) }
-        }
-        // Today hasn't reached the goal yet: the streak runs up to yesterday.
-        log.record(.taken, on: day(0))
-        #expect(log.streak(goal: 2, today: wednesday) == 3)
-        log.record(.taken, on: day(0))
-        #expect(log.streak(goal: 2, today: wednesday) == 4)
-        #expect(log.streak(goal: 3, today: wednesday) == 0)
+        log.record(.snoozed, on: day(-4))
+        for offset in [-3, -2, -1, 0] { log.record(.taken, on: day(offset)) }
+        #expect(log.streak(today: wednesday) == 4)
+        // A skip today ends it straight away.
+        log.record(.skipped, on: day(0))
+        #expect(log.streak(today: wednesday) == 0)
     }
 
-    @Test func gapBreaksStreak() {
+    @Test func unusedDaysDontEndStreak() {
         var log = StatsLog()
         log.record(.taken, on: day(-3))
         log.record(.taken, on: day(-1))
-        #expect(log.streak(goal: 1, today: wednesday) == 1)
+        // Today and two days ago: no breaks at all.
+        #expect(log.streak(today: wednesday) == 2)
+    }
+
+    @Test func percentSkippedAndSnoozed() {
+        let stats = DayStats(taken: 2, skipped: 1, snoozed: 1)
+        #expect(stats.percentSkipped == 25)
+        #expect(stats.percentSnoozed == 25)
+        #expect(DayStats().percentSkipped == 0)
     }
 
     @Test func oldDaysAreDropped() {

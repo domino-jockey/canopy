@@ -6,12 +6,7 @@ struct StatsSettingsPage: View {
     /// The day under the pointer in the chart.
     @State private var hovered: Date?
 
-    private var settings: Binding<TimerSettings> {
-        Binding(get: { scheduler.settings }, set: { scheduler.apply($0) })
-    }
-
     private var stats: StatsLog { scheduler.stats }
-    private var goal: Int { scheduler.settings.dailyBreakGoal }
 
     var body: some View {
         let today = stats.day(.now)
@@ -22,7 +17,7 @@ struct StatsSettingsPage: View {
                     StatTile(value: today.taken, label: "Breaks taken")
                     StatTile(value: today.skipped, label: "Skipped")
                     StatTile(value: today.snoozed, label: "Snoozed")
-                    StatTile(value: stats.streak(goal: goal, today: .now), label: "Day streak", symbol: "flame.fill")
+                    StatTile(value: stats.streak(today: .now), label: "Day streak", symbol: "flame.fill")
                 }
                 .padding(.vertical, 4)
             }
@@ -30,17 +25,17 @@ struct StatsSettingsPage: View {
             Section {
                 Chart {
                     ForEach(week, id: \.date) { day in
-                        BarMark(
-                            x: .value("Day", day.date, unit: .day),
-                            y: .value("Breaks taken", day.stats.taken),
-                            width: .ratio(0.55)
-                        )
-                        .foregroundStyle(.tint.opacity(hovered == nil || hovered == day.date ? 1 : 0.5))
-                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 4, topTrailingRadius: 4))
+                        // Stacked: skipped at the bottom, snoozed on top.
+                        ForEach([("Skipped", day.stats.percentSkipped), ("Snoozed", day.stats.percentSnoozed)], id: \.0) { kind, percent in
+                            BarMark(
+                                x: .value("Day", day.date, unit: .day),
+                                y: .value("Percent", percent),
+                                width: .ratio(0.55)
+                            )
+                            .foregroundStyle(by: .value("Kind", kind))
+                            .opacity(hovered == nil || hovered == day.date ? 1 : 0.5)
+                        }
                     }
-                    RuleMark(y: .value("Goal", goal))
-                        .foregroundStyle(Color.secondary)
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     if let hovered, let day = week.first(where: { $0.date == hovered }) {
                         RuleMark(x: .value("Day", hovered, unit: .day))
                             .foregroundStyle(.clear)
@@ -55,12 +50,15 @@ struct StatsSettingsPage: View {
                             .foregroundStyle(Color.secondary)
                     }
                 }
+                .chartYScale(domain: 0...100)
                 .chartYAxis {
-                    AxisMarks(position: .leading) { _ in
+                    AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { value in
                         AxisGridLine()
-                        AxisValueLabel().font(.caption.monospaced())
+                        AxisValueLabel("\(value.as(Int.self) ?? 0)%").font(.caption.monospaced())
                     }
                 }
+                .chartForegroundStyleScale(["Skipped": Color.orange, "Snoozed": Color.yellow])
+                .chartLegend(position: .top, alignment: .trailing)
                 .chartXSelection(value: Binding(
                     get: { hovered },
                     set: { hovered = $0.map { Calendar.current.startOfDay(for: $0) } }
@@ -69,17 +67,9 @@ struct StatsSettingsPage: View {
                 .padding(.top, 24)
                 .padding(.vertical, 8)
             } header: {
-                Text("Breaks taken, last 7 days")
+                Text("Skipped and snoozed, last 7 days")
             } footer: {
-                Text("The dashed line is your daily goal. Hover over a day to see its skips and snoozes.")
-            }
-
-            Section {
-                Stepper(value: settings.dailyBreakGoal, in: 1...30) {
-                    LabeledContent("Daily goal", value: "\(goal) breaks")
-                }
-            } footer: {
-                Text("Your streak is how many days in a row you've taken at least this many breaks.")
+                Text("Share of each day's breaks you skipped or snoozed: lower is better. Hover over a day to see its numbers. Your streak is how many days in a row you didn't skip or snooze at all (days you didn't use your Mac don't count).")
             }
         }
     }
