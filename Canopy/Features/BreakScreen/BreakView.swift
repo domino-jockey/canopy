@@ -14,6 +14,8 @@ struct BreakDisplay: Equatable {
     var skipsLeftToday: Int?
     /// How far the Balanced-mode ring has filled, 0 to 1.
     var skipProgress: Double
+    /// Seconds until the Balanced-mode ring is full.
+    var skipRemaining: TimeInterval
     var enforcement: EnforcementMode
     var escapeAction: EscapeAction
 
@@ -27,6 +29,7 @@ struct BreakDisplay: Equatable {
         snoozesLeft = scheduler.snoozesLeft
         skipsLeftToday = scheduler.skipsLeftToday
         skipProgress = scheduler.breakElapsed / scheduler.balancedSkipDelay
+        skipRemaining = max(0, scheduler.balancedSkipDelay - scheduler.breakElapsed)
         enforcement = scheduler.settings.enforcement
         escapeAction = scheduler.settings.escapeAction
     }
@@ -72,11 +75,8 @@ struct BreakView: View {
 
             // Big timer, a thin bar of time passed, then the message, centred on the screen.
             VStack(spacing: 0) {
-                Text(time)
-                    .font(.system(size: 120, weight: .semibold, design: .monospaced))
-                    .contentTransition(.numericText(countsDown: true))
-                    .animation(.default, value: time)
-                BreakProgressBar(progress: display.progress)
+                RollingTime(text: time)
+                BreakProgressBar(progress: display.progress, remaining: display.remaining)
                     .padding(.top, 20)
                     .padding(.bottom, 40)
                 Text(display.isWaitingForEndBreak ? "Break's over" : message.title)
@@ -231,9 +231,7 @@ private struct SkipColumn: View {
                 } else if display.skipsLeftToday == 0 {
                     Image(systemName: "nosign")
                 } else {
-                    ProgressRing(progress: display.skipProgress)
-                        // Ticks arrive once a second; animating over that second makes the fill smooth.
-                        .animation(.linear(duration: 1), value: display.skipProgress)
+                    ProgressRing(progress: display.skipProgress, remaining: display.skipRemaining)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -245,35 +243,94 @@ private struct SkipColumn: View {
 /// A thin line that fills with the accent colour as the break passes.
 private struct BreakProgressBar: View {
     let progress: Double
+    let remaining: TimeInterval
+    private let size = CGSize(width: 420, height: 4)
 
     var body: some View {
         Capsule()
             .fill(.white.opacity(0.2))
-            .frame(width: 420, height: 4)
-            .overlay(alignment: .leading) {
-                Capsule()
-                    .fill(.tint)
-                    .frame(width: 420 * min(1, max(0, progress)))
-            }
-            // Ticks arrive once a second; animating over that second makes the fill smooth.
-            .animation(.linear(duration: 1), value: progress)
+            .overlay(BarFill(progress: progress, remaining: remaining, size: size))
+            .frame(width: size.width, height: size.height)
     }
 }
 
-/// A small ring that fills from 0 to 1.
+private struct BarFill: NSViewRepresentable {
+    let progress: Double
+    let remaining: TimeInterval
+    let size: CGSize
+
+    func makeNSView(context: Context) -> NSView {
+        let fill = CALayer()
+        fill.anchorPoint = CGPoint(x: 0, y: 0.5)
+        fill.position = CGPoint(x: 0, y: size.height / 2)
+        fill.bounds = CGRect(origin: .zero, size: size)
+        fill.cornerRadius = size.height / 2
+        fill.backgroundColor = NSColor.controlAccentColor.cgColor
+        return layerHost(fill)
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        guard let fill = view.layer?.sublayers?.first else { return }
+        let current = fill.presentation()?.bounds.width ?? size.width * min(1, max(0, progress))
+        glide(fill, "bounds.size.width", from: current, over: remaining)
+    }
+}
+
+/// A small ring that fills from 0 to 1, starting at the top.
 private struct ProgressRing: View {
     let progress: Double
+    let remaining: TimeInterval
 
     var body: some View {
-        ZStack {
-            Circle().stroke(.white.opacity(0.3), lineWidth: 2)
-            Circle()
-                .trim(from: 0, to: min(1, progress))
-                .stroke(.tint, style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-        }
-        .frame(width: 14, height: 14)
+        Circle().stroke(.white.opacity(0.3), lineWidth: 2)
+            .overlay(RingFill(progress: progress, remaining: remaining))
+            .frame(width: 14, height: 14)
     }
+}
+
+private struct RingFill: NSViewRepresentable {
+    let progress: Double
+    let remaining: TimeInterval
+
+    func makeNSView(context: Context) -> NSView {
+        let ring = CAShapeLayer()
+        let path = CGMutablePath()
+        path.addArc(center: CGPoint(x: 7, y: 7), radius: 7, startAngle: .pi / 2, endAngle: -1.5 * .pi, clockwise: true)
+        ring.path = path
+        ring.fillColor = nil
+        ring.lineWidth = 2
+        ring.lineCap = .round
+        ring.strokeColor = NSColor.controlAccentColor.cgColor
+        return layerHost(ring)
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        guard let ring = view.layer?.sublayers?.first as? CAShapeLayer else { return }
+        let current = ring.presentation()?.strokeEnd ?? min(1, max(0, progress))
+        glide(ring, "strokeEnd", from: current, over: remaining)
+    }
+}
+
+/// A view that just shows `layer`, for the fills that Core Animation glides.
+@MainActor private func layerHost(_ layer: CALayer) -> NSView {
+    let view = NSView()
+    view.wantsLayer = true
+    view.layer?.addSublayer(layer)
+    return view
+}
+
+/// Moves a fill from `start` to its full value over `duration` seconds. Core Animation runs the glide on
+/// its own; animating in SwiftUI instead redraws the whole break screen on the CPU every frame.
+/// Called every tick, so the glide is re-aimed from where the fill is now and never jumps.
+@MainActor private func glide(_ layer: CALayer, _ keyPath: String, from start: CGFloat, over duration: TimeInterval) {
+    layer.removeAllAnimations()
+    guard duration > 0 else { return }
+    let animation = CABasicAnimation(keyPath: keyPath)
+    animation.fromValue = start
+    animation.duration = duration
+    // The fills move only a few points a second, so 20 frames a second looks smooth and saves work.
+    animation.preferredFrameRateRange = CAFrameRateRange(minimum: 10, maximum: 20, preferred: 20)
+    layer.add(animation, forKey: "glide")
 }
 
 /// Shows "emergency" with the letters typed so far lit up.

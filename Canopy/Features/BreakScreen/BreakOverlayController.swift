@@ -105,7 +105,9 @@ final class BreakOverlayController {
             shown.forEach { $0.animator().alphaValue = 1 }
         } completionHandler: { [revealDuration] in
             MainActor.assumeIsolated {
-                withAnimation(.easeInOut(duration: revealDuration)) { model.revealed = true }
+                withAnimation(.easeInOut(duration: revealDuration)) { model.revealed = true } completion: {
+                    Self.setLiveBlur(false, in: shown)
+                }
             }
         }
     }
@@ -120,6 +122,7 @@ final class BreakOverlayController {
         SoundPlayer.play(.breakEnd, settings: scheduler.settings)
 
         // Reverse order: wallpaper and text fade out, then the blur.
+        Self.setLiveBlur(true, in: closing)
         withAnimation(.easeInOut(duration: blurInDuration)) {
             model?.revealed = false
         } completion: { [blurInDuration] in
@@ -138,6 +141,7 @@ final class BreakOverlayController {
         windows.forEach { $0.close() }
         windows = NSScreen.screens.map { makeWindow(on: $0, model: model, message: message) }
         windows.forEach { $0.alphaValue = 1 }
+        Self.setLiveBlur(false, in: windows)
         takeFocus()
     }
 
@@ -177,6 +181,12 @@ final class BreakOverlayController {
 
         window.orderFrontRegardless()
         return window
+    }
+
+    /// The live blur only shows while the wallpaper fades in or out; once the wallpaper covers it, it's
+    /// switched off, or WindowServer keeps re-blurring the whole screen every time the window redraws.
+    private static func setLiveBlur(_ on: Bool, in windows: [NSWindow]) {
+        windows.forEach { ($0.contentView as? NSVisualEffectView)?.state = on ? .active : .inactive }
     }
 
     /// The picture behind the break screen's text. Nil means the plain dark background.
