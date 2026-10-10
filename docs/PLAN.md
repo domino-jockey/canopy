@@ -25,7 +25,7 @@ Updated with the "Not handled" list in `PROBLEMS.md` (October 2026).
 - **History:** round 1 was a glass fern on a grid (Horizon floor picked). Then changed: ferns are hard to see.
 - **Now:** one big leaf in the style of the `leaf.fill` symbol (Screen Breaks' sidebar icon) but our own drawing, since SF Symbols aren't allowed in app icons: wide rounded blade, curved vein cut out, curved stem. Liquid Glass, no shadow, on Icon Composer's dark background (near-black, a touch lighter at the top). No grid.
 - **Colour:** Finder/Launchpad show a fixed green leaf (macOS can't tint an app's icon to the accent colour). Inside the app (Dock while Settings is open, About, Welcome, flash reminder) the icon is redrawn with the leaf in your accent colour, and redrawn when the accent changes. The menu bar leaf is the same shape, in the accent colour.
-- Made by `design/make-icon.swift` (writes `design/icon-mockups/Canopy.icon`, `BreakReminder/AppIcon.icon`, the menu bar SVG and `design/icon-preview.png`).
+- Made by `design/make-icon.swift` (writes `design/icon-mockups/Canopy.icon`, `Canopy/Resources/AppIcon.icon`, the menu bar SVG and `design/icon-preview.png`).
 
 ## Stats graph (replaces daily progress)
 
@@ -71,11 +71,11 @@ Order (October 2026): **bugs and features first, appearance after.** Don't get c
 3. ✅ **Bugs:** see the Bugs list in `PROBLEMS.md` (preview crash, typing crash, double flash, jumping alerts, "Untitled" title), plus the Smart Pause cooldown change.
 4. ✅ **Feature changes** (checked by the user): flash-only wellness, idle 30 s / 1 min (new "pause when away" setting), sound choices, custom exercises (title + instructions), alerts as notifications option, stats graph (stacked % skipped + snoozed) and the no-skip streak.
 5. **Appearance:** animations, break screen clock fix, new break screen layout, sidebar, position cards, menu bar icon, Preview labels, new app icon.
-6. ✅ **Rename to Canopy**, reinstall, docs. Project/target/folder names still `BreakReminder`: rename them during "Organize source".
+6. ✅ **Rename to Canopy**, reinstall, docs. Project/target/folders renamed too in "Organize source".
 
 ## After the redesign (your "theorized next steps")
 
-1. **Organize source** into a standard layout (e.g. `App/`, `Features/<Feature>/`, `Core/` for the timer logic, `Resources/`), like other open-source Mac apps.
+1. ✅ **Organize source** into a standard layout (e.g. `App/`, `Features/<Feature>/`, `Core/` for the timer logic, `Resources/`), like other open-source Mac apps.
 2. **Optimize:** measure CPU/memory with Instruments, use native APIs where possible. Baseline (Activity Monitor): ~0.3% of a core idle, ~8% during a flash reminder, **25–50% during breaks** (the main target).
 3. **Clean out** everything not needed: unused code, outdated docs, Xcode build artifacts. Keep the bare minimum to come back later with Claude Code.
 4. **Test everything:** a printable `docs/TEST-CHECKLIST.md` (you'll export it to PDF), grouped so related checks happen together ("while the break screen is up, also check…").

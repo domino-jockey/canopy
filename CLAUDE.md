@@ -11,11 +11,18 @@ A personal, Mac-only break reminder modelled on LookAway (and DeskRest). Swift +
 - `resources/`: LookAway screenshots and recordings, named after what they show. Use them as the visual reference.
 
 ## Commands (from the project root)
-- `xcodegen`: recreate `BreakReminder.xcodeproj` from `project.yml` (after adding files or changing settings).
-- `xcodebuild test -project BreakReminder.xcodeproj -scheme BreakReminder -derivedDataPath build`: build and run all tests.
+- `xcodegen`: recreate `Canopy.xcodeproj` from `project.yml` (after adding files or changing settings).
+- `xcodebuild test -project Canopy.xcodeproj -scheme Canopy -derivedDataPath build`: build and run all tests.
 - Install and restart the app (do this before the user checks anything; they only use the `/Applications` copy):
-  `xcodebuild -project BreakReminder.xcodeproj -scheme BreakReminder -configuration Release -derivedDataPath build/release build && pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app /Applications/Canopy.app && open /Applications/Canopy.app`
-- The app is called **Canopy** (`Canopy.app`, process `Canopy`), but the project, target, folders and bundle ID are still `BreakReminder`.
+  `xcodebuild -project Canopy.xcodeproj -scheme Canopy -configuration Release -derivedDataPath build/release build && pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app /Applications/Canopy.app && open /Applications/Canopy.app`
+- Everything is named **Canopy** (project, target, scheme, `Canopy.app`, process `Canopy`) except the bundle ID, still `com.jammyjellyfish.BreakReminder` so settings carry over.
+
+## Source layout
+- `Canopy/App/`: entry point, `AppDelegate`, `Info.plist`.
+- `Canopy/Core/`: plain-Swift logic (Foundation only, no AppKit/SwiftUI): scheduler, settings, stats, schedule rules, wellness timer, messages. Keep it that way.
+- `Canopy/Features/<Feature>/`: one folder per feature (MenuBar, BreakScreen, Alerts, Wellness, SmartPause, ClockOut, Onboarding, Shortcuts, Settings + `Pages/`).
+- `Canopy/Shared/`: used by several features (accent colour/icon, sound player). `Canopy/Resources/`: assets, app icon, sounds.
+- `CanopyTests/`: tests. `design/`: icon script. `resources/`: reference screenshots.
 
 ## How we work
 - Each phase: short plan → user's go-ahead → build + tests → user checks visuals by eye → update docs → commit when the user asks.

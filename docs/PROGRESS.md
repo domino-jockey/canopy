@@ -1,10 +1,12 @@
 # Progress So Far
 
 A plain-language record of what has been built, phase by phase. Update this at the end of every phase.
+
+**File paths below are from when each phase was written.** The source has since moved: `BreakReminder/<Folder>/X.swift` is now under `Canopy/Core/` (plain logic), `Canopy/Features/<Feature>/`, `Canopy/Shared/` or `Canopy/Resources/`, and `BreakReminderTests/` is `CanopyTests/`. See `CLAUDE.md` → Source layout.
 For *why* things are built the way they are (and mistakes not to repeat), see [`DECISIONS.md`](DECISIONS.md).
 For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0–15 plan, is done and deleted; it's in git history.)
 
-**Current status:** Phases 0–15 done. Canopy redesign (`PLAN.md`): steps 1–6 done. Next: the "after the redesign" list (organise source first).
+**Current status:** Phases 0–15 done. Canopy redesign (`PLAN.md`): steps 1–6 done. Source reorganised. Next: the rest of the "after the redesign" list in `PLAN.md` (optimize CPU next).
 
 ---
 
@@ -260,6 +262,7 @@ For what's next, see [`PLAN.md`](PLAN.md). (`CHECKLIST.md`, the original Phase 0
   - **Motion:** top pills (heads-up, Smart Pause, welcome back, overtime) slide down from the menu bar with a small overshoot and slide back up when they go; the pointer countdown fades. Clock Out's text rises in. Reduce Motion → fade only.
   - **New app icon:** two green glass leaves on black (front leaf solid with a curved vein cut out, darker back leaf peeking out), our own drawing by `design/make-icon.swift`. Same shapes in the menu bar. Preview: `design/icon-preview.png`. **User: "the icon is off"; to revisit later** (not now).
 - **Step 6, rename to Canopy:** `PRODUCT_NAME: Canopy` in `project.yml`, so the app is `Canopy.app` and every user-visible "BreakReminder" says Canopy. The **bundle ID stays** `com.jammyjellyfish.BreakReminder`, so settings, stats, shortcuts and notification permission carry over. Links: `canopy://focus-on/off` (shown on the Smart Pause page), and the old `breakreminder://` ones still work. Project, target and folders keep the old name until the source is reorganised. Tests use `@testable import Canopy`; `project.yml` sets the tests' `TEST_HOST` to `Canopy.app`. Also: `project.yaml` is now `project.yml`, so plain `xcodegen` works. Old `/Applications/BreakReminder.app` deleted; Launch at login moved to Canopy by itself.
+- **Organize source:** files moved (with `git mv`, so history is kept) into `Canopy/App`, `Canopy/Core` (Foundation-only logic), `Canopy/Features/<Feature>`, `Canopy/Shared`, `Canopy/Resources`; tests in `CanopyTests/`. Project, target and scheme are `Canopy`. `SoundChoice` moved out of `SoundPlayer` into `Core/`. The `PRODUCT_NAME` and `TEST_HOST` workarounds are gone.
 
 ---
 
@@ -269,19 +272,19 @@ From the project root:
 
 ```sh
 xcodegen                                                      # recreate the Xcode project
-xcodebuild test -project BreakReminder.xcodeproj -scheme BreakReminder -derivedDataPath build   # build + run tests
+xcodebuild test -project Canopy.xcodeproj -scheme Canopy -derivedDataPath build   # build + run tests
 pkill -x Canopy; open build/Build/Products/Debug/Canopy.app                            # (re)start the test build
 ```
 
 Install to `/Applications` (Release build):
 
 ```sh
-xcodebuild -project BreakReminder.xcodeproj -scheme BreakReminder -configuration Release -derivedDataPath build/release build
+xcodebuild -project Canopy.xcodeproj -scheme Canopy -configuration Release -derivedDataPath build/release build
 pkill -x Canopy; sleep 1; ditto build/release/Build/Products/Release/Canopy.app /Applications/Canopy.app
 open /Applications/Canopy.app
 ```
 
-Or open `BreakReminder.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
+Or open `Canopy.xcodeproj` in Xcode: ⌘R runs, ⌘U tests.
 
 ## Commits
 

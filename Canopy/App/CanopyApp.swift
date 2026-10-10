@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct BreakReminderApp: App {
+struct CanopyApp: App {
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
     var body: some Scene {

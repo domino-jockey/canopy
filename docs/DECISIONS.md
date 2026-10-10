@@ -17,7 +17,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 - Red "Cannot find X in scope" diagnostics from SourceKit (the editor's checker) are false alarms in this project. Trust `xcodebuild`.
 
 ## Timer
-- `BreakScheduler` has **no clock**; everything goes through `tick(now:idleSeconds:)`. Keeps it fully testable with `FakeClock` (in `BreakReminderTests/BreakSchedulerTests.swift`).
+- `BreakScheduler` has **no clock**; everything goes through `tick(now:idleSeconds:)`. Keeps it fully testable with `FakeClock` (in `CanopyTests/BreakSchedulerTests.swift`).
 - Don't reset `lastTick` on pause/resume/start: ticks keep arriving while paused, and resetting dropped a second each time.
 - A tick gap > 10 s = the Mac slept; treated as idle time. No sleep/wake notifications needed.
 - Idle time comes from `CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: ~0)`. No permission needed. Keeps growing while the screen is locked.
@@ -71,12 +71,12 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 
 ## Performance
 - **`@Observable` notifies on every set, even with the same value.** Anything set once per tick redraws every view that reads it, hidden windows included. Set only when different (`AlertsController.assign`, `BreakScheduler.tick`). This took idle CPU from ~10% to ~1%.
-- Measure with `ps -o %cpu=,rss= -p $(pgrep -x BreakReminder)` over a minute, and `sample BreakReminder 5` to see where time goes. After `pkill`, wait a second before `open`, or launch fails with error -600.
+- Measure with `ps -o %cpu=,rss= -p $(pgrep -x Canopy)` over a minute, and `sample Canopy 5` to see where time goes. After `pkill`, wait a second before `open`, or launch fails with error -600.
 
 ## Smart Pause
 - Detection lives in `SmartPauseMonitor` (hardware/app checks, not testable); the rules (hold, cooldown, typing hold, welcome back) live in `BreakScheduler.tick`, which gets the detected reason as a parameter. Tests pass fake reasons.
 - Mic: Core Audio `kAudioDevicePropertyDeviceIsRunningSomewhere` on every device with input streams. Camera: CoreMediaIO `kCMIODevicePropertyDeviceIsRunningSomewhere`. Neither needs a permission prompt.
-- **macOS Focus can't be read directly.** `INFocusStatusCenter` needs the Communication Notifications entitlement, which needs a paid developer provisioning profile (the build fails with "requires a provisioning profile"). Without it, it says "authorized" but always reports not focused. The DoNotDisturb database in `~/Library/DoNotDisturb/DB/` has no "active" record on macOS 27. So: Shortcuts automations open `breakreminder://focus-on/off` (URL scheme in `BreakReminder/Info.plist`, merged into the generated Info.plist via `INFOPLIST_FILE`).
+- **macOS Focus can't be read directly.** `INFocusStatusCenter` needs the Communication Notifications entitlement, which needs a paid developer provisioning profile (the build fails with "requires a provisioning profile"). Without it, it says "authorized" but always reports not focused. The DoNotDisturb database in `~/Library/DoNotDisturb/DB/` has no "active" record on macOS 27. So: Shortcuts automations open `breakreminder://focus-on/off` (URL scheme in `Canopy/App/Info.plist`, merged into the generated Info.plist via `INFOPLIST_FILE`).
 - Typing idle = the smallest of `secondsSinceLastEventType` for keyDown, left- and right-mouse-dragged.
 - `returnsFromIdle` is a counter, not a flag: the alerts controller compares it with the last value it saw, so it can't miss or double-show a return.
 
@@ -96,9 +96,9 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 ## Look & theme
 - **All colours come from `Theme/Mocha.swift`** (Catppuccin Mocha). No hard-coded colours elsewhere, so a future Themes feature only has to swap that palette. The settings window is forced dark (`.preferredColorScheme(.dark)`, window background *base*).
 - Tried and dropped (user's call): following the system accent colour, "minimal mono" greys, LookAway's purple-pink gradients, gradient-coloured enforcement cards.
-- **App icon** is an Icon Composer document, `BreakReminder/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
+- **App icon** is an Icon Composer document, `Canopy/Resources/AppIcon.icon` (a folder: `icon.json` + SVG layers in `Assets/`). Xcode compiles it; `ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon` in `project.yml` points at it. Open it in Icon Composer (inside Xcode) to tweak by hand.
   - In `icon.json`, the **first group is drawn in front**. `fill` is the background (`solid` or `linear-gradient`); each group has `translucency`, `specular`, `shadow`.
-  - Preview without building: `"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" BreakReminder/AppIcon.icon --export-image --output-file preview.png --platform macOS --rendition Default --width 512 --height 512 --scale 2`
+  - Preview without building: `"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" Canopy/Resources/AppIcon.icon --export-image --output-file preview.png --platform macOS --rendition Default --width 512 --height 512 --scale 2`
   - **SF Symbols are not allowed in app icons** (Apple's licence), so the leaf is drawn as SVG by a script. SF Symbols are fine elsewhere in the UI.
 - macOS caches app icons. After changing the icon, refresh it: `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/Canopy.app && touch /Applications/Canopy.app && killall Dock`
 
@@ -117,12 +117,12 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 
 ## Rename to Canopy
 - Only `PRODUCT_NAME` changed; the **bundle ID stayed** `com.jammyjellyfish.BreakReminder`. Settings, stats, shortcuts, notification permission and even the **Launch at login item** follow the bundle ID, so they all carried over (login item checked with `sfltool dumpbtm`: it moved to `/Applications/Canopy.app` by itself).
-- XcodeGen names the tests' `TEST_HOST` after the target, so `project.yml` sets it to `Canopy.app` by hand.
+- Later the project, target, scheme and folders were renamed too (source reorganised into `Canopy/App`, `Core`, `Features`, `Shared`, `Resources`; see `CLAUDE.md` → Source layout).
 
 ## Settings window
 - **`navigationSplitViewColumnWidth` alone is ignored in this AppKit-hosted window** (the sidebar stayed ~145 pt and cut off labels). Adding `.frame(minWidth:idealWidth:)` on the sidebar `List` makes it stick. Checked with a screenshot.
 
 ## Floating windows
-- **Never let SwiftUI resize a window we move or size ourselves.** `NSHostingView` resizes its window to fit by default. The alert pills (moved 60×/s for the countdown) then fought our `setFrame` calls: pills jumped sideways, and AppKit got stuck in a layout loop and crashed ("more Update Constraints passes than views"). Fix in `AlertPanel`: the hosting view sits inside a plain container view, so it reports its size (`fittingSize`, after `layoutSubtreeIfNeeded()` so it reflects changes made just now) but can't resize the window. (`sizingOptions = []` alone made `fittingSize` near zero: pills too small for their text.) Crash reports are in `~/Library/Logs/DiagnosticReports/BreakReminder-*.ips`.
+- **Never let SwiftUI resize a window we move or size ourselves.** `NSHostingView` resizes its window to fit by default. The alert pills (moved 60×/s for the countdown) then fought our `setFrame` calls: pills jumped sideways, and AppKit got stuck in a layout loop and crashed ("more Update Constraints passes than views"). Fix in `AlertPanel`: the hosting view sits inside a plain container view, so it reports its size (`fittingSize`, after `layoutSubtreeIfNeeded()` so it reflects changes made just now) but can't resize the window. (`sizingOptions = []` alone made `fittingSize` near zero: pills too small for their text.) Crash reports are in `~/Library/Logs/DiagnosticReports/Canopy-*.ips` (`BreakReminder-*.ips` before the rename).
 - Wellness reminders due within a minute of each other show as one flash (`WellnessTimer.mergeWindow`); their counts drift apart when intervals change.
 - Smart Pause cooldown = "no break within N of Smart Pause ending": on end, `workRemaining` is raised to at least the cooldown. The countdown never freezes for it.

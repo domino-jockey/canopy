@@ -193,7 +193,7 @@ final class BreakOverlayController {
     }
 
     /// Gives the break window the keyboard, so its buttons look enabled and Esc reaches it.
-    /// The window is a non-activating panel, so this works without BreakReminder becoming the active app.
+    /// The window is a non-activating panel, so this works without Canopy becoming the active app.
     private func takeFocus() {
         windows.first?.makeKey()
     }

@@ -10,8 +10,8 @@ final class FakeClock {
 
     /// Test-only storage (not the real app's), wiped for each new clock unless one is passed in.
     static func cleanDefaults() -> UserDefaults {
-        let defaults = UserDefaults(suiteName: "BreakReminderTests.scheduler")!
-        defaults.removePersistentDomain(forName: "BreakReminderTests.scheduler")
+        let defaults = UserDefaults(suiteName: "CanopyTests.scheduler")!
+        defaults.removePersistentDomain(forName: "CanopyTests.scheduler")
         return defaults
     }
 
@@ -164,8 +164,8 @@ struct BreakSchedulerTests {
     }
 
     @Test func settingsSaveAndLoad() {
-        let defaults = UserDefaults(suiteName: "BreakReminderTests")!
-        defaults.removePersistentDomain(forName: "BreakReminderTests")
+        let defaults = UserDefaults(suiteName: "CanopyTests")!
+        defaults.removePersistentDomain(forName: "CanopyTests")
         var settings = TimerSettings()
         settings.workInterval = 25 * 60
         settings.save(to: defaults)
@@ -184,8 +184,8 @@ struct BreakSchedulerTests {
     }
 
     @Test func noLimitSurvivesSaveAndLoad() {
-        let defaults = UserDefaults(suiteName: "BreakReminderTests")!
-        defaults.removePersistentDomain(forName: "BreakReminderTests")
+        let defaults = UserDefaults(suiteName: "CanopyTests")!
+        defaults.removePersistentDomain(forName: "CanopyTests")
         var settings = TimerSettings()
         settings.maxSnoozesPerBreak = nil
         settings.maxSkipsPerDay = nil

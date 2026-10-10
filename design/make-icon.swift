@@ -2,8 +2,8 @@
 // each its own Liquid Glass layer, on Icon Composer's dark background. Our own drawing (SF Symbols aren't
 // allowed in app icons). Also writes the menu bar glyph from the same shapes.
 // Usage, from the project root: swift design/make-icon.swift
-// Writes design/icon-mockups/Canopy.icon, copies it to BreakReminder/AppIcon.icon, and writes
-// BreakReminder/Assets.xcassets/MenuBarIcon.imageset/menubar-leaf.svg. Then renders design/icon-preview.png.
+// Writes design/icon-mockups/Canopy.icon, copies it to Canopy/Resources/AppIcon.icon, and writes
+// Canopy/Resources/Assets.xcassets/MenuBarIcon.imageset/menubar-leaf.svg. Then renders design/icon-preview.png.
 import Foundation
 
 // Shapes on a 1024 canvas. Leaves grow from a shared base at the bottom left.
@@ -66,8 +66,8 @@ let json = """
 
 """
 try! json.write(toFile: dir + "/icon.json", atomically: true, encoding: .utf8)
-try? fm.removeItem(atPath: "BreakReminder/AppIcon.icon")
-try! fm.copyItem(atPath: dir, toPath: "BreakReminder/AppIcon.icon")
+try? fm.removeItem(atPath: "Canopy/Resources/AppIcon.icon")
+try! fm.copyItem(atPath: dir, toPath: "Canopy/Resources/AppIcon.icon")
 
 // Menu bar glyph: both leaves in one colour (a template image, so macOS colours it). The back leaf is
 // trimmed where the front one covers it, with a small gap so the two read as separate leaves.
@@ -81,7 +81,7 @@ let menuBar = """
 </svg>
 
 """
-try! menuBar.write(toFile: "BreakReminder/Assets.xcassets/MenuBarIcon.imageset/menubar-leaf.svg", atomically: true, encoding: .utf8)
+try! menuBar.write(toFile: "Canopy/Resources/Assets.xcassets/MenuBarIcon.imageset/menubar-leaf.svg", atomically: true, encoding: .utf8)
 
 // Preview, rendered by Icon Composer's command-line tool.
 let preview = Process()
@@ -90,4 +90,4 @@ preview.arguments = [dir, "--export-image", "--output-file", "design/icon-previe
                      "--rendition", "Default", "--width", "512", "--height", "512", "--scale", "2"]
 try! preview.run()
 preview.waitUntilExit()
-print("wrote", dir, "BreakReminder/AppIcon.icon, the menu bar SVG and design/icon-preview.png")
+print("wrote", dir, "Canopy/Resources/AppIcon.icon, the menu bar SVG and design/icon-preview.png")
