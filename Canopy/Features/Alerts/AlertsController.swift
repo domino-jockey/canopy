@@ -70,6 +70,7 @@ final class AlertsController {
         // and only follow the countdown when a pill showing it could be up.
         assign(\.breakKind, scheduler.nextBreakKind)
         assign(\.canSnooze, scheduler.canSnooze)
+        assign(\.headsUpLength, settings.headsUpSeconds)
         switch previewing {
         case .headsUp: assign(\.secondsToBreak, settings.headsUpSeconds)
         case .countdown: assign(\.secondsToBreak, settings.countdownSeconds)

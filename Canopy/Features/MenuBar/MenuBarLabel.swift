@@ -19,9 +19,9 @@ struct MenuBarLabel: View {
                              || scheduler.isIdle ? 0.5 : 1)
             }
             if let time {
-                Text(time)
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
+                RollingTime(text: time,
+                            font: .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular),
+                            color: .labelColor)
             }
         }
         .font(.body)

@@ -5,14 +5,16 @@ import SwiftUI
 final class AlertModel {
     var breakKind = BreakKind.short
     var secondsToBreak: TimeInterval = 0
+    /// How long before a break the heads-up appears: its bar is full then.
+    var headsUpLength: TimeInterval = 10
     var minutesWithoutBreak = 0
     var canSnooze = true
     /// What Smart Pause is holding the timer for. Nil means it just resumed.
     var smartPause: SmartPauseReason?
 }
 
-/// Heads-up before a break, laid out like LookAway's: a round clock badge, the time above a friendly line,
-/// and a row of buttons underneath.
+/// Heads-up before a break, laid out like LookAway's: the time above a friendly line, a row of buttons,
+/// and a bar along the bottom that drains as the break gets closer.
 struct HeadsUpAlert: View {
     let model: AlertModel
     let onStart: () -> Void
@@ -20,18 +22,14 @@ struct HeadsUpAlert: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 14) {
-                ClockBadge()
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(TimeFormat.paddedClock(model.secondsToBreak))
-                        .font(.title2.monospaced().weight(.bold))
-                        .contentTransition(.numericText(countsDown: true))
-                        .animation(.default, value: model.secondsToBreak)
-                    Text(model.breakKind == .long
-                         ? "A long break is coming. Time to stretch."
-                         : "Almost time. Your eyes will appreciate this.")
-                        .foregroundStyle(.secondary)
-                }
+            VStack(alignment: .leading, spacing: 2) {
+                RollingTime(text: TimeFormat.paddedClock(model.secondsToBreak),
+                            font: .monospacedSystemFont(ofSize: NSFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold),
+                            color: .labelColor)
+                Text(model.breakKind == .long
+                     ? "A long break is coming. Time to stretch."
+                     : "Almost time. Your eyes will appreciate this.")
+                    .foregroundStyle(.secondary)
             }
             HStack(spacing: 8) {
                 Button("Start this break now", action: onStart)
@@ -42,6 +40,7 @@ struct HeadsUpAlert: View {
                         .disabled(!model.canSnooze)
                 }
             }
+            HeadsUpBar(fraction: model.secondsToBreak / model.headsUpLength, remaining: model.secondsToBreak)
         }
         .font(.body)
         .padding(16)
@@ -49,24 +48,74 @@ struct HeadsUpAlert: View {
     }
 }
 
-/// A round clock face in plain system greys: tick marks and one hand.
-private struct ClockBadge: View {
-    var body: some View {
-        ZStack {
-            Circle().fill(.quaternary)
-            ForEach(0..<12) { hour in
-                Capsule()
-                    .fill(.secondary)
-                    .frame(width: 1.5, height: 4)
-                    .offset(y: -16)
-                    .rotationEffect(.degrees(Double(hour) * 30))
-            }
-            Capsule()
-                .fill(.primary)
-                .frame(width: 2.5, height: 12)
-                .offset(y: -4)
+/// Time left before the break: full when the heads-up appears, empty when the break starts.
+/// Core Animation glides it down between the once-a-second updates (a SwiftUI animation would redraw
+/// the whole pill on the CPU every frame, see DECISIONS.md).
+private struct HeadsUpBar: NSViewRepresentable {
+    let fraction: Double
+    let remaining: TimeInterval
+
+    func makeNSView(context: Context) -> DrainingBarView { DrainingBarView() }
+
+    func updateNSView(_ view: DrainingBarView, context: Context) {
+        view.drain(from: min(1, max(0, fraction)), over: remaining)
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: DrainingBarView, context: Context) -> CGSize? {
+        CGSize(width: proposal.width ?? 100, height: 4)
+    }
+}
+
+final class DrainingBarView: NSView {
+    private let fill = CALayer()
+    private var fraction = 1.0
+    private var remaining: TimeInterval = 0
+
+    init() {
+        super.init(frame: .zero)
+        wantsLayer = true
+        fill.anchorPoint = CGPoint(x: 0, y: 0.5)
+        layer?.addSublayer(fill)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+    override var wantsUpdateLayer: Bool { true }
+
+    /// Colours follow light/dark mode and the accent colour.
+    override func updateLayer() {
+        layer?.backgroundColor = NSColor.quaternaryLabelColor.cgColor
+        fill.backgroundColor = NSColor.controlAccentColor.cgColor
+    }
+
+    override func layout() {
+        super.layout()
+        restart()
+    }
+
+    func drain(from fraction: Double, over remaining: TimeInterval) {
+        self.fraction = fraction
+        self.remaining = remaining
+        restart()
+    }
+
+    /// The bar empties at a steady rate, so starting again from the latest value never jumps.
+    private func restart() {
+        layer?.cornerRadius = bounds.height / 2
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        fill.cornerRadius = bounds.height / 2
+        fill.frame = CGRect(x: 0, y: 0, width: 0, height: bounds.height)
+        fill.removeAllAnimations()
+        if remaining > 0 {
+            let animation = CABasicAnimation(keyPath: "bounds.size.width")
+            animation.fromValue = bounds.width * fraction
+            animation.toValue = 0
+            animation.duration = remaining
+            animation.preferredFrameRateRange = CAFrameRateRange(minimum: 10, maximum: 20, preferred: 20)
+            fill.add(animation, forKey: "drain")
         }
-        .frame(width: 44, height: 44)
+        CATransaction.commit()
     }
 }
 
@@ -94,11 +143,12 @@ struct CountdownAlert: View {
         let seconds = max(0, Int(model.secondsToBreak.rounded()))
         HStack(spacing: 8) {
             AlertIcon(symbol: "leaf.fill", color: .green)
-            Text("\(model.breakKind == .long ? "Long" : "Short") break in \(Text("\(seconds)").monospaced())")
-                .font(.headline)
-                .foregroundStyle(.primary) // white in dark mode, black in light
-                .contentTransition(.numericText(countsDown: true))
-                .animation(.default, value: seconds)
+            HStack(spacing: 4) {
+                Text("\(model.breakKind == .long ? "Long" : "Short") break in")
+                RollingTime(text: "\(seconds)", font: .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .bold),
+                            color: .labelColor) // white in dark mode, black in light
+            }
+            .font(.headline)
         }
         .alertPill()
     }

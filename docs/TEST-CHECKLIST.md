@@ -8,7 +8,7 @@ Test the installed copy (`/Applications/Canopy.app`). Tick each box as you go an
 
 ## 1. Menu bar and first launch
 
-- [ ] Menu bar shows the leaf and a countdown (`19:42`). Digits roll up when they change and the text doesn't jiggle.
+- [ ] Menu bar shows the leaf and a countdown (`19:42`). Digits roll up and fade (no blur), the same as the break screen timer, and the text doesn't jiggle. In light and dark mode the digits are readable (black/white like the clock).
 - [ ] Leaf is plain black or white (matches the other menu bar icons), in light and dark mode.
 - [ ] Menu lists: next break time, Pause, Start break now, Snooze ▸, Skip next break, Settings…, Quit Canopy.
 - [ ] **Pause** → countdown stops, leaf dims, item becomes **Resume**. Resume → countdown continues from where it was.
@@ -66,8 +66,8 @@ While a break is on screen, check:
 
 Use each section's **Preview** first, then check the real thing by waiting for a break with the countdown set short.
 
-- [ ] **Heads-up:** slides down from the menu bar with a small overshoot, counts down, has Start this break now and +1m / +5m / +15m. Each button works. Slides back up when it goes.
-- [ ] **Pointer countdown:** follows the mouse, fades in and out, clicks go through it, text is white in dark mode.
+- [ ] **Heads-up:** slides down from the menu bar with a small overshoot, counts down (digits roll and fade), has Start this break now and +1m / +5m / +15m. Each button works. No clock badge. The bar along the bottom (accent colour) starts full and glides down to empty as the break arrives. Slides back up when it goes.
+- [ ] **Pointer countdown:** follows the mouse, fades in and out, clicks go through it, text is white in dark mode (black in light), the number rolls and fades and sits level with the words.
 - [ ] **Smart Pause alerts** and **Overtime nudge:** Preview shows each; overtime is dismissed by clicking.
 - [ ] **Position:** top left / center / right cards show your desktop picture; pills move to the chosen spot.
 - [ ] Pills appear on the display the mouse is on.
@@ -112,7 +112,7 @@ Use each section's **Preview** first, then check the real thing by waiting for a
 
 ## 10. Stats (Settings › Stats)
 
-- [ ] Today's taken / skipped / snoozed match what you did during this test.
+- [ ] Today's taken / skipped / snoozed match what you did during this test. Numbers are readable in light and dark mode.
 - [ ] 7-day chart: stacked bars of % skipped and % snoozed; hovering a day shows its numbers.
 - [ ] Streak: 0 after today's skips; days you didn't use the Mac don't break it.
 - [ ] **Clear History…** asks first; Cancel keeps everything. Clear History → all zeros, empty chart, still zeros after quitting and reopening. (Do this last.)

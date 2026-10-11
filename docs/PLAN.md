@@ -5,7 +5,7 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 ## Design principles (the rules every screen follows)
 
 1. **System first.** System colours (`.primary`, `.secondary`, window/control backgrounds), SF Pro, SF Symbols, standard controls. Follows light/dark mode. No hard-coded palette.
-2. **Follow the system accent colour.** No brand colours in the app. The app's own AccentColor (green) only shows when the system accent is Multicolor. Exceptions the user asked for: the menu bar leaf is plain black/white, the heads-up clock badge is grey, sidebar icons are coloured by group like System Settings.
+2. **Follow the system accent colour.** No brand colours in the app. The app's own AccentColor (green) only shows when the system accent is Multicolor. Exceptions the user asked for: the menu bar leaf is plain black/white, sidebar icons are coloured by group like System Settings.
 3. **Glass for things that float, never for content:** alert pills, heads-up, break-screen buttons, Clock Out buttons. One glass style each (`.regular`, `.regular.interactive()` for clickable), no tints.
 4. **One shape scale:** capsules for buttons/pills, 12 pt corners for cards, circles for badges. One spacing scale (8/12/16/24).
 5. **Signature, not decoration:** the leaf is the app icon and the menu bar glyph. Everything else stays plain.
@@ -16,7 +16,7 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 
 1. ✅ **Phase A, small fixes:** flash reminder without the icon; separate sound toggles and pickers for wellness reminders and alerts; menu bar leaf dims while idle (stepped away); Clear History in Stats; Reverie sound added (Stretchly, no licence listed: personal use only).
    - ⏸ **Shortcuts with `fn`:** on hold. KeyboardShortcuts strips `fn` on purpose and Carbon global hotkeys can't use it; supporting it means replacing the library with our own key listener (needs Input Monitoring permission). Ask the user what they need.
-2. **Phase B, alerts and animation:** heads-up loses the clock badge and gets a bar underneath that drains from full to empty; every rolling number uses the break timer's fade roll (no blur), menu bar included.
+2. ✅ **Phase B, alerts and animation:** heads-up loses the clock badge and gets a bar underneath that drains from full to empty; every rolling number uses the break timer's fade roll (no blur), menu bar included.
 3. **Phase C, messages:** custom messages split into a Short-break and a Long-break list; built-in messages and exercises listed in Settings, each with an on/off switch.
 4. **Phase D, icon (last):** more transparent leaf, no line down its middle, more macOS-like overall. Ask the user for references first.
 

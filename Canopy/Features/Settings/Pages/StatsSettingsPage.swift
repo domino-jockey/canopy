@@ -95,9 +95,7 @@ private struct StatTile: View {
         VStack(spacing: 2) {
             HStack(spacing: 4) {
                 if let symbol { Image(systemName: symbol).font(.title3).foregroundStyle(.orange) }
-                Text("\(value)")
-                    .font(.system(size: 30, weight: .bold, design: .monospaced))
-                    .contentTransition(.numericText())
+                RollingTime(text: "\(value)", font: .monospacedSystemFont(ofSize: 30, weight: .bold), color: .labelColor)
             }
             Text(label).font(.caption).foregroundStyle(.secondary)
         }

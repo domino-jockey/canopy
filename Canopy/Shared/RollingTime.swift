@@ -1,42 +1,40 @@
 import AppKit
 import SwiftUI
 
-/// The break screen's big timer. A digit that changes rolls up like the menu bar clock: the old one
-/// rises away fading out, while the new one comes up from below fading in.
-/// `.numericText` redraws the whole break screen every frame (about 50% CPU). Here each digit is its own
-/// layer, drawn once, and Core Animation moves and fades it on its own.
+/// A number that rolls when it changes, like the break screen's big timer: the old digit rises away fading
+/// out, while the new one comes up from below fading in. Used for every changing number in the app.
+/// `.numericText` redraws the whole view every frame (about 50% CPU on the break screen). Here each digit is
+/// its own layer, drawn once, and Core Animation moves and fades it on its own.
 struct RollingTime: NSViewRepresentable {
     let text: String
+    var font = NSFont.monospacedSystemFont(ofSize: 120, weight: .semibold)
+    var color = NSColor.white
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    func makeNSView(context: Context) -> RollingTimeView { RollingTimeView() }
+    func makeNSView(context: Context) -> RollingTimeView { RollingTimeView(font: font, color: color) }
 
     func updateNSView(_ view: RollingTimeView, context: Context) {
         view.show(text, reduceMotion: reduceMotion)
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, nsView: RollingTimeView, context: Context) -> CGSize? {
-        RollingTimeView.size(for: text)
+        nsView.size(for: text)
     }
 }
 
 final class RollingTimeView: NSView {
-    private static let font = NSFont.monospacedSystemFont(ofSize: 120, weight: .semibold)
-    /// Every character takes the same box: it's a monospaced font.
-    private static let cell = CGSize(
-        width: ceil(("0" as NSString).size(withAttributes: [.font: font]).width),
-        height: ceil(font.ascender - font.descender)
-    )
     private static let duration = 0.25
 
+    private let font: NSFont
+    private let color: NSColor
     private var text = ""
-    private var digits: [CALayer] = []
+    private var digits: [CATextLayer] = []
 
-    static func size(for text: String) -> CGSize {
-        CGSize(width: cell.width * CGFloat(text.count), height: cell.height)
-    }
+    private var height: CGFloat { ceil(font.ascender - font.descender) }
 
-    init() {
+    init(font: NSFont, color: NSColor) {
+        self.font = font
+        self.color = color
         super.init(frame: .zero)
         wantsLayer = true
         setAccessibilityElement(true)
@@ -45,35 +43,63 @@ final class RollingTimeView: NSView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 
+    /// Each character's box: (left edge, width). Digits all have the same width, even in SF Pro.
+    private func columns(for text: String) -> [(x: CGFloat, width: CGFloat)] {
+        var x: CGFloat = 0
+        return text.map { character in
+            let width = ceil((String(character) as NSString).size(withAttributes: [.font: font]).width)
+            defer { x += width }
+            return (x, width)
+        }
+    }
+
+    func size(for text: String) -> CGSize {
+        CGSize(width: columns(for: text).last.map { $0.x + $0.width } ?? 0, height: height)
+    }
+
     func show(_ newText: String, reduceMotion: Bool) {
         guard newText != text else { return }
         setAccessibilityLabel(newText)
         let old = Array(text), new = Array(newText)
+        let oldColumns = columns(for: text), newColumns = columns(for: newText)
         text = newText
 
-        // First time, or the width changed (10:00 → 9:59): lay the digits out again, no roll.
-        guard old.count == new.count else {
+        // First time, or the layout changed (10:00 → 9:59): lay the digits out again, no roll.
+        guard oldColumns.map(\.x) == newColumns.map(\.x) else {
             digits.forEach { $0.removeFromSuperlayer() }
-            digits = new.indices.map { addDigit(new[$0], column: $0) }
+            digits = new.indices.map { addDigit(new[$0], in: newColumns[$0]) }
             return
         }
         for column in new.indices where new[column] != old[column] {
             let leaving = digits[column]
-            let arriving = addDigit(new[column], column: column)
+            let arriving = addDigit(new[column], in: newColumns[column])
             digits[column] = arriving
             roll(out: leaving, in: arriving, reduceMotion: reduceMotion)
         }
     }
 
-    private func addDigit(_ character: Character, column: Int) -> CALayer {
+    /// Menu bar text switches between black and white with the wallpaper and dark mode.
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        let color = resolvedColor
+        digits.forEach { $0.foregroundColor = color }
+    }
+
+    private var resolvedColor: CGColor {
+        var resolved = color.cgColor
+        effectiveAppearance.performAsCurrentDrawingAppearance { resolved = color.cgColor }
+        return resolved
+    }
+
+    private func addDigit(_ character: Character, in column: (x: CGFloat, width: CGFloat)) -> CATextLayer {
         let digit = CATextLayer()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        digit.frame = CGRect(x: CGFloat(column) * Self.cell.width, y: 0, width: Self.cell.width, height: Self.cell.height)
+        digit.frame = CGRect(x: column.x, y: 0, width: column.width, height: height)
         digit.string = String(character)
-        digit.font = Self.font
-        digit.fontSize = Self.font.pointSize
-        digit.foregroundColor = NSColor.white.cgColor
+        digit.font = font
+        digit.fontSize = font.pointSize
+        digit.foregroundColor = resolvedColor
         digit.alignmentMode = .center
         digit.contentsScale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 2
         layer?.addSublayer(digit)
@@ -95,7 +121,7 @@ final class RollingTimeView: NSView {
 
         if !reduceMotion {
             let y = arriving.position.y
-            let rise = Self.cell.height * 0.45
+            let rise = height * 0.45
             leaving.position.y = y + rise
             leaving.add(animation("position.y", from: y, to: y + rise), forKey: "rise")
             arriving.add(animation("position.y", from: y - rise, to: y), forKey: "rise")
