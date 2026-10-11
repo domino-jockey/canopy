@@ -23,7 +23,7 @@ A personal, Mac-only break reminder modelled on LookAway (and DeskRest). Swift +
 - `Canopy/App/`: entry point, `AppDelegate`, `Info.plist`.
 - `Canopy/Core/`: plain-Swift logic (Foundation only, no AppKit/SwiftUI): scheduler, settings, stats, schedule rules, wellness timer, messages. Keep it that way.
 - `Canopy/Features/<Feature>/`: one folder per feature (MenuBar, BreakScreen, Alerts, Wellness, SmartPause, ClockOut, Onboarding, Shortcuts, Settings + `Pages/`).
-- `Canopy/Shared/`: used by several features (accent colour/icon, sound player). `Canopy/Resources/`: assets, app icon, sounds.
+- `Canopy/Shared/`: used by several features (rolling numbers, sound player). `Canopy/Resources/`: assets, app icon, sounds.
 - `CanopyTests/`: tests. `design/`: icon script. `resources/`: reference screenshots.
 
 ## How we work

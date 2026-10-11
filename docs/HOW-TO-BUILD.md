@@ -14,7 +14,7 @@ make install
 | Command        | What it does                                                                                      | When to use it                                    |
 |----------------|---------------------------------------------------------------------------------------------------|---------------------------------------------------|
 | `make`         | Lists all the commands.                                                                           | When you forget.                                  |
-| `make install` | Builds the finished app, copies it to `/Applications`, and opens it (quits the old one first).    | After any change you want to use day to day.      |
+| `make install` | Builds the finished app, copies it to `/Applications`, tells macOS to re-read its icon, and opens it (quits the old one first). | After any change you want to use day to day.      |
 | `make test`    | Builds the app and runs the 93 automatic tests. Prints a one-line summary, or the failures.       | After a change, to check nothing broke.           |
 | `make run`     | Builds a *test copy* and opens it in place of your installed Canopy.                              | Trying something out without installing it.       |
 | `make build`   | Builds the test copy without opening it.                                                          | Just to check the code compiles.                  |
@@ -65,7 +65,7 @@ make install
 | `error:` lines with a file name and line number           | The code doesn't compile. The message points to the line.                                                     |
 | The app doesn't open after install (error -600)           | It was opened too fast after quitting. Run `open /Applications/Canopy.app` again.                             |
 | You don't see your change                                 | You may be looking at the other copy. `make install` puts the latest in `/Applications` and restarts it.      |
-| The icon in Finder or the Dock didn't update              | macOS caches icons. See `DECISIONS.md` → App icon for the refresh command.                                    |
+| The icon in Finder or the Dock didn't update              | macOS caches icons. `make install` already refreshes it; if it's still old, run `killall Dock Finder`.        |
 
 ## Where things are
 

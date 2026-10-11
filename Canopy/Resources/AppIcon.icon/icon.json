@@ -9,16 +9,16 @@
     {
       "layers" : [ { "glass" : true, "image-name" : "front-leaf.svg", "name" : "Front leaf" } ],
       "name" : "Front leaf",
-      "shadow" : { "kind" : "none", "opacity" : 0 },
+      "shadow" : { "kind" : "neutral", "opacity" : 0.5 },
       "specular" : true,
-      "translucency" : { "enabled" : false, "value" : 0.3 }
+      "translucency" : { "enabled" : true, "value" : 0.55 }
     },
     {
       "layers" : [ { "glass" : true, "image-name" : "back-leaf.svg", "name" : "Back leaf" } ],
       "name" : "Back leaf",
-      "shadow" : { "kind" : "none", "opacity" : 0 },
+      "shadow" : { "kind" : "neutral", "opacity" : 0.5 },
       "specular" : true,
-      "translucency" : { "enabled" : true, "value" : 0.3 }
+      "translucency" : { "enabled" : true, "value" : 0.6 }
     }
   ],
   "supported-platforms" : { "squares" : [ "macOS" ] }

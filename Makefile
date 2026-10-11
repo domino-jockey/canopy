@@ -32,6 +32,9 @@ install: project ## Build the Release copy, put it in /Applications and open it
 	@$(XCODEBUILD) -quiet -configuration Release -derivedDataPath build/release build
 	@$(MAKE) --no-print-directory stop
 	@ditto $(RELEASE_APP) /Applications/Canopy.app
+	@# Make macOS re-read the app so Finder and the Dock show a changed icon, not a cached old one.
+	@touch /Applications/Canopy.app
+	@/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/Canopy.app
 	@open /Applications/Canopy.app
 	@echo "Installed /Applications/Canopy.app"
 

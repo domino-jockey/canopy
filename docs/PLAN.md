@@ -5,7 +5,7 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 ## Design principles (the rules every screen follows)
 
 1. **System first.** System colours (`.primary`, `.secondary`, window/control backgrounds), SF Pro, SF Symbols, standard controls. Follows light/dark mode. No hard-coded palette.
-2. **Follow the system accent colour.** No brand colours in the app. The app's own AccentColor (green) only shows when the system accent is Multicolor. Exceptions the user asked for: the menu bar leaf is plain black/white, sidebar icons are coloured by group like System Settings.
+2. **Follow the system accent colour.** No brand colours in the app. The app's own AccentColor (green) only shows when the system accent is Multicolor. Exceptions the user asked for: the app icon's leaves are a fixed gold gradient everywhere (Dock included), the menu bar leaf is plain black/white, sidebar icons are coloured by group like System Settings.
 3. **Glass for things that float, never for content:** alert pills, heads-up, break-screen buttons, Clock Out buttons. One glass style each (`.regular`, `.regular.interactive()` for clickable), no tints.
 4. **One shape scale:** capsules for buttons/pills, 12 pt corners for cards, circles for badges. One spacing scale (8/12/16/24).
 5. **Signature, not decoration:** the leaf is the app icon and the menu bar glyph. Everything else stays plain.
@@ -19,14 +19,10 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
    - **Follow-ups:** "Pitch down break end sound" switch (only for sounds without their own end file); menu bar and pointer countdown numbers back to plain, not animated.
 2. ✅ **Phase B, alerts and animation:** heads-up loses the clock badge and gets a bar underneath that drains from full to empty; every rolling number uses the break timer's fade roll (no blur). Later the user asked for the menu bar and pointer countdown not to animate at all.
 3. ✅ **Phase C, messages:** custom messages split into a Short-break and a Long-break list; built-in messages and exercises listed in Settings, each with an on/off switch.
-4. **Phase D, icon (last):** more transparent leaf, no line down its middle, more macOS-like overall. Ask the user for references first.
+4. ✅ **Phase D, icon:** mockup A picked: the same two leaves, see-through glass, no vein, gold gradient (purple was too close to the user's Obsidian). The accent-coloured in-app redraw (`AccentIcon`) is gone; the real icon shows everywhere.
 
 ## Done before
 - ✅ Clean out, printable test checklist, `ARCHITECTURE.md` for the Linux friend.
-
-## Later
-
-- **App icon:** the user says the current two-leaf icon is "off". Ask what's off before changing it. Style references: `resources/icon-references/two-leaves-screenshot.png`, and macOS 27 icons (near-black background, one big coloured glass shape filling ~70–80%). SF Symbols aren't allowed in app icons, so the leaves are our own drawing (`design/make-icon.swift`).
 
 ## Verification (for any change)
 

@@ -21,7 +21,7 @@ A short record of what's built. For *why* things are built this way (and mistake
 - **Schedule** (`Core/DaySchedule.swift`, `Features/ClockOut/`): office hours per weekday, planned breaks (e.g. Lunch 12:30, 45 min), Clock Out screen.
 - **Stats** (`Core/StatsLog.swift`): taken / skipped / snoozed per day; 7-day chart of % skipped + snoozed; streak = days in a row with no skip or snooze. Clear History resets it.
 - **Settings** (`Features/Settings/`): `NavigationSplitView` like System Settings, sidebar icons coloured by group, one page per feature, Preview buttons. **Welcome** window on first launch (`Features/Onboarding/`). **About** page with credits.
-- **Icon** (`design/make-icon.swift`): two green glass leaves on black (Icon Composer file in `Resources/AppIcon.icon`, menu bar leaf in `Assets.xcassets/MenuBarIcon`). Inside the app it's redrawn in the accent colour (`Shared/Accent.swift`). The user thinks it's "off"; to revisit later (ask what's off first).
+- **Icon** (`design/make-icon.swift`): two see-through gold glass leaves on near-black, no vein (Icon Composer file in `Resources/AppIcon.icon`, menu bar leaf in `Assets.xcassets/MenuBarIcon`). The same icon everywhere, Dock included.
 
 ## History
 
@@ -36,6 +36,7 @@ A short record of what's built. For *why* things are built this way (and mistake
 - **Architecture notes:** [`ARCHITECTURE.md`](ARCHITECTURE.md): how the parts fit, which code is portable, Linux equivalents for the Mac-only parts, licences.
 - **Makefile:** `make` commands for build, run, test, install, clean, icon; explained for beginners in [`HOW-TO-BUILD.md`](HOW-TO-BUILD.md).
 - **Clean out:** removed unused code (`Accent.gradient`), the original brief (`PROMPT.md`) and the v1 history archive, and shortened these docs.
+- **October list, Phase D:** icon redone (gold, see-through, no vein); the accent-coloured in-app icon removed.
 - **October list, Phase C:** your own messages split into short-break and long-break lists (old ones copied into both); built-in messages listed in Settings with switches, like exercises.
 - **October list, Phase B:** heads-up without the clock badge, with a bar that drains to the break; one fade roll (`Shared/RollingTime.swift`) for every changing number.
 - **October list, Phase A:** flash without the icon, separate reminder/alert sounds, Reverie sound, leaf dims while idle, Clear History in Stats.

@@ -9,14 +9,15 @@ Test the installed copy (`/Applications/Canopy.app`). Tick each box as you go an
 ## 1. Menu bar and first launch
 
 - [ ] Menu bar shows the leaf and a countdown (`19:42`). Digits just change (no animation) and the text doesn't jiggle.
-- [ ] Leaf is plain black or white (matches the other menu bar icons), in light and dark mode.
+- [ ] Leaf is plain black or white (matches the other menu bar icons), in light and dark mode, with no line down its middle.
+- [ ] App icon (Finder, Dock, About, Welcome): two see-through gold glass leaves on near-black, no line in the leaf; the back leaf shows through the front one.
 - [ ] Menu lists: next break time, Pause, Start break now, Snooze ▸, Skip next break, Settings…, Quit Canopy.
 - [ ] **Pause** → countdown stops, leaf dims, item becomes **Resume**. Resume → countdown continues from where it was.
 - [ ] Leave the Mac untouched for longer than "pause after" idle (default 2 min) → leaf dims. Move the mouse → it brightens again.
 - [ ] **Snooze ▸ 5 min** → countdown grows by 5 minutes.
 - [ ] **Skip next break** → countdown restarts at the full interval.
 - [ ] Settings › General › Menu bar: **Live Status** off → icon only. **Display: Text only** → no leaf. **Timer style: 20m** → `20m` instead of `19:42`. Put them back.
-- [ ] Welcome window: in Terminal run `defaults delete com.jammyjellyfish.BreakReminder hasSeenWelcome`, then quit and reopen Canopy. The welcome window shows the leaf icon in your accent colour; Open Settings and Get Started both work. It doesn't show again on the next launch.
+- [ ] Welcome window: in Terminal run `defaults delete com.jammyjellyfish.BreakReminder hasSeenWelcome`, then quit and reopen Canopy. The welcome window shows the gold leaf icon; Open Settings and Get Started both work. It doesn't show again on the next launch.
 
 ## 2. Settings window
 
@@ -24,7 +25,7 @@ Test the installed copy (`/Applications/Canopy.app`). Tick each box as you go an
 - [ ] Sidebar labels aren't cut off. Icon colours by group: grey (General, About), teal (Screen Breaks, Break Screen, Wellness), purple (Schedule, Smart Pause, Stats), red (Alerts, Sounds), orange (Keyboard Shortcuts).
 - [ ] ‹ › buttons go back and forward through the pages you visited.
 - [ ] Looks right in **light and dark** mode, and next to System Settings it feels like the same kind of window.
-- [ ] System Settings › Appearance › accent colour **Blue**, then **Multicolor**: toggles and tints follow it (Multicolor → green). The Dock icon's leaf changes colour too.
+- [ ] System Settings › Appearance › accent colour **Blue**, then **Multicolor**: toggles and tints follow it (Multicolor → green). The Dock icon stays gold (it doesn't follow the accent).
 - [ ] Every page has a **Preview** button where something can be shown (Alerts, Wellness, Clock Out).
 - [ ] Change a setting, quit Canopy, reopen: the setting is kept.
 

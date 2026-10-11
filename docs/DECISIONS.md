@@ -113,7 +113,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 
 ## Canopy look
 - Colours: system colours and the accent colour everywhere. No palette file, no brand colours.
-- **macOS can't tint an app's own icon to the accent colour.** Finder keeps the fixed (green) icon; `AccentIcon` sets `NSApp.applicationIconImage` to a flat redraw with the leaf in `controlAccentColor`, and redraws on `NSColor.systemColorsDidChangeNotification`. That covers the Dock, About, Welcome and the flash reminder.
+- **The app icon is a fixed gold everywhere** (October 2026, the user's choice). There used to be an `AccentIcon` that redrew the Dock/About/Welcome icon flat in the accent colour (macOS can't tint an app's own icon); it was removed so the real glass icon shows everywhere.
 - **In Swift Charts, `.foregroundStyle(.secondary)` means "secondary of the chart's accent", so labels came out tinted.** Use `Color.secondary` for grey chart text and lines.
 - The selected sidebar row stays a soft grey pill, not the accent colour (the user asked for LookAway's look earlier).
 - **Two copies exist:** `build/…/Debug` (what the restart command opens) and `/Applications` (what you open yourself / Launch at login). After a change the user should see, install to `/Applications` too, or they may be looking at the old copy.

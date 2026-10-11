@@ -13,7 +13,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var timer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        AccentIcon.start()
         let alerts = AlertsController(scheduler: scheduler)
         self.alerts = alerts
         let wellness = WellnessController(scheduler: scheduler)

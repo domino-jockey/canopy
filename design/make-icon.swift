@@ -1,5 +1,5 @@
-// Draws the app icon: two leaves (a big front leaf with a curved vein cut out, a smaller one behind it),
-// each its own Liquid Glass layer, on Icon Composer's dark background. Our own drawing (SF Symbols aren't
+// Draws the app icon: two leaves (a big front leaf, a smaller one behind it), each its own see-through
+// Liquid Glass layer, on Icon Composer's dark background. The back leaf shows through where they overlap. Our own drawing (SF Symbols aren't
 // allowed in app icons). Also writes the menu bar glyph from the same shapes.
 // Usage, from the project root: swift design/make-icon.swift
 // Writes design/icon-mockups/Canopy.icon, copies it to Canopy/Resources/AppIcon.icon, and writes
@@ -8,8 +8,6 @@ import Foundation
 
 // Shapes on a 1024 canvas. Leaves grow from a shared base at the bottom left.
 let front = "M215,830 C150,560 310,250 715,190 C780,520 570,810 215,830 Z"
-// The vein: a thin crescent from near the base towards the tip (cut out of the front leaf).
-let vein = "M255,780 C400,640 520,470 655,265 C545,490 420,660 255,780 Z"
 let back = "M255,840 C450,610 650,530 830,570 C760,770 530,870 255,840 Z"
 
 func svg(_ body: String) -> String {
@@ -32,20 +30,20 @@ let dir = "design/icon-mockups/Canopy.icon"
 try? fm.removeItem(atPath: "design/icon-mockups")
 try! fm.createDirectory(atPath: dir + "/Assets", withIntermediateDirectories: true)
 
-try! svg(gradient("g", "#4ED36F", "#139A3C") + "<path fill=\"url(#g)\" fill-rule=\"evenodd\" d=\"\(front) \(vein)\"/>")
+try! svg(gradient("g", "#FFE36B", "#E8A100") + "<path fill=\"url(#g)\" d=\"\(front)\"/>")
     .write(toFile: dir + "/Assets/front-leaf.svg", atomically: true, encoding: .utf8)
-try! svg(gradient("g", "#2FA654", "#0B6A2A") + "<path fill=\"url(#g)\" d=\"\(back)\"/>")
+try! svg(gradient("g", "#F5C633", "#B87400") + "<path fill=\"url(#g)\" d=\"\(back)\"/>")
     .write(toFile: dir + "/Assets/back-leaf.svg", atomically: true, encoding: .utf8)
 
 // The first group is drawn in front.
-func group(_ name: String, _ image: String, seeThrough: Bool) -> String {
+func group(_ name: String, _ image: String, translucency: Double) -> String {
     """
         {
           "layers" : [ { "glass" : true, "image-name" : "\(image)", "name" : "\(name)" } ],
           "name" : "\(name)",
-          "shadow" : { "kind" : "none", "opacity" : 0 },
+          "shadow" : { "kind" : "neutral", "opacity" : 0.5 },
           "specular" : true,
-          "translucency" : { "enabled" : \(seeThrough), "value" : 0.3 }
+          "translucency" : { "enabled" : true, "value" : \(translucency) }
         }
     """
 }
@@ -58,8 +56,8 @@ let json = """
     ]
   },
   "groups" : [
-\(group("Front leaf", "front-leaf.svg", seeThrough: false)),
-\(group("Back leaf", "back-leaf.svg", seeThrough: true))
+\(group("Front leaf", "front-leaf.svg", translucency: 0.55)),
+\(group("Back leaf", "back-leaf.svg", translucency: 0.6))
   ],
   "supported-platforms" : { "squares" : [ "macOS" ] }
 }
@@ -77,7 +75,7 @@ let menuBar = """
   <defs><mask id="m"><rect x="0" y="0" width="1024" height="1024" fill="#fff"/>
     <path d="\(front)" fill="#000" stroke="#000" stroke-width="44"/></mask></defs>
   <path d="\(back)" fill="#000" mask="url(#m)"/>
-  <path d="\(front) \(vein)" fill="#000" fill-rule="evenodd"/>
+  <path d="\(front)" fill="#000"/>
 </svg>
 
 """
