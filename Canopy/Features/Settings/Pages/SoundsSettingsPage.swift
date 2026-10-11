@@ -19,11 +19,19 @@ struct SoundsSettingsPage: View {
             }
 
             Section {
-                Toggle("Reminder and alert sounds", isOn: settings.reminderSounds)
+                Toggle("Reminder sounds", isOn: settings.reminderSounds)
                 soundPicker("Sound", settings.reminderSound, play: .reminder)
                     .disabled(!scheduler.settings.reminderSounds)
             } footer: {
-                Text("For posture and blink reminders and alert pills. Sounds from BreakTimer and Stretchly.")
+                Text("For posture and blink reminders.")
+            }
+
+            Section {
+                Toggle("Alert sounds", isOn: settings.alertSounds)
+                soundPicker("Sound", settings.alertSound, play: .alert)
+                    .disabled(!scheduler.settings.alertSounds)
+            } footer: {
+                Text("For alert pills, like the heads-up before a break. Sounds from BreakTimer and Stretchly.")
             }
 
             Section("Volume") {

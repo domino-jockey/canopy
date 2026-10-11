@@ -127,9 +127,12 @@ struct TimerSettings: Codable, Equatable {
     var breakSounds = true
     var breakStartSound = SoundChoice.gong
     var breakEndSound = SoundChoice.gong
-    /// Sound for posture/blink reminders and alert pills.
+    /// Sound for posture/blink reminders.
     var reminderSounds = true
     var reminderSound = SoundChoice.blip
+    /// Sound for alert pills.
+    var alertSounds = true
+    var alertSound = SoundChoice.blip
     /// 0 to 1.
     var soundVolume = 0.6
 
@@ -220,6 +223,11 @@ extension TimerSettings {
         read(.breakStartSound, into: &breakStartSound)
         read(.breakEndSound, into: &breakEndSound)
         read(.reminderSound, into: &reminderSound)
+        // Older versions had one sound for reminders and alerts: alerts start with the same one.
+        alertSounds = reminderSounds
+        alertSound = reminderSound
+        read(.alertSounds, into: &alertSounds)
+        read(.alertSound, into: &alertSound)
         read(.soundVolume, into: &soundVolume)
         read(.officeHoursEnabled, into: &officeHoursEnabled)
         read(.officeHours, into: &officeHours)

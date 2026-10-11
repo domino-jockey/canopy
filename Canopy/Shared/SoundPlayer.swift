@@ -5,8 +5,10 @@ import AppKit
 enum SoundPlayer {
     enum Sound {
         case breakStart, breakEnd
-        /// Posture/blink reminders and alert pills.
+        /// Posture/blink reminders.
         case reminder
+        /// Alert pills.
+        case alert
     }
 
     /// Kept so a sound isn't cut off when the next one starts.
@@ -17,6 +19,7 @@ enum SoundPlayer {
         case .breakStart: (settings.breakSounds, settings.breakStartSound.fileName(end: false))
         case .breakEnd: (settings.breakSounds, settings.breakEndSound.fileName(end: true))
         case .reminder: (settings.reminderSounds, settings.reminderSound.fileName(end: false))
+        case .alert: (settings.alertSounds, settings.alertSound.fileName(end: false))
         }
         guard enabled else { return }
         let player = playing[fileName] ?? NSSound(named: fileName)

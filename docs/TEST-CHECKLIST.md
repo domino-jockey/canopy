@@ -12,6 +12,7 @@ Test the installed copy (`/Applications/Canopy.app`). Tick each box as you go an
 - [ ] Leaf is plain black or white (matches the other menu bar icons), in light and dark mode.
 - [ ] Menu lists: next break time, Pause, Start break now, Snooze ▸, Skip next break, Settings…, Quit Canopy.
 - [ ] **Pause** → countdown stops, leaf dims, item becomes **Resume**. Resume → countdown continues from where it was.
+- [ ] Leave the Mac untouched for longer than "pause after" idle (default 2 min) → leaf dims. Move the mouse → it brightens again.
 - [ ] **Snooze ▸ 5 min** → countdown grows by 5 minutes.
 - [ ] **Skip next break** → countdown restarts at the full interval.
 - [ ] Settings › General › Menu bar: **Live Status** off → icon only. **Display: Text only** → no leaf. **Timer style: 20m** → `20m` instead of `19:42`. Put them back.
@@ -85,7 +86,7 @@ Use each section's **Preview** first, then check the real thing by waiting for a
 
 ## 6. Wellness reminders (Settings › Wellness Reminders)
 
-- [ ] Posture and blink **Preview**: every display darkens briefly with the leaf icon (in your accent colour) and the message, then fades. One reminder sound.
+- [ ] Posture and blink **Preview**: every display darkens briefly with just the message (no icon), then fades. One reminder sound.
 - [ ] Enable both with the shortest interval; they come on time while you work, not while you're away.
 - [ ] Both due within a minute → only one flash.
 - [ ] **Make reminders invisible in screen recordings:** start a screen recording (⇧⌘5), Preview → the flash isn't in the recording.
@@ -101,7 +102,8 @@ Use each section's **Preview** first, then check the real thing by waiting for a
 
 - [ ] Each sound menu plays the sound when you pick it; ▶ plays it again.
 - [ ] Volume slider plays a sample when you let go; quieter is quieter.
-- [ ] Break start / end sounds play on a real break; reminder sound on pills and flashes. Toggles off → silent.
+- [ ] **Reverie** is in every sound menu and plays.
+- [ ] Break start / end sounds play on a real break; reminder sound on posture/blink flashes; alert sound on pills. Each toggle only silences its own sounds.
 
 ## 9. Keyboard shortcuts (Settings › Keyboard Shortcuts)
 
@@ -113,6 +115,7 @@ Use each section's **Preview** first, then check the real thing by waiting for a
 - [ ] Today's taken / skipped / snoozed match what you did during this test.
 - [ ] 7-day chart: stacked bars of % skipped and % snoozed; hovering a day shows its numbers.
 - [ ] Streak: 0 after today's skips; days you didn't use the Mac don't break it.
+- [ ] **Clear History…** asks first; Cancel keeps everything. Clear History → all zeros, empty chart, still zeros after quitting and reopening. (Do this last.)
 
 ## 11. Accessibility
 

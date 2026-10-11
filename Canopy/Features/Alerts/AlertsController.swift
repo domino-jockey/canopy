@@ -138,7 +138,7 @@ final class AlertsController {
         if scheduler.settings.alertsAsNotifications && panel !== countdown {
             panel.hide()
             if visible && notified.insert(kind).inserted {
-                SoundPlayer.play(.reminder, settings: scheduler.settings)
+                SoundPlayer.play(.alert, settings: scheduler.settings)
                 notifier.post(kind, model: model)
             } else if !visible && notified.remove(kind) != nil {
                 notifier.remove(kind)
@@ -149,7 +149,7 @@ final class AlertsController {
         guard visible else { return panel.hide() }
         if panel !== countdown { panel.moveToTop(scheduler.settings.alertPosition) }
         // The countdown pill sits alongside the heads-up, which already made a sound.
-        if !panel.isShown && panel !== countdown { SoundPlayer.play(.reminder, settings: scheduler.settings) }
+        if !panel.isShown && panel !== countdown { SoundPlayer.play(.alert, settings: scheduler.settings) }
         panel.show()
     }
 

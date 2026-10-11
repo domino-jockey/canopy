@@ -87,7 +87,22 @@ struct SoundSettingsTests {
         settings.breakStartSound = .windChime
         settings.breakEndSound = .ping
         settings.reminderSound = .ticToc
+        settings.alertSounds = false
+        settings.alertSound = .crystalGlass
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    /// Older versions had one sound for reminders and alerts. Alerts keep what it was.
+    @Test func alertSoundComesFromOldReminderSound() throws {
+        var settings = TimerSettings()
+        settings.reminderSounds = false
+        settings.reminderSound = .gong
+        var json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(settings)) as! [String: Any]
+        json["alertSounds"] = nil
+        json["alertSound"] = nil
+        let loaded = try JSONDecoder().decode(TimerSettings.self, from: JSONSerialization.data(withJSONObject: json))
+        #expect(loaded.alertSounds == false)
+        #expect(loaded.alertSound == .gong)
     }
 }

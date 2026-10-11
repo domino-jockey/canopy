@@ -3,7 +3,7 @@ import Foundation
 /// A sound to pick in settings. BreakTimer's come in a start and an end version; Stretchly's are one file.
 /// See CREDITS.md.
 enum SoundChoice: String, Codable, CaseIterable {
-    case gong, blip, bloop, ping, scifi, crystalGlass, windChime, ticToc
+    case gong, blip, bloop, ping, scifi, crystalGlass, windChime, ticToc, reverie
 
     var title: String {
         switch self {
@@ -15,6 +15,7 @@ enum SoundChoice: String, Codable, CaseIterable {
         case .crystalGlass: "Crystal glass"
         case .windChime: "Wind chime"
         case .ticToc: "Tic-toc"
+        case .reverie: "Reverie"
         }
     }
 
@@ -25,6 +26,7 @@ enum SoundChoice: String, Codable, CaseIterable {
         case .crystalGlass: "crystal_glass"
         case .windChime: "wind_chime"
         case .ticToc: "tic_toc"
+        case .reverie: "reverie"
         }
     }
 }

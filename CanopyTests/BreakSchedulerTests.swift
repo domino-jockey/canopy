@@ -67,8 +67,12 @@ struct BreakSchedulerTests {
     @Test func idleStopsCounting() {
         let clock = FakeClock()
         clock.run(seconds: 600)
+        #expect(!clock.scheduler.isIdle)
         clock.run(seconds: 120, idle: 150)
         #expect(clock.scheduler.workRemaining == 600)
+        #expect(clock.scheduler.isIdle) // dims the menu bar icon
+        clock.run(seconds: 1)
+        #expect(!clock.scheduler.isIdle)
     }
 
     @Test func shorterIdlePauseStopsCountingSooner() {

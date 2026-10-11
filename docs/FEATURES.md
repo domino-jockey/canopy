@@ -203,7 +203,7 @@ Trimmed on purpose: only features worth their build effort. Cuts and simplificat
 | 21 | Planned breaks at fixed times | LookAway | |
 | 22 | Clock Out (end-of-day stop) | DeskRest | |
 | 23 | Stats: breaks taken/skipped today, weekly chart, streak | Both | |
-| 24 | Sounds: one volume, toggles and a choice of 8 sounds for break start, break end and reminders | Both | Sounds from BreakTimer (GPL-3.0) and Stretchly |
+| 24 | Sounds: one volume, toggles and a choice of 9 sounds for break start, break end, reminders and alerts | Both | Sounds from BreakTimer (GPL-3.0) and Stretchly |
 | 27 | Visual style: native macOS (system colours, accent colour, Liquid Glass); leaf app icon | Ours | Replaced the earlier Catppuccin Mocha look and its planned Themes |
 | 25 | Global shortcuts: Pause/Resume, Start break now, Snooze 5 min | Both | |
 | 26 | Launch at login | Both | |

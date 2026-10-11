@@ -12,11 +12,16 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 6. **Typography:** SF Pro for all text; SF Mono for every number.
 7. **Things move in, they don't pop.** Every floating window or view that appears gets a short spring/fade (plain fade with Reduce Motion).
 
-## Next
+## Next (user's October 2026 list)
 
-1. ✅ **Clean out** unused code, outdated docs and build leftovers.
-2. ✅ **Test everything:** a printable `docs/TEST-CHECKLIST.md` (the user will export it to PDF), grouped so related checks happen together ("while the break screen is up, also check…").
-3. ✅ **Linux friend:** a short `docs/ARCHITECTURE.md` explaining the parts, which logic is portable (scheduler, wellness timer, stats, schedule rules: plain Swift, no Mac APIs) and which parts are Mac-only and what the Linux equivalent would be. Plus a licence note (BreakTimer sounds are GPL-3.0).
+1. ✅ **Phase A, small fixes:** flash reminder without the icon; separate sound toggles and pickers for wellness reminders and alerts; menu bar leaf dims while idle (stepped away); Clear History in Stats; Reverie sound added (Stretchly, no licence listed: personal use only).
+   - ⏸ **Shortcuts with `fn`:** on hold. KeyboardShortcuts strips `fn` on purpose and Carbon global hotkeys can't use it; supporting it means replacing the library with our own key listener (needs Input Monitoring permission). Ask the user what they need.
+2. **Phase B, alerts and animation:** heads-up loses the clock badge and gets a bar underneath that drains from full to empty; every rolling number uses the break timer's fade roll (no blur), menu bar included.
+3. **Phase C, messages:** custom messages split into a Short-break and a Long-break list; built-in messages and exercises listed in Settings, each with an on/off switch.
+4. **Phase D, icon (last):** more transparent leaf, no line down its middle, more macOS-like overall. Ask the user for references first.
+
+## Done before
+- ✅ Clean out, printable test checklist, `ARCHITECTURE.md` for the Linux friend.
 
 ## Later
 

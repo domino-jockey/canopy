@@ -45,6 +45,8 @@ final class BreakScheduler {
     /// Goes up by one each time the user comes back after being away long enough to reset the cycle.
     /// The alerts controller watches it to show "Welcome back".
     private(set) var returnsFromIdle = 0
+    /// No input for long enough that work time stopped counting: the user has stepped away.
+    private(set) var isIdle = false
     /// Outside office hours (when they're on): the timer sleeps.
     private(set) var isOffHours = false
     /// Name of the planned break on screen. Nil for regular breaks.
@@ -188,6 +190,8 @@ final class BreakScheduler {
         }
         // Only set when different: every set redraws whatever is watching.
         if smartPauseReason != smartPause { smartPauseReason = smartPause }
+        let idle = awaySeconds >= settings.idlePauseAfter
+        if isIdle != idle { isIdle = idle }
         let offHours = !DaySchedule.isWorkingHours(now, settings: settings)
         if isOffHours != offHours { isOffHours = offHours }
         // After the countdown, so a planned break starting now isn't counted down straight away.
@@ -360,6 +364,12 @@ final class BreakScheduler {
 
     private func record(_ event: StatsLog.Event) {
         stats.record(event, on: lastTick ?? .now)
+        stats.save(to: defaults)
+    }
+
+    /// Clears the stats history (the daily skip limit is left alone).
+    func clearStats() {
+        stats = StatsLog()
         stats.save(to: defaults)
     }
 

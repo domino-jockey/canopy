@@ -27,6 +27,16 @@ struct StatsTests {
         #expect(restarted.stats.day(clock.now).taken == 1)
     }
 
+    @Test func clearingStatsSurvivesRestart() {
+        let defaults = FakeClock.cleanDefaults()
+        let clock = FakeClock(defaults: defaults)
+        clock.run(seconds: 20 * 60 + 20)
+        clock.scheduler.clearStats()
+        #expect(clock.scheduler.stats.day(clock.now).isEmpty)
+        let restarted = BreakScheduler(settings: TimerSettings(), defaults: defaults)
+        #expect(restarted.stats.day(clock.now).isEmpty)
+    }
+
     @Test func lastSevenDaysOldestFirst() {
         var log = StatsLog()
         log.record(.taken, on: day(-6))

@@ -5,6 +5,7 @@ struct StatsSettingsPage: View {
     let scheduler: BreakScheduler
     /// The day under the pointer in the chart.
     @State private var hovered: Date?
+    @State private var confirmingClear = false
 
     private var stats: StatsLog { scheduler.stats }
 
@@ -70,6 +71,15 @@ struct StatsSettingsPage: View {
                 Text("Skipped and snoozed, last 7 days")
             } footer: {
                 Text("Share of each day's breaks you skipped or snoozed: lower is better. Hover over a day to see its numbers. Your streak is how many days in a row you didn't skip or snooze at all (days you didn't use your Mac don't count).")
+            }
+
+            Section {
+                Button("Clear History…", role: .destructive) { confirmingClear = true }
+                    .confirmationDialog("Clear all stats history?", isPresented: $confirmingClear) {
+                        Button("Clear History", role: .destructive) { scheduler.clearStats() }
+                    } message: {
+                        Text("Breaks taken, skipped and snoozed, and your streak, go back to zero. This can't be undone.")
+                    }
             }
         }
     }

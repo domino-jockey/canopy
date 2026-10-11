@@ -10,12 +10,13 @@ struct MenuBarLabel: View {
         HStack(spacing: 4) {
             if time == nil || settings.menuBarDisplay == .iconAndText {
                 // The app icon's leaf, plain black or white like other menu bar icons (Assets.xcassets/MenuBarIcon).
-                // Dimmed while paused or smart-paused.
+                // Dimmed while paused, smart-paused, outside office hours or while you've stepped away.
                 Image("MenuBarIcon")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 15)
-                    .opacity(scheduler.state == .paused || scheduler.isSmartPaused || scheduler.isOffHours ? 0.5 : 1)
+                    .opacity(scheduler.state == .paused || scheduler.isSmartPaused || scheduler.isOffHours
+                             || scheduler.isIdle ? 0.5 : 1)
             }
             if let time {
                 Text(time)

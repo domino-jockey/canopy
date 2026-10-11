@@ -10,16 +10,16 @@ A short record of what's built. For *why* things are built this way (and mistake
 
 - **Scheduler** (`Core/BreakScheduler.swift`, `Core/TimerSettings.swift`): a state machine (stopped / working / on break / paused) with **no clock of its own**. `AppDelegate` calls `tick(now:idleSeconds:)` once a second, so tests can fake "20 minutes later". Counts active screen time only; a gap of more than 10 s between ticks means the Mac slept. Settings are saved in `UserDefaults`; settings saved by an older version keep their values.
 - **Break rules:** Casual / Balanced (Skip unlocks halfway) / Hardcore. Snooze limit per break, daily skip limit, Skip next break, double-Esc action, End Break early, hold until End Break, lock on break start. Typing **"emergency"** skips any break.
-- **Menu bar** (`Features/MenuBar/`): leaf + rolling `19:42` countdown (`NSStatusItem` with a SwiftUI label; `MenuBarExtra` can't animate its label). Live Status, timer style `19:42` / `20m`.
+- **Menu bar** (`Features/MenuBar/`): leaf + rolling `19:42` countdown (`NSStatusItem` with a SwiftUI label; `MenuBarExtra` can't animate its label). Live Status, timer style `19:42` / `20m`. The leaf dims while paused, smart-paused, off hours or idle.
 - **Break screen** (`Features/BreakScreen/`): one window per display, above everything. Live blur fades in, then the blurred wallpaper (or a picture / gradient) and the text. Big rolling timer, thin accent progress bar, message; glass Skip / snooze stack / End Break / Lock buttons at the bottom. Takes the keyboard back if another app comes forward; ⌘Q is refused during a break. Displays plugged in mid-break get covered.
 - **Messages & exercises** (`Core/BreakMessages.swift`): built-in exercises for short and long breaks, plus your own (title + instructions).
 - **Alerts & nudges** (`Features/Alerts/`): heads-up before a break (Start now / +1/+5/+15 min), pointer countdown, overtime nudge, Smart Pause and welcome back pills. Can be shown as macOS notifications instead (except the pointer countdown).
 - **Smart Pause** (`Features/SmartPause/`): holds the timer when the mic/camera is in use, a focus app is in front, or a macOS Focus is on (via Shortcuts automations calling `canopy://focus-on` / `focus-off`; the old `breakreminder://` links still work). Typing hold, cooldown, "pause when away" (30 s / 1 / 2 min), welcome back.
 - **Wellness reminders** (`Features/Wellness/`, `Core/WellnessTimer.swift`): posture and blink as a short screen flash. Due within a minute of each other → one flash.
-- **Sounds** (`Shared/SoundPlayer.swift`, `Core/SoundChoice.swift`): 8 choices each for break start, break end and reminders (`.m4a`, from BreakTimer GPL-3.0 and Stretchly; credits in `Resources/Sounds/CREDITS.md` and About).
+- **Sounds** (`Shared/SoundPlayer.swift`, `Core/SoundChoice.swift`): 9 choices each for break start, break end, reminders and alerts (reminders and alerts have separate toggles) (`.m4a`, from BreakTimer GPL-3.0 and Stretchly; credits in `Resources/Sounds/CREDITS.md` and About).
 - **Keyboard shortcuts** (`Features/Shortcuts/`): Pause/resume, Start break now, Snooze 5 min, via the KeyboardShortcuts package (MIT).
 - **Schedule** (`Core/DaySchedule.swift`, `Features/ClockOut/`): office hours per weekday, planned breaks (e.g. Lunch 12:30, 45 min), Clock Out screen.
-- **Stats** (`Core/StatsLog.swift`): taken / skipped / snoozed per day; 7-day chart of % skipped + snoozed; streak = days in a row with no skip or snooze.
+- **Stats** (`Core/StatsLog.swift`): taken / skipped / snoozed per day; 7-day chart of % skipped + snoozed; streak = days in a row with no skip or snooze. Clear History resets it.
 - **Settings** (`Features/Settings/`): `NavigationSplitView` like System Settings, sidebar icons coloured by group, one page per feature, Preview buttons. **Welcome** window on first launch (`Features/Onboarding/`). **About** page with credits.
 - **Icon** (`design/make-icon.swift`): two green glass leaves on black (Icon Composer file in `Resources/AppIcon.icon`, menu bar leaf in `Assets.xcassets/MenuBarIcon`). Inside the app it's redrawn in the accent colour (`Shared/Accent.swift`). The user thinks it's "off"; to revisit later (ask what's off first).
 
@@ -36,6 +36,7 @@ A short record of what's built. For *why* things are built this way (and mistake
 - **Architecture notes:** [`ARCHITECTURE.md`](ARCHITECTURE.md): how the parts fit, which code is portable, Linux equivalents for the Mac-only parts, licences.
 - **Makefile:** `make` commands for build, run, test, install, clean, icon; explained for beginners in [`HOW-TO-BUILD.md`](HOW-TO-BUILD.md).
 - **Clean out:** removed unused code (`Accent.gradient`), the original brief (`PROMPT.md`) and the v1 history archive, and shortened these docs.
+- **October list, Phase A:** flash without the icon, separate reminder/alert sounds, Reverie sound, leaf dims while idle, Clear History in Stats.
 
 ---
 

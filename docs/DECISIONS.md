@@ -107,7 +107,7 @@ Technical choices, the reasons for them, and mistakes not to repeat. Add to this
 
 ## Assets & licensing
 - BreakTimer (github.com/tom-james-watson/breaktimer-app) is **GPL-3.0**. OK to use its sounds/icons in this personal app. Sharing or selling the app would require publishing its source under GPL.
-- Stretchly's sounds (from freesound.org): crystal glass is **CC BY 3.0 (credit required)**, wind chime and tic-toc CC0. "reverie" was left out: no licence listed. Credits live in `Sounds/CREDITS.md` and the About page.
+- Stretchly's sounds (from freesound.org): crystal glass is **CC BY 3.0 (credit required)**, wind chime and tic-toc CC0. "reverie" (by Seemant Chandra) has no licence listed; added October 2026 at the user's request, fine for personal use. Credits live in `Sounds/CREDITS.md` and the About page.
 - Sounds are stored as AAC `.m4a` (`afconvert -f m4af -d aac -b 128000`), ~10× smaller than WAV. `NSSound(named:)` finds them without the extension.
 
 ## Canopy look

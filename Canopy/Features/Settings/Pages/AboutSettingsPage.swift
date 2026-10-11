@@ -24,7 +24,7 @@ struct AboutSettingsPage: View {
 
             Section("Credits") {
                 credit("Sounds", "BreakTimer by Tom Watson (GPL-3.0)", "https://github.com/tom-james-watson/breaktimer-app")
-                credit("Sounds", "Crystal glass by mlteenie (CC BY 3.0), wind chime by GnoteSoundz and tic-toc by magundah14 (CC0), via Stretchly",
+                credit("Sounds", "Crystal glass by mlteenie (CC BY 3.0), wind chime by GnoteSoundz and tic-toc by magundah14 (CC0) and reverie by Seemant Chandra, via Stretchly",
                        "https://github.com/hovancik/stretchly")
                 credit("Keyboard shortcuts", "KeyboardShortcuts by Sindre Sorhus (MIT)", "https://github.com/sindresorhus/KeyboardShortcuts")
                 credit("Inspired by", "LookAway and DeskRest", "https://lookaway.com")

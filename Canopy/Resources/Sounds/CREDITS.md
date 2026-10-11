@@ -6,4 +6,5 @@ Sounds, converted to AAC (.m4a) to keep the app small:
   - crystal glass by mlteenie (https://freesound.org/people/mlteenie/), CC BY 3.0 (credit required).
   - wind chime by GnoteSoundz (https://freesound.org/people/GnoteSoundz/), CC0.
   - tic-toc by magundah14 (https://freesound.org/people/magundah14/), CC0.
-  - Left out: "reverie" (no licence listed) and "silence" (not needed).
+  - reverie by Seemant Chandra (instagram: piyush.x_x). No licence listed: fine for this personal app, ask before sharing it.
+  - Left out: "silence" (not needed).
