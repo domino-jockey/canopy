@@ -55,7 +55,7 @@ struct BreakContentTests {
     }
 
     @Test func everyExerciseSymbolExists() {
-        for exercise in BreakMessages.allExercises {
+        for exercise in BreakMessages.shortExercises + BreakMessages.longExercises {
             #expect(NSImage(systemSymbolName: exercise.symbol!, accessibilityDescription: nil) != nil, "\(exercise.title)")
         }
     }

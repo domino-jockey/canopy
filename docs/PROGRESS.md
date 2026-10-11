@@ -36,10 +36,11 @@ A short record of what's built. For *why* things are built this way (and mistake
 - **Architecture notes:** [`ARCHITECTURE.md`](ARCHITECTURE.md): how the parts fit, which code is portable, Linux equivalents for the Mac-only parts, licences.
 - **Makefile:** `make` commands for build, run, test, install, clean, icon; explained for beginners in [`HOW-TO-BUILD.md`](HOW-TO-BUILD.md).
 - **Clean out:** removed unused code (`Accent.gradient`), the original brief (`PROMPT.md`) and the v1 history archive, and shortened these docs.
+- **Clean out 2:** `RollingTime` back to fixed-width digits (every user is monospaced now), test-only `allExercises` moved into the test, icon script writes `AppIcon.icon` directly (no `design/icon-mockups` copy).
 - **Alerts without colour:** pill symbols on grey circles, overtime text plain; the heads-up bar keeps the accent colour. The break screen bar now drains from full to empty, like the heads-up's.
 - **October list, Phase D:** icon redone (gold, see-through, no vein); the accent-coloured in-app icon removed.
 - **October list, Phase C:** your own messages split into short-break and long-break lists (old ones copied into both); built-in messages listed in Settings with switches, like exercises.
-- **October list, Phase B:** heads-up without the clock badge, with a bar that drains to the break; one fade roll (`Shared/RollingTime.swift`) for every changing number.
+- **October list, Phase B:** heads-up without the clock badge, with a bar that drains to the break; one fade roll (`Shared/RollingTime.swift`) for changing numbers.
 - **October list, Phase A:** flash without the icon, separate reminder/alert sounds, Reverie sound, leaf dims while idle, Clear History in Stats.
 
 ---

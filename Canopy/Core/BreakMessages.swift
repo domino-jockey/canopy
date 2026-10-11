@@ -40,8 +40,6 @@ enum BreakMessages {
         BreakMessage(title: "Walk and water", subtitle: "Take a short walk and drink a glass of water", symbol: "figure.walk"),
     ]
 
-    static var allExercises: [BreakMessage] { shortExercises + longExercises }
-
     /// Everything a break of this kind could show, given the settings: exercises or the built-in messages
     /// (the ones left on), plus the user's own messages for this kind of break.
     static func pool(for kind: BreakKind, settings: TimerSettings) -> [BreakMessage] {

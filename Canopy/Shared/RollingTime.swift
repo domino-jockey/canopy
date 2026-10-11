@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// A number that rolls when it changes, like the break screen's big timer: the old digit rises away fading
-/// out, while the new one comes up from below fading in. Used for every changing number in the app.
+/// A number that rolls when it changes: the old digit rises away fading out, while the new one comes up from
+/// below fading in. Used by the break screen timer, the heads-up and the stats tiles. Fonts must be monospaced.
 /// `.numericText` redraws the whole view every frame (about 50% CPU on the break screen). Here each digit is
 /// its own layer, drawn once, and Core Animation moves and fades it on its own.
 struct RollingTime: NSViewRepresentable {
@@ -30,11 +30,14 @@ final class RollingTimeView: NSView {
     private var text = ""
     private var digits: [CATextLayer] = []
 
-    private var height: CGFloat { ceil(font.ascender - font.descender) }
+    /// Every character takes the same box: the font is monospaced.
+    private let cell: CGSize
 
     init(font: NSFont, color: NSColor) {
         self.font = font
         self.color = color
+        cell = CGSize(width: ceil(("0" as NSString).size(withAttributes: [.font: font]).width),
+                      height: ceil(font.ascender - font.descender))
         super.init(frame: .zero)
         wantsLayer = true
         setAccessibilityElement(true)
@@ -43,42 +46,31 @@ final class RollingTimeView: NSView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 
-    /// Each character's box: (left edge, width). Digits all have the same width, even in SF Pro.
-    private func columns(for text: String) -> [(x: CGFloat, width: CGFloat)] {
-        var x: CGFloat = 0
-        return text.map { character in
-            let width = ceil((String(character) as NSString).size(withAttributes: [.font: font]).width)
-            defer { x += width }
-            return (x, width)
-        }
-    }
-
     func size(for text: String) -> CGSize {
-        CGSize(width: columns(for: text).last.map { $0.x + $0.width } ?? 0, height: height)
+        CGSize(width: cell.width * CGFloat(text.count), height: cell.height)
     }
 
     func show(_ newText: String, reduceMotion: Bool) {
         guard newText != text else { return }
         setAccessibilityLabel(newText)
         let old = Array(text), new = Array(newText)
-        let oldColumns = columns(for: text), newColumns = columns(for: newText)
         text = newText
 
-        // First time, or the layout changed (10:00 → 9:59): lay the digits out again, no roll.
-        guard oldColumns.map(\.x) == newColumns.map(\.x) else {
+        // First time, or the width changed (10:00 → 9:59): lay the digits out again, no roll.
+        guard old.count == new.count else {
             digits.forEach { $0.removeFromSuperlayer() }
-            digits = new.indices.map { addDigit(new[$0], in: newColumns[$0]) }
+            digits = new.indices.map { addDigit(new[$0], column: $0) }
             return
         }
         for column in new.indices where new[column] != old[column] {
             let leaving = digits[column]
-            let arriving = addDigit(new[column], in: newColumns[column])
+            let arriving = addDigit(new[column], column: column)
             digits[column] = arriving
             roll(out: leaving, in: arriving, reduceMotion: reduceMotion)
         }
     }
 
-    /// Menu bar text switches between black and white with the wallpaper and dark mode.
+    /// Label colours switch between black and white with dark mode.
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         let color = resolvedColor
@@ -91,11 +83,11 @@ final class RollingTimeView: NSView {
         return resolved
     }
 
-    private func addDigit(_ character: Character, in column: (x: CGFloat, width: CGFloat)) -> CATextLayer {
+    private func addDigit(_ character: Character, column: Int) -> CATextLayer {
         let digit = CATextLayer()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        digit.frame = CGRect(x: column.x, y: 0, width: column.width, height: height)
+        digit.frame = CGRect(x: CGFloat(column) * cell.width, y: 0, width: cell.width, height: cell.height)
         digit.string = String(character)
         digit.font = font
         digit.fontSize = font.pointSize
@@ -121,7 +113,7 @@ final class RollingTimeView: NSView {
 
         if !reduceMotion {
             let y = arriving.position.y
-            let rise = height * 0.45
+            let rise = cell.height * 0.45
             leaving.position.y = y + rise
             leaving.add(animation("position.y", from: y, to: y + rise), forKey: "rise")
             arriving.add(animation("position.y", from: y - rise, to: y), forKey: "rise")
