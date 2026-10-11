@@ -73,7 +73,7 @@ struct BreakView: View {
             backgroundLayer
                 .ignoresSafeArea()
 
-            // Big timer, a thin bar of time passed, then the message, centred on the screen.
+            // Big timer, a thin bar of time left, then the message, centred on the screen.
             VStack(spacing: 0) {
                 RollingTime(text: time)
                 BreakProgressBar(progress: display.progress, remaining: display.remaining)
@@ -240,7 +240,7 @@ private struct SkipColumn: View {
     }
 }
 
-/// A thin line that fills with the accent colour as the break passes.
+/// A thin accent-coloured line of time left: full when the break starts, empty when it ends.
 private struct BreakProgressBar: View {
     let progress: Double
     let remaining: TimeInterval
@@ -263,7 +263,8 @@ private struct BarFill: NSViewRepresentable {
         let fill = CALayer()
         fill.anchorPoint = CGPoint(x: 0, y: 0.5)
         fill.position = CGPoint(x: 0, y: size.height / 2)
-        fill.bounds = CGRect(origin: .zero, size: size)
+        // Ends empty: the bar starts full and drains as the break runs out, like the heads-up's.
+        fill.bounds = CGRect(origin: .zero, size: CGSize(width: 0, height: size.height))
         fill.cornerRadius = size.height / 2
         fill.backgroundColor = NSColor.controlAccentColor.cgColor
         return layerHost(fill)
@@ -271,7 +272,7 @@ private struct BarFill: NSViewRepresentable {
 
     func updateNSView(_ view: NSView, context: Context) {
         guard let fill = view.layer?.sublayers?.first else { return }
-        let current = fill.presentation()?.bounds.width ?? size.width * min(1, max(0, progress))
+        let current = fill.presentation()?.bounds.width ?? size.width * (1 - min(1, max(0, progress)))
         glide(fill, "bounds.size.width", from: current, over: remaining)
     }
 }
@@ -319,7 +320,7 @@ private struct RingFill: NSViewRepresentable {
     return view
 }
 
-/// Moves a fill from `start` to its full value over `duration` seconds. Core Animation runs the glide on
+/// Moves a fill from `start` to its final value (empty bar, full ring) over `duration` seconds. Core Animation runs the glide on
 /// its own; animating in SwiftUI instead redraws the whole break screen on the CPU every frame.
 /// Called every tick, so the glide is re-aimed from where the fill is now and never jumps.
 @MainActor private func glide(_ layer: CALayer, _ keyPath: String, from start: CGFloat, over duration: TimeInterval) {

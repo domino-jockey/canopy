@@ -50,8 +50,9 @@ enum SoundPlayer {
         pitch.pitch = -pitchDownSemitones * 100 // in cents
         engine.attach(player)
         engine.attach(pitch)
-        engine.connect(player, to: pitch, format: file.processingFormat)
-        engine.connect(pitch, to: engine.mainMixerNode, format: file.processingFormat)
+        guard (try? engine.connectNode(player, to: pitch, format: file.processingFormat)) != nil,
+              (try? engine.connectNode(pitch, to: engine.mainMixerNode, format: file.processingFormat)) != nil
+        else { return }
         player.volume = volume
         player.scheduleFile(file, at: nil, completionCallbackType: .dataPlayedBack) { _ in
             DispatchQueue.main.async {
@@ -61,8 +62,7 @@ enum SoundPlayer {
                 }
             }
         }
-        guard (try? engine.start()) != nil else { return }
-        player.play()
+        guard (try? engine.start()) != nil, (try? player.playAudio()) != nil else { return engine.stop() }
         pitchedEngine = engine
     }
 }

@@ -35,7 +35,7 @@ While a break is on screen, check:
 
 - [ ] Fades in smoothly: a live blur first, then the blurred wallpaper and text.
 - [ ] Big timer near the middle; digits rise and fade as they change, no bounce.
-- [ ] Thin accent-coloured bar fills smoothly (no jumps), message right under it.
+- [ ] Thin accent-coloured bar starts full and drains smoothly to empty (no jumps), message right under it.
 - [ ] Clock and text don't touch the menu bar area, on every background (wallpaper, picture, gradient).
 - [ ] Buttons at the bottom are Liquid Glass.
 - [ ] Typing does nothing in the app behind (no beeps); ⌘Q doesn't quit Canopy.
@@ -69,9 +69,10 @@ While a break is on screen, check:
 
 Use each section's **Preview** first, then check the real thing by waiting for a break with the countdown set short.
 
-- [ ] **Heads-up:** slides down from the menu bar with a small overshoot, counts down (digits roll and fade), has Start this break now and +1m / +5m / +15m. Each button works. No clock badge. The bar along the bottom (accent colour) starts full and glides down to empty as the break arrives. Slides back up when it goes.
+- [ ] **Heads-up:** slides down from the menu bar with a small overshoot, counts down (digits roll and fade), has Start this break now and +1m / +5m / +15m. Each button works. No clock badge. The bar along the bottom (accent colour, same as the break screen bar) starts full and glides down to empty as the break arrives. Slides back up when it goes.
 - [ ] **Pointer countdown:** follows the mouse, fades in and out, clicks go through it, text is white in dark mode (black in light), the number just changes (no animation).
 - [ ] **Smart Pause alerts** and **Overtime nudge:** Preview shows each; overtime is dismissed by clicking.
+- [ ] No colour on any pill: symbols sit on grey circles, overtime's minutes are plain text. Only the heads-up bar has colour (the accent). Check light and dark mode.
 - [ ] **Position:** top left / center / right cards show your desktop picture; pills move to the chosen spot.
 - [ ] Pills appear on the display the mouse is on.
 - [ ] **Show alerts as: Notifications** → heads-up arrives as a macOS notification with Start Break Now and Snooze buttons (both work); the pointer countdown stays a pill. Switch back to Pills.

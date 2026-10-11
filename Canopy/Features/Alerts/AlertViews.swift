@@ -82,7 +82,7 @@ final class DrainingBarView: NSView {
 
     override var wantsUpdateLayer: Bool { true }
 
-    /// Colours follow light/dark mode and the accent colour.
+    /// A grey track with an accent-coloured fill, like the break screen bar (the one colour the user kept in alerts).
     override func updateLayer() {
         layer?.backgroundColor = NSColor.quaternaryLabelColor.cgColor
         fill.backgroundColor = NSColor.controlAccentColor.cgColor
@@ -142,7 +142,7 @@ struct CountdownAlert: View {
     var body: some View {
         let seconds = max(0, Int(model.secondsToBreak.rounded()))
         HStack(spacing: 8) {
-            AlertIcon(symbol: "leaf.fill", color: .green)
+            AlertIcon(symbol: "leaf.fill")
             // Not animated, unlike the heads-up: the user prefers this number to just change.
             Text("\(model.breakKind == .long ? "Long" : "Short") break in \(Text("\(seconds)").monospaced())")
                 .font(.headline)
@@ -160,11 +160,10 @@ struct OvertimeAlert: View {
     var body: some View {
         Button(action: onDismiss) {
             HStack(spacing: 10) {
-                AlertIcon(symbol: "bolt.fill", color: .orange)
+                AlertIcon(symbol: "bolt.fill")
                 VStack(alignment: .leading, spacing: 0) {
                     Text("\(Text("\(model.minutesWithoutBreak)").monospaced()) \(model.minutesWithoutBreak == 1 ? "minute" : "minutes")")
                         .font(.headline)
-                        .foregroundStyle(.orange)
                     Text("without a break")
                         .foregroundStyle(.secondary)
                 }
@@ -190,8 +189,7 @@ struct SmartPauseAlert: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            AlertIcon(symbol: model.smartPause == nil ? "play.fill" : "pause.fill",
-                      color: model.smartPause == nil ? .green : .blue)
+            AlertIcon(symbol: model.smartPause == nil ? "play.fill" : "pause.fill")
             Text(Self.title(for: model.smartPause)).font(.headline)
         }
         .alertPill()
@@ -204,7 +202,7 @@ struct WelcomeBackAlert: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            AlertIcon(symbol: "hand.wave.fill", color: .yellow)
+            AlertIcon(symbol: "hand.wave.fill")
             VStack(alignment: .leading, spacing: 0) {
                 Text("Welcome back").font(.headline)
                 Text("That counted as a break. Next one in \(Text(TimeFormat.clock(model.secondsToBreak)).monospaced()).")
@@ -215,17 +213,16 @@ struct WelcomeBackAlert: View {
     }
 }
 
-/// White symbol on a small circle in a system colour.
+/// A symbol on a small grey circle. No colour: the user wants alerts plain.
 private struct AlertIcon: View {
     let symbol: String
-    let color: Color
 
     var body: some View {
         Image(systemName: symbol)
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
             .frame(width: 26, height: 26)
-            .background(color, in: Circle())
+            .background(.quaternary, in: Circle())
     }
 }
 

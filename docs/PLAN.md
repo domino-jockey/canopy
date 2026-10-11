@@ -5,7 +5,7 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 ## Design principles (the rules every screen follows)
 
 1. **System first.** System colours (`.primary`, `.secondary`, window/control backgrounds), SF Pro, SF Symbols, standard controls. Follows light/dark mode. No hard-coded palette.
-2. **Follow the system accent colour.** No brand colours in the app. The app's own AccentColor (green) only shows when the system accent is Multicolor. Exceptions the user asked for: the app icon's leaves are a fixed gold gradient everywhere (Dock included), the menu bar leaf is plain black/white, sidebar icons are coloured by group like System Settings.
+2. **Follow the system accent colour.** No brand colours in the app. The app's own AccentColor (green) only shows when the system accent is Multicolor. Exceptions the user asked for: the app icon's leaves are a fixed gold gradient everywhere (Dock included), the menu bar leaf is plain black/white, alerts and nudges are plain greys (no colour, not even the accent) except the heads-up bar, which uses the accent like the break screen bar, sidebar icons are coloured by group like System Settings.
 3. **Glass for things that float, never for content:** alert pills, heads-up, break-screen buttons, Clock Out buttons. One glass style each (`.regular`, `.regular.interactive()` for clickable), no tints.
 4. **One shape scale:** capsules for buttons/pills, 12 pt corners for cards, circles for badges. One spacing scale (8/12/16/24).
 5. **Signature, not decoration:** the leaf is the app icon and the menu bar glyph. Everything else stays plain.
