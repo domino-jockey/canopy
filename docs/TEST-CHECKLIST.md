@@ -8,7 +8,7 @@ Test the installed copy (`/Applications/Canopy.app`). Tick each box as you go an
 
 ## 1. Menu bar and first launch
 
-- [ ] Menu bar shows the leaf and a countdown (`19:42`). Digits roll up and fade (no blur), the same as the break screen timer, and the text doesn't jiggle. In light and dark mode the digits are readable (black/white like the clock).
+- [ ] Menu bar shows the leaf and a countdown (`19:42`). Digits just change (no animation) and the text doesn't jiggle.
 - [ ] Leaf is plain black or white (matches the other menu bar icons), in light and dark mode.
 - [ ] Menu lists: next break time, Pause, Start break now, Snooze ▸, Skip next break, Settings…, Quit Canopy.
 - [ ] **Pause** → countdown stops, leaf dims, item becomes **Resume**. Resume → countdown continues from where it was.
@@ -69,7 +69,7 @@ While a break is on screen, check:
 Use each section's **Preview** first, then check the real thing by waiting for a break with the countdown set short.
 
 - [ ] **Heads-up:** slides down from the menu bar with a small overshoot, counts down (digits roll and fade), has Start this break now and +1m / +5m / +15m. Each button works. No clock badge. The bar along the bottom (accent colour) starts full and glides down to empty as the break arrives. Slides back up when it goes.
-- [ ] **Pointer countdown:** follows the mouse, fades in and out, clicks go through it, text is white in dark mode (black in light), the number rolls and fades and sits level with the words.
+- [ ] **Pointer countdown:** follows the mouse, fades in and out, clicks go through it, text is white in dark mode (black in light), the number just changes (no animation).
 - [ ] **Smart Pause alerts** and **Overtime nudge:** Preview shows each; overtime is dismissed by clicking.
 - [ ] **Position:** top left / center / right cards show your desktop picture; pills move to the chosen spot.
 - [ ] Pills appear on the display the mouse is on.
@@ -105,6 +105,7 @@ Use each section's **Preview** first, then check the real thing by waiting for a
 - [ ] Each sound menu plays the sound when you pick it; ▶ plays it again.
 - [ ] Volume slider plays a sample when you let go; quieter is quieter.
 - [ ] **Reverie** is in every sound menu and plays.
+- [ ] **Pitch down break end sound:** greyed out for Gong, Blip, Bloop, Ping, Sci-fi (they already have a lower end sound). Pick Crystal glass as the end sound, turn it on → ▶ plays it lower. Turn it off → normal.
 - [ ] Break start / end sounds play on a real break; reminder sound on posture/blink flashes; alert sound on pills. Each toggle only silences its own sounds.
 
 ## 9. Keyboard shortcuts (Settings › Keyboard Shortcuts)

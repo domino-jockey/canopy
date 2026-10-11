@@ -19,6 +19,14 @@ enum SoundChoice: String, Codable, CaseIterable {
         }
     }
 
+    /// BreakTimer's sounds have their own (lower) end version; Stretchly's are the same file at both ends.
+    var hasEndVersion: Bool {
+        switch self {
+        case .gong, .blip, .bloop, .ping, .scifi: true
+        case .crystalGlass, .windChime, .ticToc, .reverie: false
+        }
+    }
+
     /// The sound file's name in the app bundle.
     func fileName(end: Bool) -> String {
         switch self {

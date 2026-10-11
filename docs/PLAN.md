@@ -15,8 +15,9 @@ The Canopy redesign is done (see `PROGRESS.md`). This file keeps the design rule
 ## Next (user's October 2026 list)
 
 1. ✅ **Phase A, small fixes:** flash reminder without the icon; separate sound toggles and pickers for wellness reminders and alerts; menu bar leaf dims while idle (stepped away); Clear History in Stats; Reverie sound added (Stretchly, no licence listed: personal use only).
-   - ⏸ **Shortcuts with `fn`:** on hold. KeyboardShortcuts strips `fn` on purpose and Carbon global hotkeys can't use it; supporting it means replacing the library with our own key listener (needs Input Monitoring permission). Ask the user what they need.
-2. ✅ **Phase B, alerts and animation:** heads-up loses the clock badge and gets a bar underneath that drains from full to empty; every rolling number uses the break timer's fade roll (no blur), menu bar included.
+   - ✗ **Shortcuts with `fn`:** dropped by the user (KeyboardShortcuts strips `fn` on purpose; Carbon global hotkeys can't use it).
+   - **Follow-ups:** "Pitch down break end sound" switch (only for sounds without their own end file); menu bar and pointer countdown numbers back to plain, not animated.
+2. ✅ **Phase B, alerts and animation:** heads-up loses the clock badge and gets a bar underneath that drains from full to empty; every rolling number uses the break timer's fade roll (no blur). Later the user asked for the menu bar and pointer countdown not to animate at all.
 3. ✅ **Phase C, messages:** custom messages split into a Short-break and a Long-break list; built-in messages and exercises listed in Settings, each with an on/off switch.
 4. **Phase D, icon (last):** more transparent leaf, no line down its middle, more macOS-like overall. Ask the user for references first.
 

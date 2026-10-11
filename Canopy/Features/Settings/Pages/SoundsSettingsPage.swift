@@ -14,8 +14,13 @@ struct SoundsSettingsPage: View {
                 Group {
                     soundPicker("Break starts", settings.breakStartSound, play: .breakStart)
                     soundPicker("Break ends", settings.breakEndSound, play: .breakEnd)
+                    Toggle("Pitch down break end sound", isOn: settings.pitchDownBreakEnd)
+                        .onChange(of: scheduler.settings.pitchDownBreakEnd) { SoundPlayer.play(.breakEnd, settings: scheduler.settings) }
+                        .disabled(scheduler.settings.breakEndSound.hasEndVersion)
                 }
                 .disabled(!scheduler.settings.breakSounds)
+            } footer: {
+                Text("Pitch down is for Crystal glass, Wind chime, Tic-toc and Reverie. The other sounds already have their own lower end sound.")
             }
 
             Section {

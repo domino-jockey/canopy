@@ -143,12 +143,10 @@ struct CountdownAlert: View {
         let seconds = max(0, Int(model.secondsToBreak.rounded()))
         HStack(spacing: 8) {
             AlertIcon(symbol: "leaf.fill", color: .green)
-            HStack(spacing: 4) {
-                Text("\(model.breakKind == .long ? "Long" : "Short") break in")
-                RollingTime(text: "\(seconds)", font: .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .bold),
-                            color: .labelColor) // white in dark mode, black in light
-            }
-            .font(.headline)
+            // Not animated, unlike the heads-up: the user prefers this number to just change.
+            Text("\(model.breakKind == .long ? "Long" : "Short") break in \(Text("\(seconds)").monospaced())")
+                .font(.headline)
+                .foregroundStyle(.primary) // white in dark mode, black in light
         }
         .alertPill()
     }

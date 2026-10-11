@@ -127,6 +127,9 @@ struct TimerSettings: Codable, Equatable {
     var breakSounds = true
     var breakStartSound = SoundChoice.gong
     var breakEndSound = SoundChoice.gong
+    /// Play the break end sound lower, so it's easy to tell from the start sound. Only for sounds without
+    /// their own end version (those are already lower).
+    var pitchDownBreakEnd = false
     /// Sound for posture/blink reminders.
     var reminderSounds = true
     var reminderSound = SoundChoice.blip
@@ -228,6 +231,7 @@ extension TimerSettings {
         read(.reminderSounds, into: &reminderSounds)
         read(.breakStartSound, into: &breakStartSound)
         read(.breakEndSound, into: &breakEndSound)
+        read(.pitchDownBreakEnd, into: &pitchDownBreakEnd)
         read(.reminderSound, into: &reminderSound)
         // Older versions had one sound for reminders and alerts: alerts start with the same one.
         alertSounds = reminderSounds

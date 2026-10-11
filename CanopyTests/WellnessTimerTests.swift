@@ -89,8 +89,17 @@ struct SoundSettingsTests {
         settings.reminderSound = .ticToc
         settings.alertSounds = false
         settings.alertSound = .crystalGlass
+        settings.pitchDownBreakEnd = true
         settings.save(to: defaults)
         #expect(TimerSettings.load(from: defaults) == settings)
+    }
+
+    @Test func everySoundFileIsInTheApp() {
+        for sound in SoundChoice.allCases {
+            for end in [false, true] {
+                #expect(Bundle.main.url(forResource: sound.fileName(end: end), withExtension: "m4a") != nil, "\(sound)")
+            }
+        }
     }
 
     /// Older versions had one sound for reminders and alerts. Alerts keep what it was.

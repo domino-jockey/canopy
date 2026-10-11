@@ -19,13 +19,11 @@ struct MenuBarLabel: View {
                              || scheduler.isIdle ? 0.5 : 1)
             }
             if let time {
-                RollingTime(text: time,
-                            font: .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular),
-                            color: .labelColor)
+                // Not animated: the user prefers the menu bar clock to just change.
+                Text(time).monospacedDigit()
             }
         }
         .font(.body)
-        .animation(.default, value: time)
         .padding(.horizontal, 8)
         .fixedSize()
     }
