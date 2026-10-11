@@ -60,7 +60,9 @@ While a break is on screen, check:
 
 - [ ] Background **Blurred wallpaper**, **Picture** (Choose… a photo), **Gradient**: each shows on the next break.
 - [ ] Exercises on → short breaks show an eye/neck exercise, long breaks a get-up one. Turning one off means it doesn't come up.
-- [ ] Add your own exercise with a title and instructions → it shows up on breaks (try a few), instructions under the title. Remove it.
+- [ ] Exercises off → the Built-in lists switch to plain messages (5 short, 3 long), each with a switch. Turning one off means it doesn't come up. Turn exercises back on.
+- [ ] **My short-break messages:** add one with a title and instructions → it shows up on short breaks only (try a few), instructions under the title. **My long-break messages:** same, long breaks only. Remove them.
+- [ ] Your old custom messages (from before this update) appear in both lists.
 
 ## 4. Alerts and nudges (Settings › Alerts / Nudges)
 

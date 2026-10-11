@@ -42,14 +42,17 @@ enum BreakMessages {
 
     static var allExercises: [BreakMessage] { shortExercises + longExercises }
 
-    /// Everything a break of this kind could show, given the settings: exercises (the ones left on) or the
-    /// built-in messages, plus the user's own messages.
+    /// Everything a break of this kind could show, given the settings: exercises or the built-in messages
+    /// (the ones left on), plus the user's own messages for this kind of break.
     static func pool(for kind: BreakKind, settings: TimerSettings) -> [BreakMessage] {
-        let exercises = (kind == .long ? longExercises : shortExercises)
-            .filter { !settings.disabledExercises.contains($0.title) }
-        let builtIn = settings.showExercises && !exercises.isEmpty ? exercises : (kind == .long ? long : short)
-        let own = settings.customMessages.filter { !$0.title.isEmpty }
-        return builtIn + own
+        let on = { (list: [BreakMessage]) in list.filter { !settings.disabledExercises.contains($0.title) } }
+        let exercises = on(kind == .long ? longExercises : shortExercises)
+        let messages = on(kind == .long ? long : short)
+        let builtIn = settings.showExercises && !exercises.isEmpty ? exercises : messages
+        let own = (kind == .long ? settings.customLongMessages : settings.customShortMessages).filter { !$0.title.isEmpty }
+        // Everything turned off: the built-in messages, so a break always has something to say.
+        let pool = builtIn + own
+        return pool.isEmpty ? (kind == .long ? long : short) : pool
     }
 
     static func random(for kind: BreakKind, settings: TimerSettings) -> BreakMessage {

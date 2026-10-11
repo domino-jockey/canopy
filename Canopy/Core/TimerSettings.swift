@@ -151,10 +151,11 @@ struct TimerSettings: Codable, Equatable {
     var backgroundImagePath: String?
     /// Breaks show an exercise instead of a plain message.
     var showExercises = true
-    /// Titles of built-in exercises turned off.
+    /// Titles of built-in exercises and messages turned off.
     var disabledExercises: Set<String> = []
-    /// The user's own exercises or messages, added to the mix: a title and optional instructions.
-    var customMessages: [BreakMessage] = []
+    /// The user's own exercises or messages for each kind of break, added to the mix: a title and optional instructions.
+    var customShortMessages: [BreakMessage] = []
+    var customLongMessages: [BreakMessage] = []
 
     func reminder(_ kind: WellnessKind) -> WellnessReminder {
         kind == .posture ? posture : blink
@@ -175,6 +176,11 @@ struct TimerSettings: Codable, Equatable {
 }
 
 extension TimerSettings {
+    /// Keys only older versions saved.
+    private enum OldKeys: String, CodingKey {
+        case customMessages
+    }
+
     /// Reads each field on its own, so saved data from an older version (missing a newer
     /// field) keeps its other values instead of failing to load and resetting everything.
     init(from decoder: Decoder) throws {
@@ -238,10 +244,15 @@ extension TimerSettings {
         read(.breakBackground, into: &breakBackground)
         read(.showExercises, into: &showExercises)
         read(.disabledExercises, into: &disabledExercises)
-        read(.customMessages, into: &customMessages)
-        // Older versions saved just a title for each.
-        if let titles = try? container.decode([String].self, forKey: .customMessages) {
-            customMessages = titles.map { BreakMessage(title: $0, subtitle: "") }
+        read(.customShortMessages, into: &customShortMessages)
+        read(.customLongMessages, into: &customLongMessages)
+        // Older versions had one list for both kinds of break (before that, just a title for each).
+        let old = try decoder.container(keyedBy: OldKeys.self)
+        let oldMessages = (try? old.decode([BreakMessage].self, forKey: .customMessages))
+            ?? (try? old.decode([String].self, forKey: .customMessages))?.map { BreakMessage(title: $0, subtitle: "") }
+        if let oldMessages, !container.contains(.customShortMessages) {
+            customShortMessages = oldMessages
+            customLongMessages = oldMessages
         }
         backgroundImagePath = try? container.decode(String.self, forKey: .backgroundImagePath)
         // "No limit" (nil) is saved by leaving the key out, so a missing key means nil here.
